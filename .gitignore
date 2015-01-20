@@ -1,0 +1,8 @@
+/bin
+/assets
+/gen
+/lint.xml
+/.classpath
+/.settings
+/proguard
+/.apt_generated
