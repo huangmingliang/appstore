@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent" android:layout_height="50dip">
+    <com.weibo.common.RemoteImageView android:id="@+id/iconView" android:layout_height="wrap_content" android:layout_width="wrap_content"  android:layout_gravity="center_vertical"></com.weibo.common.RemoteImageView>
+    <LinearLayout android:layout_height="wrap_content" android:id="@+id/RowLayout" android:orientation="vertical" android:layout_width="wrap_content" android:layout_weight="1" android:layout_marginLeft="3dip" android:layout_marginTop="3dip" android:layout_marginBottom="3dip" android:layout_gravity="center_vertical">
+    	<TextView android:id="@+id/name" android:layout_height="wrap_content" android:layout_width="fill_parent" android:textSize="14dip" android:textColor="@color/black" android:textStyle="bold" android:ellipsize="end" android:singleLine="true"></TextView>
+   		<TextView android:id="@+id/date" android:layout_height="wrap_content" android:layout_width="fill_parent" android:textSize="10dip" android:textColor="@color/black" android:singleLine="true" android:layout_marginTop="10dip"></TextView>
+   		
+    </LinearLayout>
+   <TextView android:id="@+id/download" android:layout_width="wrap_content" android:layout_height="wrap_content"
+    android:focusable="false"  android:singleLine="true"
+      android:clickable="true" android:focusableInTouchMode="true"
+    android:textSize="12dip" android:textColor="@color/black" android:text="@string/freedownload" android:textStyle="italic" android:layout_gravity="bottom"></TextView>
+  <TextView android:id="@+id/textview" android:layout_width="5dip" android:layout_height="wrap_content"    android:text="" ></TextView>
+</LinearLayout>

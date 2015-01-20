@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical"
+    android:layout_width="fill_parent" android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android" android:background="@color/bgcolor">
+    <LinearLayout android:layout_height="wrap_content" android:id="@+id/linearLayout5" android:layout_width="match_parent" android:background="@drawable/lnew_tophead">
+        <TextView android:id="@+id/textView5" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="10dip" android:layout_gravity="center_vertical" android:text="@string/app_name" android:textColor="@color/white" android:textSize="16dip"></TextView>
+        <TextView android:id="@+id/textView6" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:layout_gravity="center_vertical" android:text="@string/tuijian" android:textColor="@color/white" android:textSize="16dip"></TextView>
+        <ImageView android:layout_height="wrap_content" android:layout_width="wrap_content" android:src="@drawable/lnew_search1" android:layout_gravity="center_vertical" android:layout_marginRight="10dip" android:id="@+id/imageSearchView"></ImageView>
+    </LinearLayout>
+ 
+     
+    <LinearLayout android:id="@+id/linearLayout10" android:layout_width="fill_parent" android:background="@drawable/lnew_tophead1" android:layout_height="wrap_content">
+        <LinearLayout android:id="@+id/linearLayout11" android:layout_width="280dip" android:layout_gravity="center_vertical" android:layout_marginLeft="20dip" android:layout_height="wrap_content">
+        <Button android:id="@+id/qltjbutton" android:layout_width="93dip" android:layout_height="wrap_content" android:layout_gravity="center_vertical" android:text="@string/qianglituijian" android:textSize="15dip" android:background="@drawable/lnew_curpaihangsel" android:textColor="@color/white"></Button>
+        <Button android:id="@+id/zttjbutton" android:layout_width="94dip" android:layout_height="wrap_content" android:layout_gravity="center_vertical" android:textSize="15dip" android:text="@string/zhuantituijian" android:background="@drawable/lnew_curpaihangnosel" android:textColor="@color/noselcolor"></Button>
+         <Button android:id="@+id/zxtjbutton" android:layout_width="93dip" android:layout_height="wrap_content" android:layout_gravity="center_vertical" android:textSize="15dip" android:text="@string/zuixinshangjia" android:background="@drawable/lnew_curpaihangnosel" android:textColor="@color/noselcolor"></Button>
+        
+         
+      </LinearLayout>
+     </LinearLayout>
+      <LinearLayout android:id="@+id/linearLayout6" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="1">
+         
+     	     <ListView android:layout_width="fill_parent"
+		android:id="@+id/listView"   android:layout_height="fill_parent"></ListView>
+         
+      </LinearLayout>
+ <LinearLayout android:id="@+id/linearLayout0" android:layout_width="fill_parent" android:background="@drawable/lnew_buttombj" android:layout_height="wrap_content" android:layout_gravity="bottom">
+           <LinearLayout android:id="@+id/linearLayout1"  android:layout_width="80dip" android:orientation="vertical" android:layout_height="wrap_content">
+               <ImageView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/imageView1" android:layout_gravity="center_horizontal" android:src="@drawable/lnew_meausel1"></ImageView>
+              <TextView android:id="@+id/textView1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/tuijian" android:layout_gravity="center_horizontal" android:textColor="@color/noselcolor" android:layout_marginTop="-15dip" android:textSize="15dip"></TextView>
+           </LinearLayout>
+         <LinearLayout android:id="@+id/linearLayout2"  android:layout_width="80dip" android:orientation="vertical" android:layout_height="wrap_content">
+               <ImageView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/imageView2" android:layout_gravity="center_horizontal" android:src="@drawable/lnew_meaunosel2"></ImageView>
+              <TextView android:id="@+id/textView2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:textColor="@color/white" android:layout_marginTop="-15dip" android:textSize="15dip" android:text="@string/type"></TextView>
+           </LinearLayout>
+            <LinearLayout android:id="@+id/linearLayout3"  android:layout_width="80dip" android:orientation="vertical" android:layout_height="wrap_content">
+               <ImageView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/imageView3" android:layout_gravity="center_horizontal" android:src="@drawable/lnew_meaunosel3"></ImageView>
+              <TextView android:id="@+id/textView3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:textColor="@color/white" android:layout_marginTop="-15dip" android:textSize="15dip" android:text="@string/top"></TextView>
+           </LinearLayout>
+            <LinearLayout android:id="@+id/linearLayout4"  android:layout_width="80dip" android:orientation="vertical" android:layout_height="wrap_content">
+               <ImageView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/imageView4" android:layout_gravity="center_horizontal" android:src="@drawable/lnew_meaunosel4"></ImageView>
+              <TextView android:id="@+id/textView4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:text="@string/search" android:textColor="@color/white" android:layout_marginTop="-15dip" android:textSize="15dip"></TextView>
+           </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

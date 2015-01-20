@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<color name="red">#FF0000</color> 
+<color name="white">#FFFFFF</color>
+<color name="black">#000000</color>
+<color name="deliver">#DFDFDF</color>
+<color name="itemname">#0B3D00</color>
+<color name="itemintro">#9B9B9B</color>
+
+
+<color name="bgcolor">#eeeeee</color>
+<color name="noselcolor">#014056</color>
+
+</resources>

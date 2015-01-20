@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.zyitong.AppStore"
+    android:versionCode="1"
+    android:versionName="1.0"
+     >
+    <!-- android:sharedUserId="android.uid.system"  -->
+    <!-- <uses-permission android:name="android.permission.INSTALL_PACKAGES"/> --> 
+
+    <!-- 连接互联网权限 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- 在SDCard中创建与删除文件权限 -->
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <!-- 往SDCard写入数据权限 -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WRITE_OWNER_DATA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+    <uses-permission android:name="com.android.launcher.permission.UNINSTALL_SHORTCUT" />
+    
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    
+    <application
+        android:name="com.zyitong.AppStore.WeiBoApplication"
+        android:icon="@drawable/icon"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity android:name=".activity.UpdateActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".activity.MainActivity" />
+        <activity android:name=".activity.SearchActivity"
+            android:launchMode="singleTop" />
+        
+        <service android:name=".notify.DownLoadService"
+            android:process="com.zyitong.AppStore.WeiBoApplication.downloadservice" />
+        <service android:name=".service.UpdateMGService"
+            android:label="UpdateMGService"
+            android:icon="@drawable/icon"
+            android:enabled="true"
+            android:exported="true">
+        </service>
+        <receiver android:name="com.zyitong.AppStore.receiver.StartBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <category android:name="android.intent.category.HOME" />
+                
+            </intent-filter>
+        </receiver>
+   
+    </application>
+   
+
+</manifest>

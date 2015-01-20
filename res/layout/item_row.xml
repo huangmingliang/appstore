@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#ffffff" >
+
+    <com.zyitong.AppStore.common.RemoteImageView
+        android:id="@+id/iconView"
+        android:layout_width="50dip"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="10dip"
+        android:layout_marginTop="10dip" 
+        android:src="@drawable/loading_imageview">
+    </com.zyitong.AppStore.common.RemoteImageView>
+
+    <LinearLayout
+        android:id="@+id/RowLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="top"
+        android:layout_marginBottom="10dip"
+        android:layout_marginLeft="10dip"
+        android:layout_marginTop="10dip"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="应用名称"
+            android:textColor="@color/black"
+            android:textSize="18dip" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/textFileSizeView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dip"
+            android:singleLine="true"
+            android:text="4.00M"
+            android:textColor="#777777"
+            android:textSize="14dip" >
+        </TextView>
+
+        <LinearLayout
+            android:id="@+id/linearLayout1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <View
+                android:id="@+id/starView1"
+                android:layout_width="15dip"
+                android:layout_height="15dip"
+                android:background="@drawable/star02"
+                android:layout_marginRight="2dip" />
+
+            <View
+                android:id="@+id/starView2"
+                android:layout_width="15dip"
+                android:layout_height="15dip"
+                android:background="@drawable/star02"
+                android:layout_marginRight="2dip" />
+            <View
+                android:id="@+id/starView3"
+                android:layout_width="15dip"
+                android:layout_height="15dip"
+                android:background="@drawable/star02"
+                android:layout_marginRight="2dip" />
+            <View
+                android:id="@+id/starView4"
+                android:layout_width="15dip"
+                android:layout_height="15dip"
+                android:background="@drawable/star02"
+                android:layout_marginRight="2dip" />
+            <View
+                android:id="@+id/starView5"
+                android:layout_width="15dip"
+                android:layout_height="15dip"
+                android:background="@drawable/star02"
+                android:layout_marginRight="2dip" />
+           
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/progressBar1"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="1dip"
+            android:layout_marginRight="10dip"
+            android:visibility="gone" >
+        </ProgressBar>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/linearLayout3"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" >
+
+        <Button
+            android:id="@+id/imageDownloadView"
+            android:layout_width="75dip"
+            android:layout_height="35dip"
+            android:layout_centerVertical="true"
+            android:background="@drawable/load_button"
+            android:focusable="true"
+            android:text="安  装"
+            android:textColor="@color/white"
+            android:textSize="15sp" >
+        </Button>
+    </RelativeLayout>
+
+</LinearLayout>
