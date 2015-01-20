@@ -1,11 +1,7 @@
 package com.zyitong.AppStore;
 
-
-
-
 import android.app.Application;
 import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
 
 import com.zyitong.AppStore.common.DownloadLink;
@@ -15,9 +11,7 @@ import com.zyitong.AppStore.common.RequestCache;
 import com.zyitong.AppStore.http.api.Caller;
 import com.zyitong.AppStore.notify.DownLoadService;
 
-
-
-public class WeiBoApplication extends Application {
+public class WeiBoApplication extends Application 
 	public static String TAG = "AppStore";
 	//public static String GET_API="http://192.168.1.104:8080/";
 	public static String GET_API="http://wap.vebclub.com/";//œ¬‘ÿÕº∆¨
