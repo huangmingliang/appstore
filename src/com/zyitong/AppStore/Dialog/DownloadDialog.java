@@ -13,7 +13,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.zyitong.AppStore.WeiBoApplication;
+import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.activity.MainActivity;
 import com.zyitong.AppStore.activity.SearchActivity;
 import com.zyitong.AppStore.common.FileDownloadJob;
@@ -77,8 +77,8 @@ public class DownloadDialog extends Dialog {
 					MyHandler handler = new MyHandler(data);
 					NoticData noticData = new NoticData();
 					noticData.setFileDownloadJob(data);
-					noticData.setHandler(handler);
-					WeiBoApplication.getInstance().getDownloadLink().addNode(noticData);
+					
+					AppStoreApplication.getInstance().getDownloadLink().addNode(noticData);
 				}
 				//send();
 			}
@@ -104,17 +104,17 @@ public class DownloadDialog extends Dialog {
         		Log.d("MainActivity", "values="+msg.arg1);
         		notification.contentView.setProgressBar(R.id.progressBar1, 100, msg.arg1, false);  
         		notification.contentView.setTextViewText(R.id.textView1,  dldata.getName()+"  ½ø¶È"+msg.arg1 + "%");
-        		//WeiBoApplication.getInstance().getManager().notify(dldata.getId(), notification);
+        		//AppStoreApplication.getInstance().getManager().notify(dldata.getId(), notification);
         		System.out.println("MainActivity download progress = "+msg.arg1);
         	}
         	
             if (msg.arg1 == 100) {  
-            	// WeiBoApplication.getInstance().getManager().cancel(dldata.getId()); 
+            	// AppStoreApplication.getInstance().getManager().cancel(dldata.getId()); 
                  util.DowloadComplete(dldata);
             }else if(msg.arg1 == -1) { 
                   opt.deleteFile(dldata.getFilename());
-                  WeiBoApplication.getInstance().getDownloadLink().delNode(dldata.getId());
-                  //WeiBoApplication.getInstance().getManager().cancel(dldata.getId()); 
+                  AppStoreApplication.getInstance().getDownloadLink().delNode(dldata.getId());
+                  //AppStoreApplication.getInstance().getManager().cancel(dldata.getId()); 
                   
             }
          

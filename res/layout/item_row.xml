@@ -6,12 +6,12 @@
 
     <com.zyitong.AppStore.common.RemoteImageView
         android:id="@+id/iconView"
-        android:layout_width="50dip"
-        android:layout_height="match_parent"
+        android:layout_width="65dip"
+        android:layout_height="65dip"
         android:layout_gravity="center_vertical"
         android:layout_marginBottom="10dip"
         android:layout_marginTop="10dip" 
-        android:src="@drawable/loading_imageview">
+        >
     </com.zyitong.AppStore.common.RemoteImageView>
 
     <LinearLayout
@@ -100,22 +100,19 @@
         </ProgressBar>
     </LinearLayout>
 
-    <RelativeLayout
-        android:id="@+id/linearLayout3"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent" >
+    
 
         <Button
             android:id="@+id/imageDownloadView"
             android:layout_width="75dip"
             android:layout_height="35dip"
-            android:layout_centerVertical="true"
+            android:layout_marginTop="24dip"
             android:background="@drawable/load_button"
             android:focusable="true"
             android:text="安  装"
             android:textColor="@color/white"
             android:textSize="15sp" >
         </Button>
-    </RelativeLayout>
+    
 
 </LinearLayout>

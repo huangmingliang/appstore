@@ -4,7 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 
-import com.zyitong.AppStore.WeiBoApplication;
+import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.common.ItemData;
 import com.zyitong.AppStore.common.TypeData;
 import com.zyitong.AppStore.common.VersionData;
@@ -15,7 +15,7 @@ import com.zyitong.AppStore.loading.WSError;
 //GET_API="http://wap.vebclub.com/";//œ¬‘ÿÕº∆¨
 //GETIMAGE_API="http://www.vebclub.com/";
 public class HttpApiImple {
-	private static String GET_API =WeiBoApplication.GET_API;
+	private static String GET_API =AppStoreApplication.GET_API;
 	private String doGet(String query) throws WSError{
 		if(query.startsWith("http://"))
 			return  Caller.doGet(query);

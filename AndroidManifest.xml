@@ -22,7 +22,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     
     <application
-        android:name="com.zyitong.AppStore.WeiBoApplication"
+        android:name="com.zyitong.AppStore.AppStoreApplication"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
@@ -33,12 +33,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.MainActivity" />
+        <activity android:screenOrientation="portrait"
+            android:name=".activity.MainActivity" />
         <activity android:name=".activity.SearchActivity"
             android:launchMode="singleTop" />
         
-        <service android:name=".notify.DownLoadService"
-            android:process="com.zyitong.AppStore.WeiBoApplication.downloadservice" />
+        <service android:name=".notify.DownLoadService"/>
         <service android:name=".service.UpdateMGService"
             android:label="UpdateMGService"
             android:icon="@drawable/icon"

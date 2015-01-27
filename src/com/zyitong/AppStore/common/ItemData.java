@@ -25,6 +25,13 @@ public class ItemData implements Serializable{
 	private String ver;
 	private int buttonFileflag;
 	
+	public static int APP_READ = 0;//初始化状态（只读了指定目录下文件大小，有些标志位没有设置）
+	public static int APP_INSTALED = 1;//安装
+	public static int APP_OPEN = 2;//打开
+	public static int APP_LOADING = 3;//下载中
+	public static int APP_FAIL = 4;//安装失败
+	public static int APP_NETWORKEX = 5;//下载请求超时、网络异常、IO异常
+	
 	
 	public int getButtonFileflag() {
 		return buttonFileflag;

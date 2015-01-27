@@ -2,7 +2,7 @@ package com.zyitong.AppStore.common;
 
 import java.util.LinkedList;
 
-import com.zyitong.AppStore.WeiBoApplication;
+import com.zyitong.AppStore.AppStoreApplication;
 
 public class DownloadLink {
 	LinkedList<NoticData> data = new LinkedList<NoticData>();
@@ -31,6 +31,10 @@ public class DownloadLink {
 		setAddNum();
 		return data.get(i);
 	}
+	
+	public NoticData getNoticData(int i){
+		return data.get(i);
+	}
 	public NoticData getNode() {
 	
 		for(int i=0;i<getSize();i++)
@@ -45,6 +49,7 @@ public class DownloadLink {
 	}
 	public void addNode(NoticData itemData)
 	{
+		//setAddNum();
 		data.add(itemData);
 	}
 	public void delNode(NoticData itemData)
@@ -76,7 +81,7 @@ public class DownloadLink {
 		}
 	}
 	
-	public boolean findNode(int  id)
+	public boolean findNode(int id)
 	{
 		for(int i=0;i<data.size();i++)
 		{
@@ -106,7 +111,7 @@ public class DownloadLink {
 			data.get(i).getFileDownloadJob().setRun(false);
 			if(data.get(i).getFileDownloadJob().getStatus()==0)
 			{
-				//WeiBoApplication.getInstance().getManager().cancel(data.get(i).getFileDownloadJob().getId());
+				//AppStoreApplication.getInstance().getManager().cancel(data.get(i).getFileDownloadJob().getId());
 				data.remove(i);
 			}
 			

@@ -1,17 +1,23 @@
 package com.zyitong.AppStore;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import android.app.Application;
 import android.app.NotificationManager;
 import android.content.Intent;
+import android.util.Log;
 
+import com.zyitong.AppStore.common.CurrentDownloadJobManager;
 import com.zyitong.AppStore.common.DownloadLink;
+import com.zyitong.AppStore.common.FileDownloadJob;
 import com.zyitong.AppStore.common.ImageCache;
 import com.zyitong.AppStore.common.PamaterCache;
 import com.zyitong.AppStore.common.RequestCache;
 import com.zyitong.AppStore.http.api.Caller;
 import com.zyitong.AppStore.notify.DownLoadService;
 
-public class WeiBoApplication extends Application {
+public class AppStoreApplication extends Application {
 	public static String TAG = "AppStore";
 	//public static String GET_API="http://192.168.1.104:8080/";
 	public static String GET_API="http://wap.vebclub.com/";//œ¬‘ÿÕº∆¨
@@ -19,17 +25,23 @@ public class WeiBoApplication extends Application {
 	public static String UserHeader="v2";
 	public static String Version="v1.0.0";
 	public static int perPageNum =6;
-	private static WeiBoApplication instance;
+	private static AppStoreApplication instance;
 	private static String WeiBoRoot = android.os.Environment.getExternalStorageDirectory().getAbsolutePath()+"/AppStore/";
 	private ImageCache mImageCache;
 	private RequestCache mRequestCache;
 	private PamaterCache mPamaterCache;
 	private DownloadLink mDownloadLink;
 	private String imei;
-	 private  NotificationManager manager = null;  
+	private  NotificationManager manager = null;
+	private CurrentDownloadJobManager currentDownloadJobList;
+	
+	
 	/*public NotificationManager getManager() {
 		return manager;
 	}*/
+	
+	
+	
 
 	public String getFilePath(int type)
 	{
@@ -59,11 +71,12 @@ public class WeiBoApplication extends Application {
 	public void setImei(String imei) {
 		this.imei = imei;
 	}
-	public static WeiBoApplication getInstance() {
+	public static AppStoreApplication getInstance() {
 		return instance;
 	}
 	@Override
 	public void onCreate() {
+		Log.e("AppStoreApplication", "=======AppStoreApplication onCreate=======");
 		super.onCreate();
 		mImageCache = new ImageCache();
 		mRequestCache = new RequestCache();
@@ -71,6 +84,7 @@ public class WeiBoApplication extends Application {
 		mPamaterCache = new PamaterCache();
 		Caller.setRequestCache(mRequestCache);
 		mDownloadLink = new DownloadLink();
+		currentDownloadJobList = new CurrentDownloadJobManager();
 		 manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE); 
 		instance = this;
 		startService();
@@ -85,8 +99,18 @@ public class WeiBoApplication extends Application {
 	}
 	public DownloadLink getDownloadLink()
 	{
-		return mDownloadLink;
+		synchronized (mDownloadLink) {
+			return mDownloadLink;
+		}
+		
 	}
+	public CurrentDownloadJobManager getCurrentDownloadJobManager(){
+		synchronized (currentDownloadJobList) {
+			return currentDownloadJobList;
+		}
+		
+	}
+	
 	public String getFileName(String filename)
 	{
 		int index = filename.lastIndexOf("/");

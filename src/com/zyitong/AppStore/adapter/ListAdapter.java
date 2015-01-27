@@ -24,8 +24,9 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.R;
-import com.zyitong.AppStore.WeiBoApplication;
+
 import com.zyitong.AppStore.common.FileDownloadJob;
 import com.zyitong.AppStore.common.FileOpt;
 import com.zyitong.AppStore.common.ItemData;
@@ -49,7 +50,11 @@ public class ListAdapter extends BaseAdapter {
 	private OnLoadButtonListener monLoadButtonListener;
 	private UtilFun util = null;
 	private FileOpt opt;
-	private ViewHolder holder;
+	
+	private static String TEXT_INSTALL = "安  装";
+	private static String TEXT_OPEN = "打  开";
+	
+	private List<dLoadButtonTextofRadio>dlButtontextlist;
 
 	public ListAdapter(Context context, List<ItemData> itemList,
 			ListView listView, String className) {
@@ -80,8 +85,9 @@ public class ListAdapter extends BaseAdapter {
 		mIconSize = (int) mContext.getResources().getDimension(
 				R.dimen.icon_size);
 		mData = new ArrayList<Map<String, Object>>();
+		dlButtontextlist = new ArrayList<ListAdapter.dLoadButtonTextofRadio>();
 		for (int i = 0; i < itemList.size(); i++) {
-			if (itemList.get(i).getName() != null) {
+			
 				Map<String, Object> map = new HashMap<String, Object>();
 				map.put("name", itemList.get(i).getName());
 				map.put("star", itemList.get(i).getStar());
@@ -91,16 +97,14 @@ public class ListAdapter extends BaseAdapter {
 				map.put("downloadnum",
 						Util.getDownloadNum(itemList.get(i).getDownloadnum()));
 				map.put("mic", itemList.get(i).getMcid());
-				mData.add(map);
-			}
-		}
-
+				mData.add(map);			
+		}		
 	}
 
 	public void addData(List<ItemData> itemDataList) {
 		this.itemList = itemDataList;
 		for (int i = mData.size(); i < itemDataList.size(); i++) {
-			if (itemList.get(i).getName() != null) {
+			
 				Map<String, Object> map = new HashMap<String, Object>();
 				map.put("name", itemList.get(i).getName());
 				map.put("star", itemList.get(i).getStar());
@@ -111,7 +115,10 @@ public class ListAdapter extends BaseAdapter {
 						Util.getDownloadNum(itemList.get(i).getDownloadnum()));
 				map.put("mic", itemList.get(i).getMcid());
 				mData.add(map);
-			}
+				dLoadButtonTextofRadio dl = new dLoadButtonTextofRadio();
+				dl.setRadio("0");
+				dlButtontextlist.add(dl);
+		
 		}
 	}
 
@@ -141,306 +148,127 @@ public class ListAdapter extends BaseAdapter {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		// Log.e("ListAdapter","getView()");
+		//Log.e("ListAdapter","getView().position = "+position);
 		// TODO Auto-generated method stub
-		if(views[position]!=null){
-			return views[position];
-		}else{
-			
-			final ItemData indexData = itemList.get(position);
-			int mcid = indexData.getMcid();
-			String filename = WeiBoApplication.getInstance().getFilePath(mcid)
-					+ WeiBoApplication.getInstance().getFileName(
-							indexData.getFilename());
-			final int positionn = position;
-			
+		final ViewHolder holder;
+		final ItemData indexData = itemList.get(position);	
+		if(convertView==null){
+					
 			holder = new ViewHolder();
 			convertView = mInflater.inflate(R.layout.item_row, null);
-
 			holder.iconView = (RemoteImageView) convertView
 					.findViewById(R.id.iconView);
-			LayoutParams lp = holder.iconView.getLayoutParams();
-			lp.height = 65;
-			lp.width = 65;
-
-			holder.iconView.setLayoutParams(lp);
-
+			
 			holder.name = (TextView) convertView.findViewById(R.id.name);
-			/*
-			 * holder.loadProgressBar = (ProgressBar) convertView
-			 * .findViewById(R.id.progressBar1);
-			 */
-
 			holder.textFileSizeView = (TextView) convertView
 					.findViewById(R.id.textFileSizeView);
-			// holder.textDownloadNumView = (TextView) convertView
-			// .findViewById(R.id.textDownloadNumView);
+			
 			holder.imageDownloadView = (Button) convertView
 					.findViewById(R.id.imageDownloadView);
-
+			
 			holder.imageView1 = (View) convertView.findViewById(R.id.starView1);
 			holder.imageView2 = (View) convertView.findViewById(R.id.starView2);
 			holder.imageView3 = (View) convertView.findViewById(R.id.starView3);
 			holder.imageView4 = (View) convertView.findViewById(R.id.starView4);
 			holder.imageView5 = (View) convertView.findViewById(R.id.starView5);
 			
-			int star = Integer.parseInt(mData.get(position).get("star")
-					.toString());
-			setStar(holder, star);
-
-			holder.textFileSizeView.setText(mData.get(position).get("filesize")
-					.toString());
-			holder.uri = filename;
-
-			holder.name.setText(mData.get(position).get("name").toString());
-
-			// setRatingBarStar(holder, star);
-
-			int mic = Integer.parseInt(mData.get(position).get("mic")
-					.toString());
-			if (mic == 5) {
-				holder.iconView.setImageUrl3(mData.get(position)
-						.get("iconView").toString(), position, listView);
-			} else {
-				holder.iconView.setImageUrl(mData.get(position).get("iconView")
-						.toString(), position, listView);
-			}
-
-			// 测试图片分辨率
-			testSetPicture(position, holder);
-
-			switch (indexData.getButtonFileflag()) {
-			/*
-			 * case 0: holder.imageDownloadView.setText("下  载"); break;
-			 */
-			case 1:
-				holder.imageDownloadView.setText("安  装");
-				holder.imageDownloadView
-						.setBackgroundResource(R.drawable.load_button);
-				break;
-			case 2:
-				holder.imageDownloadView.setText("打  开");
-				holder.imageDownloadView
-						.setBackgroundResource(R.drawable.open_button);
-				break;
-
-			default:
-				break;
-			}
-
-			holder.imageDownloadView.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(final View v) {
-					System.out.println("click button = " + positionn);
-
-					final ListView lv = (ListView) (v.getParent().getParent()
-							.getParent());
-					final Button dlbutton = (Button) v;
-					if (lv != null) {
-						int mcid = indexData.getMcid();
-						String filename = WeiBoApplication.getInstance()
-								.getFilePath(mcid)
-								+ WeiBoApplication.getInstance().getFileName(
-										indexData.getFilename());
-
-						if (dlbutton.getText().equals("安  装")) {
-							if (opt.exists(filename))
-								opt.deleteFile(filename);
-							int position = lv.getPositionForView(v);
-							dlbutton.setText("0%");
-							dlbutton.setBackgroundResource(R.drawable.loading_button);
-							String contextstring = mContext.toString();
-							FileDownloadJob data = util.DataChange(indexData,
-									contextstring.substring(
-											contextstring.lastIndexOf(".") + 1,
-											contextstring.indexOf("@")));
-							if (data != null) {
-
-								MyHandler handler = new MyHandler(data,
-										dlbutton);
-								NoticData noticData = new NoticData();
-								noticData.setFileDownloadJob(data);
-								noticData.setHandler(handler);
-								WeiBoApplication.getInstance()
-										.getDownloadLink().addNode(noticData);
-							}
-							/*
-							 * System.out.println("ListAdapter setup filename = "
-							 * + filename);
-							 * 
-							 * Intent intent = new
-							 * Intent(android.content.Intent.ACTION_VIEW);
-							 * intent.setDataAndType(Uri.fromFile(new
-							 * File(filename)),
-							 * "application/vnd.android.package-archive");
-							 * mContext.startActivity(intent); try {
-							 * if(util.isAppInstalled(filename,mContext))
-							 * dlbutton.setText("打  开"); } catch
-							 * (NameNotFoundException e) { // TODO
-							 * Auto-generated catch block e.printStackTrace(); }
-							 */
-						} else /*
-								 * if (dlbutton.getText().equals("下  载")) {
-								 * if(opt.exists(filename))
-								 * opt.deleteFile(filename);
-								 * dlbutton.setText("安装中..."); int position =
-								 * lv.getPositionForView(v);
-								 * System.out.println("ListAdapter download app : "
-								 * + indexData.getFilename()); //
-								 * clickProcc(position); String contextstring =
-								 * mContext.toString();
-								 * 
-								 * FileDownloadJob data =
-								 * util.DataChange(indexData,
-								 * contextstring.substring(
-								 * contextstring.lastIndexOf(".") + 1,
-								 * contextstring.indexOf("@")));
-								 * 
-								 * if (data != null) {
-								 * 
-								 * MyHandler handler = new MyHandler(data,
-								 * position); NoticData noticData = new
-								 * NoticData();
-								 * noticData.setFileDownloadJob(data);
-								 * noticData.setHandler(handler);
-								 * WeiBoApplication
-								 * .getInstance().getDownloadLink()
-								 * .addNode(noticData); } } else
-								 */if (dlbutton.getText().equals("打  开")) {
-							try {
-								if (util.isAppInstalled(filename, mContext)) {
-									String packageName = util.getPackageName(
-											filename, mContext);
-									util.openApp(packageName, mContext);
-								}
-							} catch (NameNotFoundException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-
-						}
-
-					}
-				}
-			});
-			
-			convertView.setTag(holder);
-			
-			views[position] = convertView;
-			
+			convertView.setTag(holder);					
+		}else{
+			holder = (ViewHolder) convertView.getTag();							
 		}
-		return views[position];
-		
-		
-		
-		
-	
-		
-
-		
-
-		// holder.ratingBar1 = (RatingBar)
-		// convertView.findViewById(R.id.ratingBar1);
-		// holder.imageView6 = (ImageView)
-		// convertView.findViewById(R.id.imageView6);
-
-		// holder.textDownloadNumView.setText(mData.get(position)
-		// .get("downloadnum").toString());
+		setView(holder, position, indexData);		
+		return convertView;
 
 	}
+	
+	private void setView(ViewHolder holder, int position,final ItemData indexData){
+		
+		final int positionn = position;
+		int mcid = indexData.getMcid();
+		String filename = AppStoreApplication.getInstance().getFilePath(mcid)+
+				AppStoreApplication.getInstance().getFileName(
+						indexData.getFilename());
+		int star = indexData.getStar();
+		setStar(holder, star);
 
-	private class MyHandler extends Handler {
-		// private Notification notification;
-		private FileDownloadJob dldata;
-		private int index;
-		private Button buttonView;
+		holder.textFileSizeView.setText(mData.get(position).get("filesize")
+				.toString());
+		holder.uri = filename;
 
-		public MyHandler(FileDownloadJob dldata, Button buttonView) {
-			this.dldata = dldata;
-			// notification = this.dldata.getNotification();
-			this.index = index;
-			this.buttonView = buttonView;
+		holder.name.setText(mData.get(position).get("name").toString());
+		holder.iconView.setDefaultImage(R.drawable.loading_imageview);
+		
+		// 测试图片分辨率
+		//testSetPicture(positionn, holder);
+				
+		int mic = Integer.parseInt(mData.get(position).get("mic")
+				.toString());
+		if (mic == 5) {
+			holder.iconView.setImageUrl3(mData.get(position)
+					.get("iconView").toString(), position, listView);
+		} else {
+			holder.iconView.setImageUrl(mData.get(position).get("iconView")
+					.toString(), position, listView);
 		}
+		
+		if(position!=2)
+			holder.iconView.setImageUrl("http://img.r1.market.hiapk.com/data/upload/2014/07_16/15/72_72_201407161548386365.png");
+		else
+			holder.iconView.setImageUrl("http://img.r1.market.hiapk.com/data/upload/2014/12_24/13/72_72_201412241343308502.png");
 
-		@Override
-		public void handleMessage(Message msg) {
-
-			int progress = msg.arg1;
-			// ViewHolder holder = (ViewHolder) view.getTag();
-
-			if (msg.arg1 > 0 && msg.arg1 <= 100) {
-				System.out.println("current item = " + index);
-
-				Log.d("ListAdapter", "values=" + msg.arg1);
-				/*
-				 * notification.contentView.setProgressBar(R.id.progressBar1,
-				 * 100, msg.arg1, false);
-				 * notification.contentView.setTextViewText(R.id.textView1,
-				 * dldata.getName() + "  进度" + msg.arg1 + "%");
-				 */
-				/*
-				 * WeiBoApplication.getInstance().getManager()
-				 * .notify(dldata.getId(), notification);
-				 */
-				// View view = listView.getChildAt(index);
-
-				// holder.imageDownloadView.setText(msg.arg1+"%");
-				// holder.imageDownloadView.setBackgroundResource(R.drawable.loading_button);
-				buttonView.setText(msg.arg1 + "%");
-				buttonView.setBackgroundResource(R.drawable.loading_button);
-
-				// holder.loadProgressBar.setVisibility(View.VISIBLE);
-				// holder.loadProgressBar.setProgress(msg.arg1);
-				// holder.imageDownloadView.setText("下载中...");
-				// System.out.println("ListAdapter handleMessage : "+holder.imageDownloadView.getText());
-				// holder.imageDownloadView.setEnabled(false);
-				updateView(index, msg.arg1);
+		//testSetPicture(position, holder);
+		setDownloadButtonByflag(holder, positionn, indexData);
+				
+		holder.imageDownloadView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(final View v) {
+				System.out.println("click button = " + positionn);				
+				final Button dlbutton = (Button) v;				
+					int mcid = indexData.getMcid();									
+					String filename =AppStoreApplication.getInstance().getFilePath(mcid)+AppStoreApplication.getInstance().getFileName(indexData.getFilename());
+					if (dlbutton.getText().equals(TEXT_INSTALL)) {
+						
+						setdownloadButtonBackground(dlbutton, "0%", R.drawable.loading_button);
+						
+						String contextstring = mContext.toString();
+						FileDownloadJob data = util.DataChange(indexData,
+								contextstring.substring(
+										contextstring.lastIndexOf(".") + 1,
+										contextstring.indexOf("@")));
+						if (data != null) {							
+							NoticData noticData = new NoticData();
+							noticData.setFileDownloadJob(data);
+							AppStoreApplication.getInstance().getDownloadLink().addNode(noticData);
+						}
+						
+					} else if (dlbutton.getText().equals(TEXT_OPEN)) {
+						try {
+							if (util.isAppInstalled(filename, mContext)) {
+								String packageName = util.getPackageName(
+										filename, mContext);
+								util.openApp(packageName, mContext);
+							}
+						} catch (NameNotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}			
 			}
-
-			if (msg.arg1 == 100) {
-				// WeiBoApplication.getInstance().getManager().cancel(dldata.getId());
-				util.DowloadComplete(dldata);
-
-				/*
-				 * holder.loadProgressBar.setVisibility(View.GONE);
-				 * holder.imageDownloadView.setText("打  开");
-				 * holder.imageDownloadView
-				 * .setBackgroundResource(R.drawable.open_button);
-				 */
-				buttonView.setText("打  开");
-				buttonView.setBackgroundResource(R.drawable.open_button);
-
-				// util.onClick_install(holder.uri);
-				// util.onClick_install(holder.uri);
-				// System.out.println("ListAdapter holder.uri : "+holder.uri);
-				// System.out.println("ListAdapter handleMessage : "+holder.imageDownloadView.getText());
-				// holder.imageDownloadView.setEnabled(true);
-				updateView(index, progress);
-			} else if (msg.arg1 == -1) {
-				opt.deleteFile(dldata.getFilename());
-				WeiBoApplication.getInstance().getDownloadLink()
-						.delNode(dldata.getId());
-				/*
-				 * WeiBoApplication.getInstance().getManager()
-				 * .cancel(dldata.getId());
-				 */
-				// Log.e("ListAdapter","咦，你的网络出现问题了");
-				Toast.makeText(mContext, "咦，你的网络出现问题了!", Toast.LENGTH_SHORT)
-						.show();
-
-				/*
-				 * holder.loadProgressBar.setVisibility(View.GONE);
-				 * holder.imageDownloadView
-				 * .setBackgroundResource(R.drawable.load_button);
-				 * holder.imageDownloadView.setText("安  装");
-				 */
-				buttonView.setText("安  装");
-				buttonView.setBackgroundResource(R.drawable.load_button);
-
-			}
-
-		}
-	};
+		});
+								
+	}
+	
+	public void updateSingleRow(int position,String radio,int status){
+		
+		Log.e("ListAdapter", "updateSingleRow");
+	
+			//View view = listView.getChildAt(position);	
+			Log.e("ListAdapter",dlButtontextlist.get(position).getRadio() );
+			dlButtontextlist.get(position).setRadio(radio);
+			itemList.get(position).setButtonFileflag(status);
+			notifyDataSetChanged();
+			//getView(position, view, listView);
+	}
 
 	public final class ViewHolder {
 		public RemoteImageView iconView;
@@ -452,7 +280,7 @@ public class ListAdapter extends BaseAdapter {
 		public View imageView3;
 		public View imageView4;
 		public View imageView5;
-		public RatingBar ratingBar1;
+		
 
 		// public TextView textDownloadNumView;
 		public TextView textFileSizeView;
@@ -461,31 +289,38 @@ public class ListAdapter extends BaseAdapter {
 
 	}
 
-	private void updateView(int index, int progress) {
-
-	}
-
+	
 	private void setStar(ViewHolder holder, int star) {
-
+		
 		switch (star) {
 
 		case 1:
 			holder.imageView1.setBackgroundResource(R.drawable.star01);
+			holder.imageView2.setBackgroundResource(R.drawable.star02);
+			holder.imageView3.setBackgroundResource(R.drawable.star02);
+			holder.imageView4.setBackgroundResource(R.drawable.star02);
+			holder.imageView5.setBackgroundResource(R.drawable.star02);			
 			break;
 		case 2:
 			holder.imageView1.setBackgroundResource(R.drawable.star01);
 			holder.imageView2.setBackgroundResource(R.drawable.star01);
+			holder.imageView3.setBackgroundResource(R.drawable.star02);
+			holder.imageView4.setBackgroundResource(R.drawable.star02);
+			holder.imageView5.setBackgroundResource(R.drawable.star02);
 			break;
 		case 3:
 			holder.imageView1.setBackgroundResource(R.drawable.star01);
 			holder.imageView2.setBackgroundResource(R.drawable.star01);
 			holder.imageView3.setBackgroundResource(R.drawable.star01);
+			holder.imageView4.setBackgroundResource(R.drawable.star02);
+			holder.imageView5.setBackgroundResource(R.drawable.star02);
 			break;
 		case 4:
 			holder.imageView1.setBackgroundResource(R.drawable.star01);
 			holder.imageView2.setBackgroundResource(R.drawable.star01);
 			holder.imageView3.setBackgroundResource(R.drawable.star01);
 			holder.imageView4.setBackgroundResource(R.drawable.star01);
+			holder.imageView5.setBackgroundResource(R.drawable.star02);
 			break;
 		case 5:
 			holder.imageView1.setBackgroundResource(R.drawable.star01);
@@ -506,6 +341,7 @@ public class ListAdapter extends BaseAdapter {
 	}
 
 	private void testSetPicture(int position, ViewHolder holder) {
+		//Log.e("ListAdapter", "testSetPicture'position = "+position);
 		switch (position) {
 		case 0:
 			holder.iconView.setDefaultImage(R.drawable.qiyi_icon);
@@ -527,9 +363,82 @@ public class ListAdapter extends BaseAdapter {
 			break;
 
 		default:
-			//holder.iconView.setDefaultImage(R.drawable.loading_imageview);
+			holder.iconView.setDefaultImage(R.drawable.loading_imageview);
 			break;
 		}
+
+	}
+	
+	private void setDownloadButtonByflag(ViewHolder holder,int position,final ItemData indexData){
+		String getText = (String) holder.imageDownloadView.getText();
+		switch (indexData.getButtonFileflag()) {
+		//需要初始化的下载任务
+		case 0:
+			AppStoreApplication.getInstance().getCurrentDownloadJobManager().completeCurrentDownLoadInfo(indexData);
+            break;
+		
+		//未安装
+		case 1:
+			setdownloadButtonBackground(holder.imageDownloadView, TEXT_INSTALL, R.drawable.load_button);
+			break;
+		//安装好，可打开
+		case 2:		
+			setdownloadButtonBackground(holder.imageDownloadView, TEXT_OPEN, R.drawable.open_button);
+			AppStoreApplication.getInstance().getCurrentDownloadJobManager().removeDownloadJob(util.getFileName(indexData.getFilename()));
+			break;
+		//下载中
+		case 3:	
+			setdownloadButtonBackground(holder.imageDownloadView, dlButtontextlist.get(position).getRadio()+"%", R.drawable.loading_button);	
+			break;
+		//安装失败
+		case 4:
+			setdownloadButtonBackground(holder.imageDownloadView, TEXT_INSTALL, R.drawable.load_button);
+			
+			//将该app下载信息从当前下载列表中移除
+			AppStoreApplication.getInstance().getCurrentDownloadJobManager().removeDownloadJob(util.getFileName(indexData.getFilename()));
+			break;
+		//app下载过程中网络请求超时或者网络突然断开
+		case 5:
+			//当网络连接之后重新下载该app，但是下载百分比不变，就把它放在下载队列中，重新下载
+			//判断当前下载百分比，如果当前百分比如果大于获取到的百分比，那么不变，否则改变
+			
+			if(getText.endsWith("%")){
+				int charposition = getText.indexOf('%')-1;
+				String currentRadioStr = getText.substring(0, charposition);
+				
+				int currentradio = Integer.valueOf(currentRadioStr);
+				int getradio = Integer.valueOf(dlButtontextlist.get(position).getRadio());
+				
+				if(currentradio<getradio||currentradio==getradio){
+					setdownloadButtonBackground(holder.imageDownloadView, dlButtontextlist.get(position).getRadio()+"%", R.drawable.loading_button);
+				}
+			}	
+			break;
+		default:
+			break;
+		}
+	}
+	
+	private class dLoadButtonTextofRadio{
+		String radio;
+
+		public String getRadio() {
+			synchronized (this) {
+				return radio;
+			}
+			
+		}
+
+		public void setRadio(String radio) {
+			synchronized (this) {
+				this.radio = radio;
+			}
+			
+		}
+	}
+	private void setdownloadButtonBackground(Button dlbutton,String text,int resource){
+		dlbutton.setText(text);
+		dlbutton.setBackgroundResource(resource);
 
 	}
 

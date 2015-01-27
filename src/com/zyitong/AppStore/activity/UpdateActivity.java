@@ -5,10 +5,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.zyitong.AppStore.R;
-import com.zyitong.AppStore.WeiBoApplication;
+import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.util.UtilFun;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,7 +25,7 @@ public class UpdateActivity extends Activity {
     private boolean touched=false;   
     private Timer timer;
     private UtilFun utilFun;
-    
+    private Thread thread;
     
     private static String WeiBoRoot = android.os.Environment.getExternalStorageDirectory().getAbsolutePath()+"/AppStore/";
 
@@ -51,16 +52,30 @@ public class UpdateActivity extends Activity {
 		ImageView mImageView = (ImageView)findViewById(R.id.animation_iv);  
 		mImageView.setBackgroundResource(R.drawable.start_screen);
 		utilFun = new UtilFun(UpdateActivity.this);
-		WeiBoApplication.getInstance().clearCache();
-		timer = new Timer(true);   
-	       startTime = System.currentTimeMillis();
-	       System.out.println("currentTime = "+startTime);
-	       timer.schedule(task, 0, 1);   
-
+		AppStoreApplication.getInstance().clearCache();
+		thread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				AppStoreApplication.getInstance().getCurrentDownloadJobManager().initDownloadjob();
+				try {
+					thread.sleep(2*1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if(!touched)
+				   entryMain();
+				
+			}
+		});
+		thread.start();
 		
 	}
 	
-	private final TimerTask task = new TimerTask() {   
+	
+	/*private final TimerTask task = new TimerTask() {   
         public void run() {   
             if ((task.scheduledExecutionTime() - startTime) == 1000 || touched) {
             	System.out.println("TimerTask execute");
@@ -77,8 +92,8 @@ public class UpdateActivity extends Activity {
             }   
   
         }   
-    };   
-    private final Handler timerHandler = new Handler() {   
+    };   */
+    /*private final Handler timerHandler = new Handler() {   
         public void handleMessage(Message msg) {   
             switch (msg.what) {   
             case 0:   
@@ -88,7 +103,7 @@ public class UpdateActivity extends Activity {
             }   
             super.handleMessage(msg);   
         }   
-    };   
+    };   */
   
        
     /**  
@@ -97,7 +112,7 @@ public class UpdateActivity extends Activity {
     public boolean onTouchEvent(MotionEvent event) {   
         if (event.getAction() == MotionEvent.ACTION_DOWN) {   
             touched = true;
-        	//entryMain();
+        	entryMain();
         }   
         return true;   
     }   

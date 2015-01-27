@@ -14,7 +14,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import com.zyitong.AppStore.WeiBoApplication;
+import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.common.RequestCache;
 import com.zyitong.AppStore.loading.WSError;
 
@@ -42,7 +42,7 @@ public class Caller {
 		if(requestCache != null){
 			data = requestCache.get(url);
 			if(data != null){
-				Log.d(WeiBoApplication.TAG, "Caller.doGet [cached] "+url);
+				Log.d(AppStoreApplication.TAG, "Caller.doGet [cached] "+url);
 				return data;
 			}
 		}
@@ -85,7 +85,7 @@ public class Caller {
 			e.printStackTrace();
 		}
 		
-		Log.d(WeiBoApplication.TAG, "Caller.doGet "+url);
+		Log.d(AppStoreApplication.TAG, "Caller.doGet "+url);
 		return data;
 	}
 

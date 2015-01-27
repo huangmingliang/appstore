@@ -9,20 +9,15 @@ public class FileDownloadJob {
 	private String updateurl;
 	private String name;
 	private String path;
+	
 	//private Notification notification;
-	private ProgressBar loadProgress;
 	
 	private int Id;
 	private int typeid;
 	private boolean isRun ;
 	private int status ; //1准备下载，2下载中，3下载完成,4失败
 	
-	public ProgressBar getLoadProgress() {
-		return loadProgress;
-	}
-	public void setLoadProgress(ProgressBar loadProgress) {
-		this.loadProgress = loadProgress;
-	}
+	
 	public FileDownloadJob()
 	{
 		

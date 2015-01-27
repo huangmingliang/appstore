@@ -33,12 +33,14 @@ import android.widget.RemoteViews;
 import com.zyitong.AppStore.R;
 
 
-import com.zyitong.AppStore.WeiBoApplication;
+import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.activity.MainActivity;
 import com.zyitong.AppStore.activity.SearchActivity;
+import com.zyitong.AppStore.common.CurrentDownloadJob;
 import com.zyitong.AppStore.common.FileDownloadJob;
 import com.zyitong.AppStore.common.FileOpt;
 import com.zyitong.AppStore.common.ItemData;
+import com.zyitong.AppStore.common.NoticData;
 import com.zyitong.AppStore.http.HttpApiImple;
 import com.zyitong.AppStore.loading.WSError;
 import com.zyitong.AppStore.notify.DownLoadService;
@@ -56,6 +58,7 @@ public class UtilFun {
 
 	public UtilFun() {
 	};
+	
 
 	public static String getCurrentTime(String format) {
 		Date date = new Date();
@@ -67,58 +70,38 @@ public class UtilFun {
 	public static String getCurrentTime() {
 		return getCurrentTime("yyyy-MM-dd  HH:mm:ss");
 	}
+	
+	public void addCurrentDownloadJob(String name,int ratio,int status,long fileSize,NoticData notic){
+		CurrentDownloadJob currentDownloadJob = new CurrentDownloadJob();
+		currentDownloadJob.setFilename(name);
+		currentDownloadJob.setRatio(ratio);
+		currentDownloadJob.setFilestatus(status);
+		currentDownloadJob.setFilelength(fileSize);
+		currentDownloadJob.setData(notic);
+		
+		AppStoreApplication.getInstance().getCurrentDownloadJobManager().addDownloadJob(currentDownloadJob);
+	}
 
 	public FileDownloadJob DataChange(ItemData data, String tag) {
 		FileDownloadJob dldata = new FileDownloadJob();
 		int NOTIFICATION_ID = (int) data.getId();
-		if (WeiBoApplication.getInstance().getDownloadLink()
+		//如果在下载列表已经存在该任务
+		if (AppStoreApplication.getInstance().getDownloadLink()
 				.findNode((int) data.getId()))
 			return null;
 
-		/*Notification notification = new Notification(
-				android.R.drawable.stat_sys_download, data.getName(),
-				System.currentTimeMillis());*/
-		/*notification.contentView = new RemoteViews(context.getPackageName(),
-				R.layout.notify_content);
-		notification.when = 0;
-		notification.flags |= Notification.FLAG_AUTO_CANCEL;
-
-		notification.contentView.setImageViewResource(R.id.imageView1,
-				android.R.drawable.stat_sys_download);
-
-		notification.contentView.setProgressBar(R.id.progressBar1, 100, 0,
-				false);
-		notification.contentView.setTextViewText(R.id.textView1, data.getName()
-				+ "(等待下载)");
-
-		notification.contentIntent = PendingIntent.getActivity(context, 0,
-				new Intent(), 0);*/
-
-		Intent urlIntent = null;
-		if (tag.equalsIgnoreCase("MainActivity")) {
-			urlIntent = new Intent(context, MainActivity.class);
-		} else if (tag.equalsIgnoreCase("SearchActivity")) {
-			urlIntent = new Intent(context, SearchActivity.class);
-		}
-		Bundle bundle = new Bundle();
-		bundle.putInt("CLEAR", 100);
-		urlIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-				| Intent.FLAG_ACTIVITY_NEW_TASK);
-		urlIntent.putExtras(bundle);
-		/*notification.deleteIntent = PendingIntent.getActivity(context, 0,
-				urlIntent, 0);*/
-
 		String name = data.getName();
 		int mcid = data.getMcid();
-		String filename = WeiBoApplication.getInstance().getFileName(
+		String filename = AppStoreApplication.getInstance().getFileName(
 				data.getFilename());
-		String localPath = WeiBoApplication.getInstance().getFilePath(mcid);
+		String localPath = AppStoreApplication.getInstance().getFilePath(mcid);
 		filename = localPath + filename;
 		String url = data.getFilename();
 		String updateurl = "shop/shop.jsp?code=download&UserHeader="
-				+ WeiBoApplication.UserHeader + "&id=" + data.getId()
-				+ "&imei=" + WeiBoApplication.getInstance().getImei();
+				+ AppStoreApplication.UserHeader + "&id=" + data.getId()
+				+ "&imei=" + AppStoreApplication.getInstance().getImei();
 
+		
 		dldata.setFilename(filename);
 		dldata.setUrl(url);
 		dldata.setUpdateurl(updateurl);
@@ -129,7 +112,7 @@ public class UtilFun {
 		dldata.setTypeid(mcid);
 		dldata.setRun(false);
 		dldata.setStatus(0);
-		/*WeiBoApplication.getInstance().getManager()
+		/*AppStoreApplication.getInstance().getManager()
 				.notify(NOTIFICATION_ID, notification);*/
 		return dldata;
 
@@ -147,108 +130,13 @@ public class UtilFun {
 			// TODO Auto-generated catch block
 			// e.printStackTrace();
 		}
-		WeiBoApplication.getInstance().getDownloadLink()
+		AppStoreApplication.getInstance().getDownloadLink()
 				.delNode(dldata.getId());
 		//play(dldata);
 
 	}
 
-	/*private void play(FileDownloadJob dldata) {
-		// service 1 主题;2 游戏;3 电子书;4 铃声;5 图片;6 软件
-		int mcid = dldata.getTypeid();
-		if (mcid == 1) {
-			dldata.setName(dldata.getName() + "(主题)");
-			setupAPK(dldata);
-		} else if (mcid == 2) {
-			dldata.setName(dldata.getName() + "(游戏)");
-			setupAPK(dldata);
-		} else if (mcid == 6) {
-			dldata.setName(dldata.getName() + "(软件)");
-			setupAPK(dldata);
-		} else if (mcid == 3) {
-			dldata.setName(dldata.getName() + "(电子书)");
-			playBook(dldata);
-		} else if (mcid == 4) {
-			dldata.setName(dldata.getName() + "(铃声)");
-			playMusic(dldata);
-		} else if (mcid == 5) {
-			dldata.setName(dldata.getName() + "(图片)");
-			playLogo(dldata);
-		}
-	}*/
-
-	/*private void setupAPK(FileDownloadJob dldata) {
-		Notification notification = dldata.getNotification();
-
-		// notification.flags |= Notification.FLAG_AUTO_CANCEL;
-		Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
-		intent.setDataAndType(Uri.fromFile(new File(dldata.getFilename())),
-				"application/vnd.android.package-archive");
-		notification.contentIntent = PendingIntent.getActivity(context, 0,
-				intent, 0);
-		// notification.deleteIntent = PendingIntent.getActivity(this ,0,new
-		// Intent(this,MainActivity.class), 0);
-		notification.setLatestEventInfo(context, dldata.getName(), "下载完成点击安装。",
-				notification.contentIntent);
-		WeiBoApplication.getInstance().getManager()
-				.notify(dldata.getId(), notification);
-
-	}*/
-
-	/*private void playMusic(FileDownloadJob dldata) {
-		Notification notification = dldata.getNotification();
-		// notification.flags |= Notification.FLAG_AUTO_CANCEL;
-		Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
-		Uri uri = Uri.parse("file://" + dldata.getFilename());
-		intent.setDataAndType(uri, "audio/*");
-		notification.contentIntent = PendingIntent.getActivity(context, 0,
-				intent, 0);
-		// notification.deleteIntent =
-		// PendingIntent.getActivity(DownLoadService.this, 0,new Intent(this,
-		// DownLoadService.class), 0);
-		notification.setLatestEventInfo(context, dldata.getName(), "下载完成点击播放。",
-				notification.contentIntent);
-		WeiBoApplication.getInstance().getManager()
-				.notify(dldata.getId(), notification);
-
-	}*/
-
-	/*private void playLogo(FileDownloadJob dldata) {
-		Notification notification = dldata.getNotification();
-		// notification.flags |= Notification.FLAG_AUTO_CANCEL;
-		Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
-		intent.setDataAndType(Uri.fromFile(new File(dldata.getFilename())),
-				"image/*");
-		notification.contentIntent = PendingIntent.getActivity(context, 0,
-				intent, 0);
-		// notification.deleteIntent =
-		// PendingIntent.getActivity(DownLoadService.this, 0,new Intent(this,
-		// DownLoadService.class), 0);
-		notification.setLatestEventInfo(context, dldata.getName(), "下载完成点击查看。",
-				notification.contentIntent);
-		WeiBoApplication.getInstance().getManager()
-				.notify(dldata.getId(), notification);
-
-	}*/
-
-	/*private void playBook(FileDownloadJob dldata) {
-		Notification notification = dldata.getNotification();
-		// notification.flags |= Notification.FLAG_AUTO_CANCEL;
-		Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
-		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent.setDataAndType(Uri.fromFile(new File(dldata.getFilename())),
-				"application/*");
-		notification.contentIntent = PendingIntent.getActivity(context, 0,
-				intent, 0);
-		// notification.deleteIntent =
-		// PendingIntent.getActivity(DownLoadService.this, 0,new Intent(this,
-		// DownLoadService.class), 0);
-		notification.setLatestEventInfo(context, dldata.getName(), "下载完成点击查看。",
-				notification.contentIntent);
-		WeiBoApplication.getInstance().getManager()
-				.notify(dldata.getId(), notification);
-	}
-*/
+	
 	public boolean isAppInstalled(String uri, Context mContext)
 			throws PackageManager.NameNotFoundException {
 		PackageManager pm = mContext.getPackageManager();
@@ -339,25 +227,25 @@ public class UtilFun {
 
 	public void setFileState(ItemData itemData) {
 		int mcid = itemData.getMcid();
-		String filename = WeiBoApplication.getInstance().getFilePath(mcid)
-				+ WeiBoApplication.getInstance().getFileName(
+		String filename = AppStoreApplication.getInstance().getFilePath(mcid)
+				+ AppStoreApplication.getInstance().getFileName(
 						itemData.getFilename());
 		if (!opt.exists(filename))
-			itemData.setButtonFileflag(1);
+			itemData.setButtonFileflag(ItemData.APP_INSTALED);
 		else if (getUninatllApkInfo(context, filename)) {
 			Log.e("MainActivity", "当前文件是可以安装或是打开的");
 			try {
 				if (isAppInstalled(filename, context))
-					itemData.setButtonFileflag(2);
+					itemData.setButtonFileflag(ItemData.APP_OPEN);
 				else
-					itemData.setButtonFileflag(1);
+					itemData.setButtonFileflag(ItemData.APP_INSTALED);
 			} catch (NameNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} else {
-			opt.deleteFile(filename);
-			itemData.setButtonFileflag(1);
+			//opt.deleteFile(filename);
+			itemData.setButtonFileflag(ItemData.APP_INSTALED);
 		}
 	}
 
@@ -487,13 +375,15 @@ public class UtilFun {
             return -1;
         }
     }
-
-	
-	
-	
-
-	
-	
-	
+	public String getFileName(String filename)
+	{
+		int index = filename.lastIndexOf("/");
+		String substr = filename;
+		if(index>0)
+		{
+			substr = filename.substring(index+1);
+		}
+		return substr;
+	}
 
 }

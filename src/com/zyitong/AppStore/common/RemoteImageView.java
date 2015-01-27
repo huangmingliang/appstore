@@ -6,7 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.RejectedExecutionException;
 
-import com.zyitong.AppStore.WeiBoApplication;
+import com.zyitong.AppStore.AppStoreApplication;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -92,7 +92,7 @@ public class RemoteImageView extends ImageView{
 		if(mUrl != null && mUrl.equals(url)){
 			mFailure++;
 			if(mFailure > MAX_FAILURES){
-				Log.e(WeiBoApplication.TAG, "Failed to download "+url+", falling back to default image");
+				Log.e(AppStoreApplication.TAG, "Failed to download "+url+", falling back to default image");
 				loadDefaultImage();
 				return;
 			}
@@ -101,7 +101,7 @@ public class RemoteImageView extends ImageView{
 			mFailure = 0;
 		}
 
-		ImageCache imageCache = WeiBoApplication.getInstance().getImageCache();
+		ImageCache imageCache = AppStoreApplication.getInstance().getImageCache();
 		if(imageCache.isCached(url)){
 			this.setImageBitmap(imageCache.get(url));
 		}
@@ -114,15 +114,15 @@ public class RemoteImageView extends ImageView{
 		}
 	}
 	public void setImageUrl2(String url){
-		url = WeiBoApplication.GETIMAGE_API+url;
+		url = AppStoreApplication.GETIMAGE_API+url;
 		setImageUrlSingle(url);
 	}
 	public void setImageUrl4(String url){
-		url = WeiBoApplication.GET_API+"shop/image.jsp?filename="+url;
+		url = AppStoreApplication.GET_API+"shop/image.jsp?filename="+url;
 		setImageUrlSingle(url);
 	}
 	public void setImageUrlSingle(String url){
-		//url = WeiBoApplication.GET_API+"shop/image.jsp?filename="+url;
+		//url = AppStoreApplication.GET_API+"shop/image.jsp?filename="+url;
 		if( mCurrentlyGrabbedUrl != null && mCurrentlyGrabbedUrl.equals(url)){
 			// do nothing image is grabbed & loaded, we are golden
 			return;
@@ -131,7 +131,7 @@ public class RemoteImageView extends ImageView{
 		if(mUrl != null && mUrl.equals(url)){
 			mFailure++;
 			if(mFailure > MAX_FAILURES){
-				Log.e(WeiBoApplication.TAG, "Failed to download "+url+", falling back to default image");
+				Log.e(AppStoreApplication.TAG, "Failed to download "+url+", falling back to default image");
 				loadDefaultImage();
 				return;
 			}
@@ -140,7 +140,7 @@ public class RemoteImageView extends ImageView{
 			mFailure = 0;
 		}
 
-		ImageCache imageCache = WeiBoApplication.getInstance().getImageCache();
+		ImageCache imageCache = AppStoreApplication.getInstance().getImageCache();
 		if(imageCache.isCached(url)){
 			this.setImageBitmap(imageCache.get(url));
 		}
@@ -179,15 +179,15 @@ public class RemoteImageView extends ImageView{
 	public void setImageUrl(String url, int position, ListView listView){
 		mPosition = position;
 		mListView = listView;
-		//url = WeiBoApplication.GET_API+"shop/image.jsp?filename="+url;
-		url = WeiBoApplication.GETIMAGE_API+url;
+		//url = AppStoreApplication.GET_API+"shop/image.jsp?filename="+url;
+		url = AppStoreApplication.GETIMAGE_API+url;
 		setImageUrl(url);
 	}
 
 	public void setImageUrl3(String url, int position, ListView listView){
 		mPosition = position;
 		mListView = listView;
-		url = WeiBoApplication.GET_API+"shop/image.jsp?filename="+url;
+		url = AppStoreApplication.GET_API+"shop/image.jsp?filename="+url;
 
 		setImageUrl(url);
 	}
@@ -221,16 +221,16 @@ public class RemoteImageView extends ImageView{
 					bmp = BitmapFactory.decodeStream(stream);
 					try {
 						if(bmp != null){
-							WeiBoApplication.getInstance().getImageCache().put(mTaskUrl, bmp);
-							Log.d(WeiBoApplication.TAG, "Image cached "+mTaskUrl);
+							AppStoreApplication.getInstance().getImageCache().put(mTaskUrl, bmp);
+							Log.d(AppStoreApplication.TAG, "Image cached "+mTaskUrl);
 						} else {
-							Log.w(WeiBoApplication.TAG, "Failed to cache "+mTaskUrl);
+							Log.w(AppStoreApplication.TAG, "Failed to cache "+mTaskUrl);
 						}
 					} catch (NullPointerException e) {
-						Log.w(WeiBoApplication.TAG, "Failed to cache "+mTaskUrl);
+						Log.w(AppStoreApplication.TAG, "Failed to cache "+mTaskUrl);
 					}
 				} catch (IOException e) {
-					Log.w(WeiBoApplication.TAG, "Couldn't load bitmap from url: " + mTaskUrl);
+					Log.w(AppStoreApplication.TAG, "Couldn't load bitmap from url: " + mTaskUrl);
 				} finally {
 					try {
 						if(stream != null){
@@ -253,9 +253,9 @@ public class RemoteImageView extends ImageView{
 			if(!mTaskUrl.equals(mUrl))
 				return;
 			
-			Bitmap bmp = WeiBoApplication.getInstance().getImageCache().get(url);
+			Bitmap bmp = AppStoreApplication.getInstance().getImageCache().get(url);
 			if(bmp == null){
-				Log.w(WeiBoApplication.TAG, "Trying again to download " + url);
+				Log.w(AppStoreApplication.TAG, "Trying again to download " + url);
 				RemoteImageView.this.setImageUrl(url);
 			} else {
 				

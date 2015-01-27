@@ -10,6 +10,8 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.http.conn.ConnectTimeoutException;
 
@@ -17,53 +19,61 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
-import com.zyitong.AppStore.WeiBoApplication;
+import com.zyitong.AppStore.AppStoreApplication;
+import com.zyitong.AppStore.common.CurrentDownloadJob;
 import com.zyitong.AppStore.common.FileDownloadJob;
 import com.zyitong.AppStore.common.FileOpt;
+import com.zyitong.AppStore.common.ItemData;
 import com.zyitong.AppStore.common.NoticData;
 import com.zyitong.AppStore.util.UtilFun;
 
 public class ProgressThread extends Thread {
 
-	private static final int REQUEST_TIMEROUT = 6*1000;//请求超时
+	private static final int REQUEST_TIMEROUT = 30*1000;//请求超时
 	private static final int SO_TIMEROUT = 10*1000;
 	private int blockSize, downloadSizeMore;
-	private int threadNum = 5;
+	private int threadNum = 5, _progress = 0;
 	private String urlStr, filename;
-	private Message msg = null;
-	private long prevsize = 0, downloadedSize = 0, _progress = 0;
-	private Handler handler = null;
+	//private Message msg = null;
+	private long prevsize = 0, downloadedSize = 0;
+	//private Handler handler = null;
 	private FileDownloadJob dldata;
 	private int fileSize = 0;
 	private FileOpt opt = new FileOpt();
 	private Context context;
 	private UtilFun util;
-
+	private String appName;
+	private NoticData noticData;
+	boolean finished = false;
 	public ProgressThread(NoticData noticData, int threadNum, Context context) {
 		this.context = context;
+		this.noticData = noticData;
 		dldata = noticData.getFileDownloadJob();
-		handler = noticData.getHandler();
+		
 		this.urlStr = dldata.getUrl();
 		this.threadNum = threadNum;
 		this.filename = dldata.getFilename();
+		
 		dldata.setStatus(1);
 		dldata.setRun(true);
 		util = new UtilFun();
+		this.appName = util.getFileName(filename);
 
 	}
 
 	@Override
 	public void run() {
 		FileDownloadThread[] fds = new FileDownloadThread[threadNum];
-		WeiBoApplication.getInstance().getDownloadLink().getSize();
+		AppStoreApplication.getInstance().getDownloadLink().getSize();
 		try {
 			Log.d("ProgressThread", "ProgressThread is Runing");
 			if (opt.exists(filename))
 				opt.deleteFile(filename);
 			URL url = new URL(urlStr);
 			URLConnection conn = null;
-			boolean finished = false;
+			
 			try {
 				conn = url.openConnection();
 				// 防止返回-1
@@ -91,14 +101,25 @@ public class ProgressThread extends Thread {
 				}
 				
 			} catch (ConnectTimeoutException e) {
-				msg = handler.obtainMessage();
+				/*msg = handler.obtainMessage();
 				msg.arg1 = -1;
-				msg.sendToTarget();
+				msg.sendToTarget();*/
+				util.addCurrentDownloadJob(appName, _progress, ItemData.APP_NETWORKEX,-1,noticData);
+				util.DowloadComplete(dldata);
 				dldata.setStatus(4);
 				dldata.setRun(false);
 				finished = true;
-				System.out.println("connectTimeout");
+				Log.e("ProgressThread =1=", "网络中断");
+				System.out.println("ProgressThread =1=   =====    网络中断");
 				// TODO: handle exception
+			}catch(Exception e){
+				util.addCurrentDownloadJob(appName, _progress, ItemData.APP_NETWORKEX,-1,noticData);
+				util.DowloadComplete(dldata);
+				dldata.setStatus(4);
+				dldata.setRun(false);
+				finished = true;
+				Log.e("ProgressThread =2=", "网络中断");
+				System.out.println("ProgressThread =2=   =====    网络中断");
 			}
 			
 			
@@ -117,65 +138,95 @@ public class ProgressThread extends Thread {
 						}
 					}
 
-					Log.e("============","count:" + downloadedSize);
+					//Log.e("============","count:" + downloadedSize);
 					Log.e("============","%:"+downloadedSize * 100 / fileSize );
+					
 					if (((downloadedSize - prevsize) * 100 / fileSize >= threadNum)
 							|| (downloadedSize == fileSize && fileSize > 0)) {
-						_progress = (downloadedSize * 100) / fileSize;
+						_progress = (int) ((downloadedSize * 100) / fileSize);
 					    System.out.println("ProgressThread downloadedSize = "+downloadedSize);
-						handler.sendEmptyMessage(0);
+						/*handler.sendEmptyMessage(0);
 						msg = handler.obtainMessage();
 						msg.arg1 = (int)_progress;
-						if(_progress == 100)
-						{
-							Thread.sleep(1000);
-							String result = util.install(filename);
-							Log.e("ProgressThread install result = ",result);
-						}
+						msg.sendToTarget();*/
+						
 					
 						Log.d("ProgressThread", "msg=" + _progress + "\t size="
 								+ downloadedSize);
-						msg.sendToTarget();
+												
 						prevsize = downloadedSize;
 						
 					}
-					// 线程暂停一秒
+				
 					if (!dldata.isRun()) {
 						for (int i = 0; i < fds.length; i++) {
 							fds[i].setFinished(true);
 						}
+						util.addCurrentDownloadJob(appName, _progress, ItemData.APP_FAIL,-1,noticData);
+						util.DowloadComplete(dldata);
 						finished = true;
 						dldata.setStatus(4);
 						dldata.setRun(false);
+						
 						// manager.cancel(dldata.getNOTIFICATION_ID());
-						msg = handler.obtainMessage();
+						/*msg = handler.obtainMessage();
 						msg.arg1 = -1;
-						msg.sendToTarget();
+						msg.sendToTarget();*/
 					}
+					//线程暂停0.3秒
 					sleep(300);
+					if(_progress!=100){
+						if(!finished)
+						{
+						Log.e("ProgressThread","创建currentDownloadJob" );
+						
+						util.addCurrentDownloadJob(appName, _progress, ItemData.APP_LOADING,fileSize,noticData);
+						}
+						
+					}
+					if(_progress==100){
+						//静默安装
+						//util.DowloadComplete(dldata);
+						
+						String result = util.install(filename);
+						if(result.equals("Success")){
+							util.addCurrentDownloadJob(appName, _progress, ItemData.APP_INSTALED,-1,noticData);
+						}else{
+							util.addCurrentDownloadJob(appName, _progress, ItemData.APP_FAIL,-1,noticData);
+							
+						}
+						util.DowloadComplete(dldata);
+						Log.e("ProgressThread install result = ",result);
+						//将该文件从下载列表中移除
+						//AppStoreApplication.getInstance().getCurrentDownloadJobList().removeDownloadJob(appName);
+						
+					}
+										
 				} catch (Exception e) {
 					// TODO: handle exception
-					msg = handler.obtainMessage();
+					/*msg = handler.obtainMessage();
 					msg.arg1 = -1;
-					msg.sendToTarget();
+					msg.sendToTarget();*/
+					Log.e("ProgressThread =3=", "网络中断");
+					util.addCurrentDownloadJob(appName, _progress, ItemData.APP_NETWORKEX,-1,noticData);
+					util.DowloadComplete(dldata);
 					dldata.setStatus(4);
 					dldata.setRun(false);
+					System.out.println("ProgressThread =3=   =====    网络中断");
 				} 
 				
 			}
-		} catch (ConnectTimeoutException e) {
-			// e.printStackTrace();
-			msg = handler.obtainMessage();
+		} catch (Exception e){
+		    
+			/*msg = handler.obtainMessage();
 			msg.arg1 = -1;
-			msg.sendToTarget();
+			msg.sendToTarget();*/
+			util.addCurrentDownloadJob(appName, _progress, ItemData.APP_NETWORKEX,-1,noticData);
+			util.DowloadComplete(dldata);
 			dldata.setStatus(4);
 			dldata.setRun(false);
-		}catch (Exception e){
-			msg = handler.obtainMessage();
-			msg.arg1 = -1;
-			msg.sendToTarget();
-			dldata.setStatus(4);
-			dldata.setRun(false);
+			Log.e("ProgressThread =4=", "网络中断");
+			System.out.println("ProgressThread =4=   =====    网络中断");
 		}
 
 	}
@@ -188,7 +239,7 @@ public class ProgressThread extends Thread {
 	    private int endPosition;  
 	    private int curPosition;  
 	    //标识当前线程是否下载完成   
-	    private boolean finished=false;  
+	    private boolean innerfinished=false;  
 	    private int downloadSize=0;  
 
 	    public FileDownloadThread(URL url,File file,int startPosition,int endPosition){  
@@ -218,7 +269,7 @@ public class ProgressThread extends Thread {
 	            fos.seek(startPosition);  
 	            bis = new BufferedInputStream(con.getInputStream());    
 	            //开始循环以流的形式读写文件   
-	            while (curPosition < endPosition && !finished) {  
+	            while (curPosition < endPosition && !innerfinished) {  
 	                int len = bis.read(buf, 0, BUFFER_SIZE);                  
 	                if (len == -1) {  
 	                    break;  
@@ -232,24 +283,29 @@ public class ProgressThread extends Thread {
 	                }  
 	            }  
 	            //下载完成设为true   
-	            this.finished = true;  
+	            this.innerfinished = true;  
 	            bis.close();  
 	            fos.close();  
 	        } catch (IOException e) {  
 	            e.printStackTrace();
-	            msg = handler.obtainMessage();
+	           /* msg = handler.obtainMessage();
 				msg.arg1 = -1;
-				msg.sendToTarget();
+				msg.sendToTarget();*/
+	            util.addCurrentDownloadJob(appName, _progress, ItemData.APP_NETWORKEX,-1,noticData);        
+	            util.DowloadComplete(dldata);
 				dldata.setStatus(4);
 				dldata.setRun(false);
+				finished = true;
+				Log.e("ProgressThread =5=", "网络中断");
+				System.out.println("ProgressThread =5=   =====    网络中断");
 	        }  
 	    }  
 	   public void setFinished(boolean finished)
 	   {
-		   this.finished = finished;
+		   this.innerfinished = finished;
 	   }
 	    public boolean isFinished(){  
-	        return finished;  
+	        return innerfinished;  
 	    }  
 	   
 	    public int getDownloadSize() {  

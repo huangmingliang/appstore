@@ -25,7 +25,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
-import com.zyitong.AppStore.WeiBoApplication;
+import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.adapter.ListAdapter;
 import com.zyitong.AppStore.common.FileOpt;
 import com.zyitong.AppStore.common.ItemData;
@@ -79,7 +79,7 @@ public class SearchActivity extends Activity {
 	}
 
 	private void getPageCache() {
-		PageInfoData pageData = WeiBoApplication.getInstance()
+		PageInfoData pageData = AppStoreApplication.getInstance()
 				.getPamaterCache().getPage();
 		if (pageData != null) {
 			keyword = pageData.getKeyword();
@@ -89,13 +89,13 @@ public class SearchActivity extends Activity {
 
 	private void setPage(int itemID) {
 		keyword = editSearchText.getText().toString();
-		WeiBoApplication.getInstance().getPamaterCache().removePage();
+		AppStoreApplication.getInstance().getPamaterCache().removePage();
 		PageInfoData pageData = new PageInfoData();
 		pageData.setKeyword(keyword);
 		pageData.setPageName("SearchActivity");
 		pageData.setItemList(itemList);
 		pageData.setSelItem(itemID);
-		WeiBoApplication.getInstance().getPamaterCache().addPage(pageData);
+		AppStoreApplication.getInstance().getPamaterCache().addPage(pageData);
 	}
 
 	private void init() {
@@ -138,7 +138,7 @@ public class SearchActivity extends Activity {
 		{
 		  int clear= bundle.getInt("CLEAR");
 		  if(clear ==100)
-			  WeiBoApplication.getInstance().getDownloadLink().intrrentDown();
+			  AppStoreApplication.getInstance().getDownloadLink().intrrentDown();
 		}
 	}
 	
@@ -183,7 +183,7 @@ public class SearchActivity extends Activity {
 		//keyword
 		String text = editSearchText.getText()==null?"":editSearchText.getText().toString();
 		if(text.length()==0){
-			WeiBoApplication.getInstance().getPamaterCache().clear();
+			AppStoreApplication.getInstance().getPamaterCache().clear();
 	
 			keyword="";
 			itemList.clear();
@@ -269,9 +269,9 @@ public class SearchActivity extends Activity {
 			List<ItemData> itemList = new ArrayList();
 			try {
 				String url = "shop/shop.jsp?code=search&UserHeader="
-						+ WeiBoApplication.UserHeader + "&keyword="
+						+ AppStoreApplication.UserHeader + "&keyword="
 						+ editSearchText.getText().toString() + "&imei="
-						+ WeiBoApplication.getInstance().getImei()+"&start="+startpos;
+						+ AppStoreApplication.getInstance().getImei()+"&start="+startpos;
 
 				HttpApiImple imple = new HttpApiImple();
 				ItemData[] itemdata = imple.getListItem(url);
