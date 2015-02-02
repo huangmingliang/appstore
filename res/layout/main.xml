@@ -8,12 +8,12 @@
     <RelativeLayout
         android:id="@+id/linearLayout5"
         android:layout_width="fill_parent"
-        android:layout_height="50dip"
+        android:layout_height="43dip"
         android:background="#ffffff" >
         
         
-        <View android:layout_width="40dip"
-            android:layout_height="40dip"
+        <View android:layout_width="38dip"
+            android:layout_height="38dip"
             android:background="@drawable/icon"
             android:layout_centerVertical="true"
             android:layout_marginLeft="10dip" />
@@ -32,8 +32,8 @@
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="2dip"
-        android:background="#4BAAC8"
+        android:layout_height="1dip"
+        android:background="#2ca4e3"
         android:focusable="true" 
         android:focusableInTouchMode="true" >
     </LinearLayout>
@@ -49,12 +49,12 @@
         android:layout_height="wrap_content"
         android:layout_weight="1" >
 
-        <com.zyitong.AppStore.listview.AutoListView
+        <com.zyitong.AppStore.ui.AutoListView
             android:id="@+id/listView"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:paddingLeft="15dip"
-            android:paddingRight="15dip"
+            android:paddingLeft="13dip"
+            android:paddingRight="13dip"
             android:scrollbars="none"
             android:fadingEdge="none"
             android:scrollingCache="false"

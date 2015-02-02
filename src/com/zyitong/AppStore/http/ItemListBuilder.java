@@ -3,10 +3,9 @@ package com.zyitong.AppStore.http;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.zyitong.AppStore.common.ItemData;
-import com.zyitong.AppStore.util.UtilFun;
+import com.zyitong.AppStore.bean.ItemData;
 
-public class ItemListBuilder  extends JSONBuilder<ItemData> {
+public class ItemListBuilder extends JSONBuilder<ItemData> {
 	
 	@Override
 	public ItemData build(JSONObject jsonObject) throws JSONException {
@@ -80,7 +79,6 @@ public class ItemListBuilder  extends JSONBuilder<ItemData> {
 		itemData.setFilename("http://down.360safe.com/360ap/360freewifi_wifi.apk");
 		itemData.setFileSize(fileSize);
 		itemData.setDownloadnum(downloadnum);
-		itemData.setMcid(mcid);
 		itemData.setStar(star);
 		itemData.setEnd(end);
 		itemData.setVer(ver);

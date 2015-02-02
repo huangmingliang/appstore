@@ -8,61 +8,41 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.json.JSONException;
-import com.zyitong.AppStore.R;
 
-import android.R.integer;
-import android.R.string;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.Notification;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Build;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
-import android.view.ViewTreeObserver.OnScrollChangedListener;
 import android.view.Window;
-import android.view.View.OnClickListener;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.TextView;
 
+import com.opensearch.javasdk.CloudsearchClient;
+import com.opensearch.javasdk.CloudsearchSearch;
+import com.opensearch.javasdk.object.KeyTypeEnum;
 import com.zyitong.AppStore.AppStoreApplication;
-import com.zyitong.AppStore.Dialog.DownloadDialog;
+import com.zyitong.AppStore.R;
 import com.zyitong.AppStore.adapter.ListAdapter;
-import com.zyitong.AppStore.common.CurrentDownloadJob;
-import com.zyitong.AppStore.common.CurrentDownloadJobManager;
-import com.zyitong.AppStore.common.DownloadLink;
-import com.zyitong.AppStore.common.FileDownloadJob;
-import com.zyitong.AppStore.common.FileOpt;
-import com.zyitong.AppStore.common.ItemData;
-import com.zyitong.AppStore.common.NoticData;
-import com.zyitong.AppStore.common.PageInfoData;
-import com.zyitong.AppStore.common.SearchFrame;
-import com.zyitong.AppStore.common.SearchFrame.OnEtSearchClickListener;
-import com.zyitong.AppStore.common.SearchFrame.OnSearchButtonClickListener;
+import com.zyitong.AppStore.bean.ItemData;
+import com.zyitong.AppStore.bean.PageInfoData;
+import com.zyitong.AppStore.downloadmanager.DownloadLink;
 import com.zyitong.AppStore.http.HttpApiImple;
-import com.zyitong.AppStore.listview.AutoListView;
-import com.zyitong.AppStore.listview.AutoListView.OnLoadListener;
-import com.zyitong.AppStore.listview.AutoListView.OnRefreshListener;
 import com.zyitong.AppStore.loading.LoadingDialog;
 import com.zyitong.AppStore.loading.WSError;
-import com.zyitong.AppStore.util.UtilFun;
+import com.zyitong.AppStore.tools.AppLogger;
+import com.zyitong.AppStore.tools.UtilFun;
+import com.zyitong.AppStore.ui.AutoListView;
+import com.zyitong.AppStore.ui.AutoListView.OnLoadListener;
+import com.zyitong.AppStore.ui.AutoListView.OnRefreshListener;
 
 @SuppressLint("NewApi")
 public class MainActivity extends Activity implements OnRefreshListener,
@@ -74,108 +54,90 @@ public class MainActivity extends Activity implements OnRefreshListener,
 	private int startpos = 0;
 	private boolean isConnected = false;
 	private int prevFlag = -1;
-	private int parttype = 0;
 	private int Flag = 0;
-	private int testTimes = 0;
-	// private SearchFrame mSearchFrame;
 	private int searchTime = 1000;// 查询间隔时间
-	private long exitTime  = 0;
-
-	// 定时器，定失去查询下载列表的更新状态，定为1秒钟查询一次
+	private long exitTime = 0;
 	private Timer timer;
-
-	private FileOpt opt;
-
-	private ItemData itemData;
 	private UtilFun util = null;
-
 	private Message msg = null;
-
+	private BroadcastReceiver connectionReceiver = null;
 	public Handler handler = new Handler() {
 
 		@Override
 		public void handleMessage(Message msg) {
 			// TODO Auto-generated method stub
-			// super.handleMessage(msg);
 			if (msg.obj != null) {
-				int updateinfo[] = (int[]) msg.obj;
-				int position = updateinfo[0];
-				String radio = Integer.toString(updateinfo[1]);
-				int status = updateinfo[2];
-				if(status == 4)
-					Toast.makeText(MainActivity.this, itemList.get(position).getName()+"安装失败", Toast.LENGTH_LONG).show();
-				if(status == 5)
-					Toast.makeText(MainActivity.this, "网络出现了问题", Toast.LENGTH_LONG).show();
-				if (updateinfo[0] != -1)
-					adapter.updateSingleRow(position, radio , status);
+				analyzeMessageInfo(msg);
 			}
 		}
 	};
 
 	private final TimerTask updatalistviewtask = new TimerTask() {
 		public void run() {
-			// 查询下载列表，看那些下载状态需要更新
-			Log.e("MainActivity", "定时器在检查更新");
-
 			for (int i = 0; i < itemList.size(); i++) {
-				String appName = util.getFileName(itemList.get(i).getFilename());
-				//检查
-				
-				int raido = AppStoreApplication.getInstance()
-						.getCurrentDownloadJobManager()
-						.getRatio(appName);
-				int[] updateinfo = new int[3];
-				if (raido != -1){
-					int status = AppStoreApplication.getInstance().getCurrentDownloadJobManager().getStatus(appName);
-					
-					
-					switch (status) {
-					//状态为0说明是一个需要初始化的下载任务
-					case 0:
-						updateinfo[0] = i;
-    					updateinfo[1] = -2;
-    					updateinfo[2] = status;
-						break;
-                    
-                    case 3:
-                    	updateinfo[0] = i;
-    					updateinfo[1] = raido;
-    					updateinfo[2] = status;
-						break;
-                    case 4:
-                    	updateinfo[0] = i;
-    					updateinfo[1] = raido;
-    					updateinfo[2] = status;
-                        AppStoreApplication.getInstance().getCurrentDownloadJobManager().removeDownloadJob(appName);
-						break;
-                    case 5:
-                    	updateinfo[0] = i;
-    					updateinfo[1] = raido;
-    					updateinfo[2] = status;
-						break;
-
-					default:
-						updateinfo[0] = i;
-    					updateinfo[1] = raido;
-    					updateinfo[2] = status;
-						break;
-					}
-					
-					Log.e("MainActivity", "下载进度有更新");
-					Log.e("MainActivity", "i=" + i);
-					Log.e("MainActivity", "status=" + status);
-					// adapter.updateSingleRow(i,raido);
-					
-					
+				String appName = util
+						.getFileName(itemList.get(i).getFilename());
+				int[] updateinfo = setMessageInfo(i, appName);
+				if (updateinfo != null) {
 					msg = handler.obtainMessage();
 					msg.obj = updateinfo;
 					msg.sendToTarget();
 				}
+
 			}
-
 		}
-
 	};
+
+	private int[] setMessageInfo(int position, String appName) {
+		int radio = AppStoreApplication.getInstance()
+				.getCurrentDownloadJobManager().getRatio(appName);
+		int[] messageInfo;
+		messageInfo = new int[5];
+		if (radio != -1) {
+			int status = AppStoreApplication.getInstance()
+					.getCurrentDownloadJobManager().getStatus(appName);
+
+			switch (status) {
+			case 0:
+				messageInfo[0] = position;
+				messageInfo[1] = -2;
+				messageInfo[2] = status;
+				break;
+			case 3:
+				messageInfo[0] = position;
+				messageInfo[1] = radio;
+				messageInfo[2] = status;
+				break;
+			case 4:
+				messageInfo[0] = position;
+				messageInfo[1] = radio;
+				messageInfo[2] = status;
+				AppStoreApplication.getInstance()
+						.getCurrentDownloadJobManager()
+						.removeDownloadJob(appName);
+				break;
+			default:
+				messageInfo[0] = position;
+				messageInfo[1] = radio;
+				messageInfo[2] = status;
+				break;
+			}
+		}
+		return messageInfo;
+	}
+
+	private void analyzeMessageInfo(Message msg) {
+		int updateinfo[] = (int[]) msg.obj;
+		int position = updateinfo[0];
+		int radio = updateinfo[1];
+		int status = updateinfo[2];
+		if (status == 4)
+			Toast.makeText(MainActivity.this,
+					itemList.get(position).getName() + "安装失败",
+					Toast.LENGTH_SHORT).show();
+		if (radio != -1)
+			adapter.updateSingleRow(position, radio, status);
+	}
 
 	public static void launch(Context c, Bundle bundle) {
 		Intent intent = new Intent(c, MainActivity.class);
@@ -188,12 +150,42 @@ public class MainActivity extends Activity implements OnRefreshListener,
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);// 隐藏标题栏
-		//setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		// getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-		// WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
+		listenNetWork();
 		setContentView(R.layout.main);
 		init();
+	}
+
+	private void listenNetWork() {
+		IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+		connectionReceiver = new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				ConnectivityManager connectMgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+				NetworkInfo mobNetInfo = connectMgr
+						.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+				NetworkInfo wifiNetInfo = connectMgr
+						.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+				if (!mobNetInfo.isConnected() && !wifiNetInfo.isConnected()) {
+					AppStoreApplication.getInstance().isNetWorkConnected = false;
+					Toast.makeText(MainActivity.this, "网络异常，请检查网络！",
+							Toast.LENGTH_LONG).show();
+					Log.e("MainActivity", "网络断开了");
+
+				} else {
+					AppStoreApplication.getInstance().isNetWorkConnected = true;
+					if (itemList.size() == 0)
+						new NewTask(MainActivity.this, R.string.connectioning,
+								R.string.connectfail, AutoListView.LOAD)
+								.execute();
+					Log.e("MainActivity", "网络连接上了");
+
+				}
+			}
+		};
+		registerReceiver(connectionReceiver, intentFilter);
 	}
 
 	@Override
@@ -219,8 +211,10 @@ public class MainActivity extends Activity implements OnRefreshListener,
 		// TODO Auto-generated method stub
 		System.out.println("MainActivity onResume");
 		// 每次activity生命周期执行到onResume的时候初始化定时器
-		
+
 		super.onResume();
+
+		getappList();
 	}
 
 	@Override
@@ -241,6 +235,11 @@ public class MainActivity extends Activity implements OnRefreshListener,
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		System.out.println("MainActivity onDestroy");
+		if (connectionReceiver != null) {
+			unregisterReceiver(connectionReceiver);
+		}
+		timer.cancel();
+		updatalistviewtask.cancel();
 		super.onDestroy();
 	}
 
@@ -262,30 +261,12 @@ public class MainActivity extends Activity implements OnRefreshListener,
 
 	private void init() {
 		util = new UtilFun(this);
-		opt = new FileOpt();
-		/*
-		 * mSearchFrame = (SearchFrame) findViewById(R.id.searchframe);
-		 * mSearchFrame.setSearchButtonListener(new
-		 * OnSearchButtonClickListener() {
-		 * 
-		 * @Override public void onClick() { // TODO Auto-generated method stub
-		 * System.out.println("SearchButton onclick!"); } });
-		 * mSearchFrame.setEtSearchListener(new OnEtSearchClickListener() {
-		 * 
-		 * @Override public void onClick() { // TODO Auto-generated method stub
-		 * System.out.println("exittext onclick!");
-		 * AppStoreApplication.getInstance().getPamaterCache().clear();
-		 * SearchActivity.launch(MainActivity.this, new Bundle());
-		 * overridePendingTransition(R.layout.apvalue, R.layout.apvalue); } });
-		 */
 		timer = new Timer(true);
-		timer.schedule(updatalistviewtask, 0,searchTime);
+		timer.schedule(updatalistviewtask, 0, searchTime);
 		GetImei();// 获取设备的deviceid
 		clearProcc();
 		getPageCache();
 		listView = (AutoListView) findViewById(R.id.listView);
-		// listView.setEnabled(false);
-
 		InitList();
 		CacheProcc();
 	}
@@ -320,7 +301,6 @@ public class MainActivity extends Activity implements OnRefreshListener,
 		// 改进
 		adapter = new ListAdapter(this, itemList, listView, "MainActivity");
 		listView.setAdapter(adapter);
-
 		listView.setOnRefreshListener(this);
 		listView.setOnLoadListener(this);
 		listView.setItemsCanFocus(false);
@@ -345,15 +325,9 @@ public class MainActivity extends Activity implements OnRefreshListener,
 		AppStoreApplication.getInstance().getPamaterCache().addPage(pageData);
 	}
 
-	private void setTitle() {
-
-	}
-
-	
-
 	private void Active() {
 		if (prevFlag != Flag || prevFlag == Flag && itemList.size() == 0) {
-			
+
 			adapter.clearData();
 			itemList.clear();
 			startpos = 0;
@@ -426,6 +400,38 @@ public class MainActivity extends Activity implements OnRefreshListener,
 				R.string.connectfail, AutoListView.LOAD).execute();
 	}
 
+	private void getappList() {
+		AppLogger.e("========== in getappList");
+		String accesskey = "lflMmtFvvNt5YobP";
+		String secret = "aYpz8CtTVSMWFnqaH1Q7uhki1NNQcL";
+
+		Map<String, Object> opts = new HashMap<String, Object>();
+		// 这里的host需要根据访问应用基本详情中的API入口来确定
+		opts.put("host", "http://opensearch-cn-hangzhou.aliyuncs.com");
+		CloudsearchClient client = new CloudsearchClient(accesskey, secret,
+				opts, KeyTypeEnum.OPENSEARCH);
+		CloudsearchSearch search = new CloudsearchSearch(client);
+
+		search.addIndex("AppStore");
+		search.setQueryString("platform:'all'");
+
+		search.setFormat("json");
+		String test = "";
+		try {
+
+			AppLogger.e("========== before search");
+			test = search.search();
+
+			AppLogger.e("========== after search");
+		} catch (Exception e) {
+			AppLogger.e("========== search Exception");
+			e.printStackTrace();
+		}
+
+		System.out.println("===========" + test);
+
+	}
+
 	private class NewTask extends LoadingDialog<Void, List<ItemData>> {
 		int loadcategory;
 
@@ -457,18 +463,22 @@ public class MainActivity extends Activity implements OnRefreshListener,
 					}
 					break;
 				case AutoListView.LOAD:
-					
+					// getappList();
+
 					Log.v("MainActivity", "getHttpApicount = "
 							+ itemdata.length);
 					for (int i = 0; itemdata != null && i < itemdata.length; i++) {
-											
+
 						util.setFileState(itemdata[i]);
-						if(i == 1)
-							itemdata[i].setFilename("http://apk.r1.market.hiapk.com/data/upload/apkres/2015/1_22/21/com.tencent.mm_093944461.apk");
-						else if(i == 2)
-							itemdata[i].setFilename("http://apk.r1.market.hiapk.com/data/upload/2015/01_16/23/com.tencent.mobileqq_233135.apk");
-						else if(i == 3)
-							itemdata[i].setFilename("http://apk.r1.market.hiapk.com/data/upload/2015/01_22/18/com.qiyi.video_182142.apk");
+						if (i == 1)
+							itemdata[i]
+									.setFilename("http://apk.r1.market.hiapk.com/data/upload/apkres/2015/1_22/21/com.tencent.mm_093944461.apk");
+						else if (i == 2)
+							itemdata[i]
+									.setFilename("http://apk.r1.market.hiapk.com/data/upload/2015/01_16/23/com.tencent.mobileqq_233135.apk");
+						else if (i == 3)
+							itemdata[i]
+									.setFilename("http://apk.r1.market.hiapk.com/data/upload/2015/01_22/18/com.qiyi.video_182142.apk");
 						itemDataList.add(itemdata[i]);
 					}
 					break;
@@ -495,23 +505,22 @@ public class MainActivity extends Activity implements OnRefreshListener,
 			disPlayList(itemList, loadcategory);
 		}
 	}
-	
-	
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		// TODO Auto-generated method stub
-		
-		if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN){   
-	        if((System.currentTimeMillis()-exitTime) > 2000){  
-	            Toast.makeText(getApplicationContext(), "再按一次退出程序", Toast.LENGTH_SHORT).show();                                
-	            exitTime = System.currentTimeMillis();   
-	        } else {
-	            finish();
-	            System.exit(0);
-	        }
-	        return true;   
-	    }
+		if (keyCode == KeyEvent.KEYCODE_BACK
+				&& event.getAction() == KeyEvent.ACTION_DOWN) {
+			if ((System.currentTimeMillis() - exitTime) > 2000) {
+				Toast.makeText(getApplicationContext(), "再按一次退出程序",
+						Toast.LENGTH_SHORT).show();
+				exitTime = System.currentTimeMillis();
+			} else {
+				finish();
+				System.exit(0);
+			}
+			return true;
+		}
 		return super.onKeyDown(keyCode, event);
 	}
 
@@ -529,4 +538,5 @@ public class MainActivity extends Activity implements OnRefreshListener,
 		System.out.println("MainActivity  onLoad");
 		loadDataByCategory(1);
 	}
+
 }
