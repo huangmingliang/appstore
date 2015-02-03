@@ -39,8 +39,7 @@ public class ListAdapter extends BaseAdapter {
 	
 	private UtilFun util = null;
 	
-	private static String TEXT_INSTALL = "安装";
-	private static String TEXT_OPEN = "打开";
+	
 	
 	private List<dLoadButtonTextofRadio>dlButtontextlist;
 
@@ -170,13 +169,13 @@ public class ListAdapter extends BaseAdapter {
 						indexData.getFilename());
 		int star = indexData.getStar();
 		setStar(holder, star);
-		holder.textFileSizeView.setText("社交工具");
+		holder.textFileSizeView.setText(R.string.game);
 		holder.uri = filename;
 
 		holder.name.setText(mData.get(position).get("name").toString());
 		holder.iconView.setDefaultImage(R.drawable.loading_imageview);
 		
-		// 测试图片分辨率
+		//testpicture
 		testSetPicture(positionn, holder);
 					
 		holder.iconView.setImageUrl(mData.get(position).get("iconView")
@@ -196,7 +195,7 @@ public class ListAdapter extends BaseAdapter {
 											
 					String filename =AppStoreApplication.getInstance().getFilePath()+AppStoreApplication.getInstance().getFileName(indexData.getFilename());
 					if(AppStoreApplication.getInstance().isNetWorkConnected){
-						if (dlbutton.getText().equals(TEXT_INSTALL)) {
+						if (indexData.getButtonFileflag()==ItemData.APP_INSTALED||indexData.getButtonFileflag()==ItemData.APP_FAIL) {
 							//dlbutton.setVisibility(View.GONE);
 							setdownloadButtonBackground(dlbutton, "0%", R.drawable.loading_button);
 							itemList.get(positionn).setButtonFileflag(3);
@@ -207,7 +206,7 @@ public class ListAdapter extends BaseAdapter {
 								AppStoreApplication.getInstance().getDownloadLink().addNode(noticData);
 							}
 							
-						} else if (dlbutton.getText().equals(TEXT_OPEN)) {
+						} else if (indexData.getButtonFileflag() == ItemData.APP_OPEN) {
 							try {
 								if (util.isAppInstalled(filename, mContext)) {
 									String packageName = util.getPackageName(
@@ -220,7 +219,7 @@ public class ListAdapter extends BaseAdapter {
 							}
 						}			
 					}else 
-						Toast.makeText(mContext, "请检查网络", Toast.LENGTH_SHORT).show();
+						Toast.makeText(mContext, R.string.connectfail, Toast.LENGTH_SHORT).show();
 					
 			}
 		});
@@ -346,31 +345,25 @@ public class ListAdapter extends BaseAdapter {
 	
 	private void setDownloadButtonByflag(ViewHolder holder,int position,final ItemData indexData){
 		switch (indexData.getButtonFileflag()) {
-		//需要初始化的下载任务
 		case 0:
 			AppStoreApplication.getInstance().getCurrentDownloadJobManager().completeCurrentDownLoadInfo(indexData);
             break;	
-		//未安装
 		case 1:
-			setdownloadButtonBackground(holder.imageDownloadView, TEXT_INSTALL, R.drawable.load_button);
+			setdownloadButtonBackground(holder.imageDownloadView, R.string.app_install, R.drawable.load_button);
 			break;
-		//安装好，可打开
 		case 2:		
-			setdownloadButtonBackground(holder.imageDownloadView, TEXT_OPEN, R.drawable.open_button);
+			setdownloadButtonBackground(holder.imageDownloadView, R.string.app_open, R.drawable.open_button);
 			AppStoreApplication.getInstance().getCurrentDownloadJobManager().removeDownloadJob(util.getFileName(indexData.getFilename()));
 			break;
-		//下载中
 		case 3:	
 			setdownloadButtonBackground(holder.imageDownloadView, dlButtontextlist.get(position).getRadio()+"%", R.drawable.loading_button);	
 			break;
-		//安装失败
 		case 4:
-			setdownloadButtonBackground(holder.imageDownloadView, TEXT_INSTALL, R.drawable.load_button);			
-			//将该app下载信息从当前下载列表中移除
+			setdownloadButtonBackground(holder.imageDownloadView, R.string.app_install, R.drawable.load_button);			
+			//锟斤拷锟斤拷app锟斤拷锟斤拷锟斤拷息锟接碉拷前锟斤拷锟斤拷锟叫憋拷锟斤拷锟狡筹拷
 			dlButtontextlist.get(position).setRadio(0);
 			AppStoreApplication.getInstance().getCurrentDownloadJobManager().removeDownloadJob(util.getFileName(indexData.getFilename()));
 			break;
-		//app下载过程中网络请求超时或者网络突然断开
 		case 5:	
 			setdownloadButtonBackground(holder.imageDownloadView, dlButtontextlist.get(position).getRadio()+"%", R.drawable.loading_button);			
 			break;
@@ -395,6 +388,11 @@ public class ListAdapter extends BaseAdapter {
 			}
 			
 		}
+	}
+	private void setdownloadButtonBackground(Button dlbutton,int string,int resource){
+		dlbutton.setText(string);
+		dlbutton.setBackgroundResource(resource);
+
 	}
 	private void setdownloadButtonBackground(Button dlbutton,String text,int resource){
 		dlbutton.setText(text);

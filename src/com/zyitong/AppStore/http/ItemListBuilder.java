@@ -82,7 +82,7 @@ public class ItemListBuilder extends JSONBuilder<ItemData> {
 		itemData.setStar(star);
 		itemData.setEnd(end);
 		itemData.setVer(ver);
-		//Èç¹ûÎÄ¼ş²»´æÔÚ»òÕßÊÇ´æÔÚÁË²»ÄÜÏÂÔØ¾ÍÉèÖÃÎª¡°ÏÂÔØ¡±
+		//ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú»ï¿½ï¿½ï¿½ï¿½Ç´ï¿½ï¿½ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½Ø¡ï¿½
 		
 		return itemData;
 	}

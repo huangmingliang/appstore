@@ -1,7 +1,5 @@
 package com.zyitong.AppStore.tools;
 
-
-
 public class AppLogger {
 	protected static final String TAG = "VEBSOFT";
 
@@ -9,13 +7,12 @@ public class AppLogger {
 	public static final int DEBUG_LEVEL = 2; // 0 verbose 1 debug 2 info 3
 												// warnning 4 error
 
-	
 	private AppLogger() {
 	}
 
 	private static boolean canDisplay(int level) {
-		if (DEBUG){
-			if (level >= DEBUG_LEVEL){
+		if (DEBUG) {
+			if (level >= DEBUG_LEVEL) {
 				return true;
 			}
 		}
@@ -29,7 +26,7 @@ public class AppLogger {
 	}
 
 	public static void v(String msg, Throwable thr) {
-		if  (canDisplay(0))
+		if (canDisplay(0))
 			android.util.Log.v(TAG, buildMessage(msg), thr);
 	}
 

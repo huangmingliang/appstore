@@ -1,7 +1,6 @@
 package com.zyitong.AppStore.tools;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,6 +32,7 @@ import com.zyitong.AppStore.http.async.WSError;
 public class UtilFun {
 	private Context context;
 	private FileOpt opt;
+
 	public UtilFun(Context context) {
 		this.context = context;
 		opt = new FileOpt();
@@ -68,13 +68,13 @@ public class UtilFun {
 	public FileDownloadJob DataChange(ItemData data) {
 		FileDownloadJob dldata = new FileDownloadJob();
 		int NOTIFICATION_ID = (int) data.getId();
-		// Èç¹ûÔÚÏÂÔØÁÐ±íÒÑ¾­´æÔÚ¸ÃÈÎÎñ
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½Ú¸ï¿½ï¿½ï¿½ï¿½ï¿½
 		if (AppStoreApplication.getInstance().getDownloadLink()
 				.findNode((int) data.getId()))
 			return null;
 
 		String name = data.getName();
-		
+
 		String filename = AppStoreApplication.getInstance().getFileName(
 				data.getFilename());
 		String localPath = AppStoreApplication.getInstance().getFilePath();
@@ -102,23 +102,18 @@ public class UtilFun {
 		try {
 			imple.uploadDownNum(dldata.getUpdateurl());
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
+			e.printStackTrace();
 		} catch (WSError e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
+			e.printStackTrace();
 		}
 		AppStoreApplication.getInstance().getDownloadLink()
 				.delNode(dldata.getId());
-		// play(dldata);
-
 	}
 
 	public boolean isAppInstalled(String uri, Context mContext)
 			throws PackageManager.NameNotFoundException {
 		PackageManager pm = mContext.getPackageManager();
 		boolean installed = false;
-		// pm.getPackageInfo(uri,PackageManager.GET_ACTIVITIES);
 		PackageInfo packageInfo = pm.getPackageArchiveInfo(uri,
 				PackageManager.GET_ACTIVITIES);
 		String packagename = packageInfo.packageName;
@@ -181,7 +176,7 @@ public class UtilFun {
 
 	}
 
-	// ÒýÓÃ´«µÝ
+	// ï¿½ï¿½ï¿½Ã´ï¿½ï¿½ï¿½
 	public boolean getUninatllApkInfo(Context context, String filePath) {
 
 		boolean result = false;
@@ -201,7 +196,7 @@ public class UtilFun {
 	}
 
 	public void setFileState(ItemData itemData) {
-		
+
 		String filename = AppStoreApplication.getInstance().getFilePath()
 				+ AppStoreApplication.getInstance().getFileName(
 						itemData.getFilename());
@@ -288,7 +283,7 @@ public class UtilFun {
 	public String execRootCmd(String paramString) {
 		String result = "result : ";
 		try {
-			Process localProcess = Runtime.getRuntime().exec("su ");// ¾­¹ýRoot´¦ÀíµÄandroidÏµÍ³¼´ÓÐsuÃüÁî
+			Process localProcess = Runtime.getRuntime().exec("su ");// ï¿½ï¿½ï¿½ï¿½Rootï¿½ï¿½ï¿½ï¿½ï¿½androidÏµÍ³ï¿½ï¿½ï¿½ï¿½suï¿½ï¿½ï¿½ï¿½
 			OutputStream localOutputStream = localProcess.getOutputStream();
 			DataOutputStream localDataOutputStream = new DataOutputStream(
 					localOutputStream);

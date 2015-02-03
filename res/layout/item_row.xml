@@ -10,8 +10,7 @@
         android:layout_height="63dip"
         android:layout_gravity="center_vertical"
         android:layout_marginBottom="10dip"
-        android:layout_marginTop="10dip" 
-        >
+        android:layout_marginTop="10dip" >
     </com.zyitong.AppStore.ui.RemoteImageView>
 
     <LinearLayout
@@ -58,47 +57,49 @@
                 android:id="@+id/starView1"
                 android:layout_width="11dip"
                 android:layout_height="11dip"
-                android:background="@drawable/star02"
-                android:layout_marginRight="2dip" />
+                android:layout_marginRight="2dip"
+                android:background="@drawable/star02" />
 
             <View
                 android:id="@+id/starView2"
                 android:layout_width="11dip"
                 android:layout_height="11dip"
-                android:background="@drawable/star02"
-                android:layout_marginRight="2dip" />
+                android:layout_marginRight="2dip"
+                android:background="@drawable/star02" />
+
             <View
                 android:id="@+id/starView3"
                 android:layout_width="11dip"
                 android:layout_height="11dip"
-                android:background="@drawable/star02"
-                android:layout_marginRight="2dip" />
+                android:layout_marginRight="2dip"
+                android:background="@drawable/star02" />
+
             <View
                 android:id="@+id/starView4"
                 android:layout_width="11dip"
                 android:layout_height="11dip"
-                android:background="@drawable/star02"
-                android:layout_marginRight="2dip" />
+                android:layout_marginRight="2dip"
+                android:background="@drawable/star02" />
+
             <View
                 android:id="@+id/starView5"
                 android:layout_width="11dip"
                 android:layout_height="11dip"
-                android:background="@drawable/star02"
-                android:layout_marginRight="2dip" />
-           
+                android:layout_marginRight="2dip"
+                android:background="@drawable/star02" />
         </LinearLayout>
-
-       
     </LinearLayout>
-        <Button
-            android:id="@+id/imageDownloadView"
-            android:layout_width="80dip"
-            android:layout_height="30dip"
-            android:layout_marginTop="26dip"
-            android:background="@drawable/load_button"
-            android:focusable="true"
-            android:text="安装"
-            android:textColor="@color/white"
-            android:textSize="14sp" >
-        </Button>   
+
+    <Button
+        android:id="@+id/imageDownloadView"
+        android:layout_width="80dip"
+        android:layout_height="30dip"
+        android:layout_marginTop="26dip"
+        android:background="@drawable/load_button"
+        android:focusable="true"
+        android:text="@string/app_install"
+        android:textColor="@color/white"
+        android:textSize="14sp" >
+    </Button>
+
 </LinearLayout>

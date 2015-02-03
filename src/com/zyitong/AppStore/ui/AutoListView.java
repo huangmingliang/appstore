@@ -1,10 +1,5 @@
 package com.zyitong.AppStore.ui;
 
-
-
-import com.zyitong.AppStore.R;
-import com.zyitong.AppStore.tools.UtilFun;
-
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -14,23 +9,21 @@ import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.ListView;
 
+import com.zyitong.AppStore.R;
+import com.zyitong.AppStore.tools.UtilFun;
 
-public class AutoListView extends ListView implements OnScrollListener{
-
-	// Çø·Öµ±Ç°²Ù×÷ÊÇË¢ĞÂ»¹ÊÇ¼ÓÔØ
+public class AutoListView extends ListView implements OnScrollListener {
 	public static final int REFRESH = 0;
 	public static final int LOAD = 1;
 
-	// Çø·ÖPULLºÍRELEASEµÄ¾àÀëµÄ´óĞ¡
 	private static final int SPACE = 20;
 
-	// ¶¨ÒåheaderµÄËÄÖÖ×´Ì¬ºÍµ±Ç°×´Ì¬
 	private static final int NONE = 0;
 	private static final int PULL = 1;
 	private static final int RELEASE = 2;
@@ -61,10 +54,9 @@ public class AutoListView extends ListView implements OnScrollListener{
 	private int headerContentInitialHeight;
 	private int headerContentHeight;
 
-	// Ö»ÓĞÔÚlistviewµÚÒ»¸öitemÏÔÊ¾µÄÊ±ºò£¨listview»¬µ½ÁË¶¥²¿£©²Å½øĞĞÏÂÀ­Ë¢ĞÂ£¬ ·ñÔò´ËÊ±µÄÏÂÀ­Ö»ÊÇ»¬¶¯listview
 	private boolean isRecorded;
-	private boolean isLoading;// ÅĞ¶ÏÊÇ·ñÕıÔÚ¼ÓÔØ
-	private boolean loadEnable = true;// ¿ªÆô»òÕß¹Ø±Õ¼ÓÔØ¸ü¶à¹¦ÄÜ
+	private boolean isLoading;
+	private boolean loadEnable = true;
 	private boolean isLoadFull;
 	private int pageSize = 6;
 
@@ -86,12 +78,10 @@ public class AutoListView extends ListView implements OnScrollListener{
 		initView(context);
 	}
 
-	// ÏÂÀ­Ë¢ĞÂ¼àÌı
 	public void setOnRefreshListener(OnRefreshListener onRefreshListener) {
 		this.onRefreshListener = onRefreshListener;
 	}
 
-	// ¼ÓÔØ¸ü¶à¼àÌı
 	public void setOnLoadListener(OnLoadListener onLoadListener) {
 		this.loadEnable = true;
 		this.onLoadListener = onLoadListener;
@@ -101,7 +91,6 @@ public class AutoListView extends ListView implements OnScrollListener{
 		return loadEnable;
 	}
 
-	// ÕâÀïµÄ¿ªÆô»òÕß¹Ø±Õ¼ÓÔØ¸ü¶à£¬²¢²»Ö§³Ö¶¯Ì¬µ÷Õû
 	public void setLoadEnable(boolean loadEnable) {
 		this.loadEnable = loadEnable;
 		this.removeFooterView(footer);
@@ -115,10 +104,10 @@ public class AutoListView extends ListView implements OnScrollListener{
 		this.pageSize = pageSize;
 	}
 
-	// ³õÊ¼»¯×é¼ş
+	// ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½
 	private void initView(Context context) {
 
-		// ÉèÖÃ¼ıÍ·ÌØĞ§
+		// ï¿½ï¿½ï¿½Ã¼ï¿½Í·ï¿½ï¿½Ğ§
 		animation = new RotateAnimation(0, -180,
 				RotateAnimation.RELATIVE_TO_SELF, 0.5f,
 				RotateAnimation.RELATIVE_TO_SELF, 0.5f);
@@ -146,7 +135,6 @@ public class AutoListView extends ListView implements OnScrollListener{
 		lastUpdate = (TextView) header.findViewById(R.id.lastUpdate);
 		refreshing = (ProgressBar) header.findViewById(R.id.refreshing);
 
-		// ÎªlistviewÌí¼ÓÍ·²¿ºÍÎ²²¿£¬²¢½øĞĞ³õÊ¼»¯
 		headerContentInitialHeight = header.getPaddingTop();
 		measureView(header);
 		headerContentHeight = header.getMeasuredHeight();
@@ -175,18 +163,14 @@ public class AutoListView extends ListView implements OnScrollListener{
 		refreshHeaderViewByState();
 	}
 
-	// ÓÃÓÚÏÂÀ­Ë¢ĞÂ½áÊøºóµÄ»Øµ÷
 	public void onRefreshComplete() {
 		String currentTime = UtilFun.getCurrentTime();
 		onRefreshComplete(currentTime);
 	}
 
-	// ÓÃÓÚ¼ÓÔØ¸ü¶à½áÊøºóµÄ»Øµ÷
 	public void onLoadComplete() {
 		isLoading = false;
 	}
-	
-	
 
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem,
@@ -201,7 +185,6 @@ public class AutoListView extends ListView implements OnScrollListener{
 		ifNeedLoad(view, scrollState);
 	}
 
-	// ¸ù¾İlistview»¬¶¯µÄ×´Ì¬ÅĞ¶ÏÊÇ·ñĞèÒª¼ÓÔØ¸ü¶à
 	private void ifNeedLoad(AbsListView view, int scrollState) {
 		if (!loadEnable) {
 			return;
@@ -218,26 +201,26 @@ public class AutoListView extends ListView implements OnScrollListener{
 		}
 	}
 
-	/**
-	 * ¼àÌı´¥ÃşÊÂ¼ş£¬½â¶ÁÊÖÊÆ
-	 */
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
 		switch (ev.getAction()) {
-		case MotionEvent.ACTION_DOWN://ÆÁÄ»°´ÏÂ
-			System.out.println("AutoListView totalItemCount = " + totalItemCount);
-			if(totalItemCount != 2&&totalItemCount < 5){
+		case MotionEvent.ACTION_DOWN:
+			System.out.println("AutoListView totalItemCount = "
+					+ totalItemCount);
+			if (totalItemCount != 2 && totalItemCount < 5) {
 				if (firstVisibleItem == 0) {
-					System.out.println("AutoListView firstVisibleItem = " + firstVisibleItem);
-					System.out.println("AutoListView totalItemCount = " + totalItemCount);
+					System.out.println("AutoListView firstVisibleItem = "
+							+ firstVisibleItem);
+					System.out.println("AutoListView totalItemCount = "
+							+ totalItemCount);
 					isRecorded = true;
 					startY = (int) ev.getY();
 				}
 			}
-			//this.invalidate();
+			// this.invalidate();
 			break;
-		case MotionEvent.ACTION_CANCEL://
-		case MotionEvent.ACTION_UP://°´ÏÂÌ§Æğ
+		case MotionEvent.ACTION_CANCEL:
+		case MotionEvent.ACTION_UP:
 			if (state == PULL) {
 				state = NONE;
 				refreshHeaderViewByState();
@@ -249,14 +232,13 @@ public class AutoListView extends ListView implements OnScrollListener{
 			isRecorded = false;
 			break;
 		case MotionEvent.ACTION_MOVE:
-			
+
 			whenMove(ev);
 			break;
 		}
 		return super.onTouchEvent(ev);
 	}
 
-	// ½â¶ÁÊÖÊÆ£¬Ë¢ĞÂheader×´Ì¬
 	private void whenMove(MotionEvent ev) {
 		if (!isRecorded) {
 			return;
@@ -270,7 +252,6 @@ public class AutoListView extends ListView implements OnScrollListener{
 				state = PULL;
 				refreshHeaderViewByState();
 			}
-			//this.invalidate();
 			break;
 		case PULL:
 			topPadding(topPadding);
@@ -278,7 +259,6 @@ public class AutoListView extends ListView implements OnScrollListener{
 					&& space > headerContentHeight + SPACE) {
 				state = RELEASE;
 				refreshHeaderViewByState();
-				//
 			}
 			break;
 		case RELEASE:
@@ -292,24 +272,14 @@ public class AutoListView extends ListView implements OnScrollListener{
 			}
 			break;
 		}
-
 	}
 
-	// µ÷ÕûheaderµÄ´óĞ¡¡£ÆäÊµµ÷ÕûµÄÖ»ÊÇ¾àÀë¶¥²¿µÄ¸ß¶È¡£
 	private void topPadding(int topPadding) {
 		header.setPadding(header.getPaddingLeft(), topPadding,
 				header.getPaddingRight(), header.getPaddingBottom());
 		header.invalidate();
 	}
 
-	/**
-	 * Õâ¸ö·½·¨ÊÇ¸ù¾İ½á¹ûµÄ´óĞ¡À´¾ö¶¨footerÏÔÊ¾µÄ¡£
-	 * <p>
-	 * ÕâÀï¼Ù¶¨Ã¿´ÎÇëÇóµÄÌõÊıÎª10¡£Èç¹ûÇëÇóµ½ÁË10Ìõ¡£ÔòÈÏÎª»¹ÓĞÊı¾İ¡£Èç¹ı½á¹û²»×ã10Ìõ£¬ÔòÈÏÎªÊı¾İÒÑ¾­È«²¿¼ÓÔØ£¬ÕâÊ±footerÏÔÊ¾ÒÑ¾­È«²¿¼ÓÔØ
-	 * </p>
-	 * 
-	 * @param resultSize
-	 */
 	public void setResultSize(int resultSize) {
 		if (resultSize == 0) {
 			isLoadFull = true;
@@ -333,7 +303,6 @@ public class AutoListView extends ListView implements OnScrollListener{
 
 	}
 
-	// ¸ù¾İµ±Ç°×´Ì¬£¬µ÷Õûheader
 	private void refreshHeaderViewByState() {
 		switch (state) {
 		case NONE:
@@ -373,7 +342,6 @@ public class AutoListView extends ListView implements OnScrollListener{
 		}
 	}
 
-	// ÓÃÀ´¼ÆËãheader´óĞ¡µÄ¡£±È½ÏÒş»Ş¡£ÒòÎªheaderµÄ³õÊ¼¸ß¶È¾ÍÊÇ0,Ã²ËÆ¿ÉÒÔ²»ÓÃ¡£
 	private void measureView(View child) {
 		ViewGroup.LayoutParams p = child.getLayoutParams();
 		if (p == null) {
@@ -393,18 +361,11 @@ public class AutoListView extends ListView implements OnScrollListener{
 		child.measure(childWidthSpec, childHeightSpec);
 	}
 
-	/*
-	 * ¶¨ÒåÏÂÀ­Ë¢ĞÂ½Ó¿Ú
-	 */
 	public interface OnRefreshListener {
 		public void onRefresh();
 	}
 
-	/*
-	 * ¶¨Òå¼ÓÔØ¸ü¶à½Ó¿Ú
-	 */
 	public interface OnLoadListener {
 		public void onLoad();
 	}
-
 }

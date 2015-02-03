@@ -1,6 +1,5 @@
 package com.zyitong.AppStore.bean;
 
-import android.os.Handler;
 
 public class NoticData {
 	private FileDownloadJob fileDownloadJob;

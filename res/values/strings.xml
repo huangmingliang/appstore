@@ -33,6 +33,9 @@
     <string name="pause">暂停</string>
     <string name="clear">清除</string>
     <string name="cancel">取消</string>
+    <string name="app_install">安装</string>
+    <string name="app_open">打开</string>
+    <string name="app_install_failed">安装失败</string>
 
     <dimen name="Text_NoData_Size">20px</dimen>
     <dimen name="icon_size">60px</dimen>
