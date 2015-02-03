@@ -26,9 +26,6 @@ import android.view.KeyEvent;
 import android.view.Window;
 import android.widget.Toast;
 
-import com.opensearch.javasdk.CloudsearchClient;
-import com.opensearch.javasdk.CloudsearchSearch;
-import com.opensearch.javasdk.object.KeyTypeEnum;
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.R;
 import com.zyitong.AppStore.adapter.ListAdapter;
@@ -405,30 +402,7 @@ public class MainActivity extends Activity implements OnRefreshListener,
 		String accesskey = "lflMmtFvvNt5YobP";
 		String secret = "aYpz8CtTVSMWFnqaH1Q7uhki1NNQcL";
 
-		Map<String, Object> opts = new HashMap<String, Object>();
-		// 这里的host需要根据访问应用基本详情中的API入口来确定
-		opts.put("host", "http://opensearch-cn-hangzhou.aliyuncs.com");
-		CloudsearchClient client = new CloudsearchClient(accesskey, secret,
-				opts, KeyTypeEnum.OPENSEARCH);
-		CloudsearchSearch search = new CloudsearchSearch(client);
-
-		search.addIndex("AppStore");
-		search.setQueryString("platform:'all'");
-
-		search.setFormat("json");
-		String test = "";
-		try {
-
-			AppLogger.e("========== before search");
-			test = search.search();
-
-			AppLogger.e("========== after search");
-		} catch (Exception e) {
-			AppLogger.e("========== search Exception");
-			e.printStackTrace();
-		}
-
-		System.out.println("===========" + test);
+		System.out.println("===========");
 
 	}
 
