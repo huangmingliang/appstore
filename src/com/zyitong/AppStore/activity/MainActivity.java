@@ -437,8 +437,8 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 				error.setMessage(outText);
 				publishProgress(error);
 			} catch (WSError e) {
-				e.setMessage(getResources().getString(R.string.networkerr));
-				publishProgress(e);
+				e.setMessage(getResources().getString(R.string.networkerr));	
+				publishProgress(e);		
 			}
 
 			return itemDataList;
@@ -448,6 +448,11 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 		public void doStuffWithResult(List<ItemData> itemList) {
 			disPlayList(itemList, loadcategory);
  		}
+		@Override
+		public void onLoadfail() {
+			// TODO Auto-generated method stub
+			listView.onLoadComplete();
+		}
 	}
 
 	@Override

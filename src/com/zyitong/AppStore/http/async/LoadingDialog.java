@@ -42,12 +42,15 @@ public abstract class LoadingDialog<Input, Result> extends
 			doStuffWithResult(result);
 		} else {
 			failMsg();
+			onLoadfail();
 		}
 	}
 
 	protected void failMsg() {
 		Toast.makeText(mActivity, mFailMsg, Toast.LENGTH_LONG).show();
 	}
+	
+	public abstract void onLoadfail();
 
 	/**
 	 * Very abstract function hopefully very meaningful name, executed when
@@ -61,8 +64,8 @@ public abstract class LoadingDialog<Input, Result> extends
 
 	@Override
 	protected void onProgressUpdate(WSError... values) {
-		/*Toast.makeText(mActivity, values[0].getMessage(), Toast.LENGTH_LONG)
-				.show();*/
+		Toast.makeText(mActivity, values[0].getMessage(), Toast.LENGTH_LONG)
+				.show();
 		this.cancel(true);
 		// mProgressDialog.dismiss();
 		super.onProgressUpdate(values);
