@@ -2,13 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.zyitong.AppStore"
     android:versionCode="1"
-    android:versionName="1.0"
-     >
-    <uses-sdk android:minSdkVersion="5" />
-    <!-- android:sharedUserId="android.uid.system"  -->
-    <!-- <uses-permission android:name="android.permission.INSTALL_PACKAGES"/> --> 
+    android:versionName="1.0" >
 
-    
+    <uses-sdk android:minSdkVersion="7" />
+    <!-- android:sharedUserId="android.uid.system" -->
+    <!-- <uses-permission android:name="android.permission.INSTALL_PACKAGES"/> -->
+
+
     <!-- 连接互联网权限 -->
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- 监控网络的权限 -->
@@ -21,11 +21,10 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
     <uses-permission android:name="com.android.launcher.permission.UNINSTALL_SHORTCUT" />
-    
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application
-        android:name="com.zyitong.AppStore.AppStoreApplication"
+        android:name=".AppStoreApplication"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
@@ -36,22 +35,26 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:screenOrientation="portrait"
+        <activity
             android:name=".activity.MainActivity"
-             />
-        <activity android:name=".activity.SearchActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SearchActivity"
             android:launchMode="singleTop" />
-        
-        <service android:name="com.zyitong.AppStore.service.DownLoadService"/>
-        <service android:name=".service.UpdateMGService"
-            android:label="UpdateMGService"
-            android:icon="@drawable/icon"
+
+        <service android:name=".service.DownLoadService" />
+        <service
+            android:name=".service.UpdateMGService"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true"
+            android:icon="@drawable/icon"
+            android:label="UpdateMGService" >
         </service>
-        
-   
+
+        <activity
+            android:name="com.zyitong.AppStore.base.BaseActivity"
+            android:label="@string/title_activity_base" >
+        </activity>
     </application>
-   
 
 </manifest>

@@ -1,4 +1,4 @@
-package com.zyitong.AppStore.downloadmanager;
+package com.zyitong.AppStore.dao;
 
 import java.util.LinkedList;
 

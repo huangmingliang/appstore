@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.bean.NoticData;
-import com.zyitong.AppStore.downloadmanager.DownloadLink;
+import com.zyitong.AppStore.dao.DownloadLink;
 
 public class FileDownLoadMonitorThread extends Thread {
 	private boolean isRuning = false;

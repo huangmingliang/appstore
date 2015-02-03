@@ -15,8 +15,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.zyitong.AppStore.AppStoreApplication;
-import com.zyitong.AppStore.bean.RequestCache;
-import com.zyitong.AppStore.loading.WSError;
+import com.zyitong.AppStore.dao.RequestCache;
+import com.zyitong.AppStore.http.async.WSError;
 
 import android.util.Log;
 

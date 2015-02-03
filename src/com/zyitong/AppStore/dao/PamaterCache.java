@@ -1,10 +1,12 @@
-package com.zyitong.AppStore.bean;
+package com.zyitong.AppStore.dao;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.zyitong.AppStore.bean.PageInfoData;
+
 public class PamaterCache {
-	private List<PageInfoData> itemList = new ArrayList();
+	private List<PageInfoData> itemList = new ArrayList<PageInfoData>();
 	public void clear()
 	{
 		itemList.clear();

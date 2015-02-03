@@ -2,18 +2,10 @@ package com.zyitong.AppStore.service;
 
 import java.util.Timer;
 import java.util.TimerTask;
-
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.downloadthread.FileDownLoadMonitorThread;
-import com.zyitong.AppStore.tools.UtilFun;
-
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -22,8 +14,6 @@ public class DownLoadService extends Service {
 	private FileDownLoadMonitorThread fileThread = null;
 	private Timer timer;
 	private TimerTask updateDownloadListTask;
-	private UtilFun util = new UtilFun();
-
 	private int DELAY_TIME = 2 * 1000;
 	private int PERIOD_TIME = 3 * 1000;
 

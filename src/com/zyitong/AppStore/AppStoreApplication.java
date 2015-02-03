@@ -1,14 +1,13 @@
 package com.zyitong.AppStore;
 
 import android.app.Application;
-import android.app.NotificationManager;
 import android.content.Intent;
 
-import com.zyitong.AppStore.bean.ImageCache;
-import com.zyitong.AppStore.bean.PamaterCache;
-import com.zyitong.AppStore.bean.RequestCache;
-import com.zyitong.AppStore.downloadmanager.CurrentDownloadJobManager;
-import com.zyitong.AppStore.downloadmanager.DownloadLink;
+import com.zyitong.AppStore.dao.CurrentDownloadJobManager;
+import com.zyitong.AppStore.dao.DownloadLink;
+import com.zyitong.AppStore.dao.ImageCache;
+import com.zyitong.AppStore.dao.PamaterCache;
+import com.zyitong.AppStore.dao.RequestCache;
 import com.zyitong.AppStore.http.api.Caller;
 import com.zyitong.AppStore.service.DownLoadService;
 import com.zyitong.AppStore.tools.AppLogger;
@@ -29,9 +28,8 @@ public class AppStoreApplication extends Application {
 	private PamaterCache mPamaterCache;
 	private DownloadLink mDownloadLink;
 	private String imei;
-	private NotificationManager manager = null;
 	private CurrentDownloadJobManager currentDownloadJobList;
-	public static boolean isNetWorkConnected = true;
+	public boolean isNetWorkConnected = true;
 
 	public String getFilePath() {
 		// service 1 主题;2 游戏;3 电子书;4 铃声;5 图片;6 软件
@@ -64,7 +62,6 @@ public class AppStoreApplication extends Application {
 		Caller.setRequestCache(mRequestCache);
 		mDownloadLink = new DownloadLink();
 		currentDownloadJobList = new CurrentDownloadJobManager(this);
-		manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		instance = this;
 		startService();
 	}

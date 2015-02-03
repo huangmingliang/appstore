@@ -8,7 +8,7 @@ import com.zyitong.AppStore.bean.ItemData;
 
 import com.zyitong.AppStore.http.api.Caller;
 import com.zyitong.AppStore.http.api.SearchFunctions;
-import com.zyitong.AppStore.loading.WSError;
+import com.zyitong.AppStore.http.async.WSError;
 
 //GET_API="http://wap.vebclub.com/";//обтьм╪ф╛
 //GETIMAGE_API="http://www.vebclub.com/";
