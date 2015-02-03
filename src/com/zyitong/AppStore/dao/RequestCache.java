@@ -1,4 +1,4 @@
-package com.zyitong.AppStore.bean;
+package com.zyitong.AppStore.dao;
 
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -8,18 +8,12 @@ public class RequestCache {
 	// TODO cache lifeTime
 	
 	private static int CACHE_LIMIT = 10;
-	
-	@SuppressWarnings("unchecked")
-	private LinkedList history;
+	private LinkedList<String> history;
 	private Hashtable<String, String> cache;
-	
-	@SuppressWarnings("unchecked")
 	public RequestCache(){
-		history = new LinkedList();
+		history = new LinkedList<String>();
 		cache = new Hashtable<String, String>();
 	}
-	
-	@SuppressWarnings("unchecked")
 	public void put(String url, String data){
 		history.add(url);
 		// too much in the cache, we need to clear something

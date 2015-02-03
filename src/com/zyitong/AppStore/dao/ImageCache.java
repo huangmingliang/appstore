@@ -1,4 +1,4 @@
-package com.zyitong.AppStore.bean;
+package com.zyitong.AppStore.dao;
 
 import java.util.WeakHashMap;
 

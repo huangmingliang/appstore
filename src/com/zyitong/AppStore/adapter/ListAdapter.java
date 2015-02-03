@@ -19,13 +19,11 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.R;
 import com.zyitong.AppStore.bean.FileDownloadJob;
 import com.zyitong.AppStore.bean.ItemData;
 import com.zyitong.AppStore.bean.NoticData;
-import com.zyitong.AppStore.tools.FileOpt;
 import com.zyitong.AppStore.tools.Util;
 import com.zyitong.AppStore.tools.UtilFun;
 import com.zyitong.AppStore.ui.RemoteImageView;
@@ -33,18 +31,13 @@ import com.zyitong.AppStore.ui.RemoteImageView;
 @SuppressLint("ResourceAsColor")
 public class ListAdapter extends BaseAdapter {
 	
-	HashMap<Integer,View> lmap = new HashMap<Integer,View>();
-	private View[] views = new View[36];
-	private int mIconSize;
 	private Context mContext;
 	private List<ItemData> itemList;
 	private List<Map<String, Object>> mData;
 	private LayoutInflater mInflater;
 	private ListView listView;
-	private String className;
-	private OnLoadButtonListener monLoadButtonListener;
+	
 	private UtilFun util = null;
-	private FileOpt opt;
 	
 	private static String TEXT_INSTALL = "安装";
 	private static String TEXT_OPEN = "打开";
@@ -57,7 +50,7 @@ public class ListAdapter extends BaseAdapter {
 		mInflater = LayoutInflater.from(context);
 		this.itemList = itemList;
 		this.listView = listView;
-		this.className = className;
+	
 		init();
 	}
 
@@ -76,9 +69,6 @@ public class ListAdapter extends BaseAdapter {
 
 	private void init() {
 		util = new UtilFun(mContext);
-		opt = new FileOpt();
-		mIconSize = (int) mContext.getResources().getDimension(
-				R.dimen.icon_size);
 		mData = new ArrayList<Map<String, Object>>();
 		dlButtontextlist = new ArrayList<ListAdapter.dLoadButtonTextofRadio>();
 		for (int i = 0; i < itemList.size(); i++) {
@@ -180,9 +170,6 @@ public class ListAdapter extends BaseAdapter {
 						indexData.getFilename());
 		int star = indexData.getStar();
 		setStar(holder, star);
-
-		/*holder.textFileSizeView.setText(mData.get(position).get("filesize")
-				.toString());*/
 		holder.textFileSizeView.setText("社交工具");
 		holder.uri = filename;
 
@@ -191,17 +178,10 @@ public class ListAdapter extends BaseAdapter {
 		
 		// 测试图片分辨率
 		testSetPicture(positionn, holder);
-				
-		int mic = Integer.parseInt(mData.get(position).get("mic")
-				.toString());
-		if (mic == 5) {
-			holder.iconView.setImageUrl3(mData.get(position)
-					.get("iconView").toString(), position, listView);
-		} else {
-			holder.iconView.setImageUrl(mData.get(position).get("iconView")
+					
+		holder.iconView.setImageUrl(mData.get(position).get("iconView")
 					.toString(), position, listView);
-		}
-		
+				
 		/*if(position!=2)
 			holder.iconView.setImageUrl("http://img.r1.market.hiapk.com/data/upload/2014/07_16/15/72_72_201407161548386365.png");
 		else
@@ -220,7 +200,6 @@ public class ListAdapter extends BaseAdapter {
 							//dlbutton.setVisibility(View.GONE);
 							setdownloadButtonBackground(dlbutton, "0%", R.drawable.loading_button);
 							itemList.get(positionn).setButtonFileflag(3);
-							String contextstring = mContext.toString();
 							FileDownloadJob data = util.DataChange(indexData);
 							if (data != null) {							
 								NoticData noticData = new NoticData();
@@ -255,7 +234,7 @@ public class ListAdapter extends BaseAdapter {
 			//View view = listView.getChildAt(position);	
 			Log.e("ListAdapter",dlButtontextlist.get(position).getRadio()+" ");
 			
-			if(dlButtontextlist.get(position).getRadio()<radio)
+			if(dlButtontextlist.get(position).getRadio()<radio||dlButtontextlist.get(position).getRadio()==radio)
 			   dlButtontextlist.get(position).setRadio(radio);
 			
 			if(status == 4)
@@ -366,13 +345,11 @@ public class ListAdapter extends BaseAdapter {
 	}
 	
 	private void setDownloadButtonByflag(ViewHolder holder,int position,final ItemData indexData){
-		String getText = (String) holder.imageDownloadView.getText();
 		switch (indexData.getButtonFileflag()) {
 		//需要初始化的下载任务
 		case 0:
 			AppStoreApplication.getInstance().getCurrentDownloadJobManager().completeCurrentDownLoadInfo(indexData);
-            break;
-		
+            break;	
 		//未安装
 		case 1:
 			setdownloadButtonBackground(holder.imageDownloadView, TEXT_INSTALL, R.drawable.load_button);
@@ -394,9 +371,7 @@ public class ListAdapter extends BaseAdapter {
 			AppStoreApplication.getInstance().getCurrentDownloadJobManager().removeDownloadJob(util.getFileName(indexData.getFilename()));
 			break;
 		//app下载过程中网络请求超时或者网络突然断开
-		case 5:
-			//当网络连接之后重新下载该app，但是下载百分比不变，就把它放在下载队列中，重新下载
-			//判断当前下载百分比，如果当前百分比如果大于获取到的百分比，那么不变，否则改变	
+		case 5:	
 			setdownloadButtonBackground(holder.imageDownloadView, dlButtontextlist.get(position).getRadio()+"%", R.drawable.loading_button);			
 			break;
 		default:

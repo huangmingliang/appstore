@@ -28,14 +28,11 @@ import com.zyitong.AppStore.bean.FileDownloadJob;
 import com.zyitong.AppStore.bean.ItemData;
 import com.zyitong.AppStore.bean.NoticData;
 import com.zyitong.AppStore.http.HttpApiImple;
-import com.zyitong.AppStore.loading.WSError;
+import com.zyitong.AppStore.http.async.WSError;
 
 public class UtilFun {
 	private Context context;
 	private FileOpt opt;
-	private String cmd_install = "pm install -r ";
-	private String cmd_uninstall = "pm uninstall ";
-
 	public UtilFun(Context context) {
 		this.context = context;
 		opt = new FileOpt();
@@ -193,7 +190,6 @@ public class UtilFun {
 			AppLogger.e("" + filePath);
 			PackageInfo info = pm.getPackageArchiveInfo(filePath,
 					PackageManager.GET_ACTIVITIES);
-			String packageName = null;
 			if (info != null) {
 				result = true;
 			}
@@ -296,14 +292,10 @@ public class UtilFun {
 			OutputStream localOutputStream = localProcess.getOutputStream();
 			DataOutputStream localDataOutputStream = new DataOutputStream(
 					localOutputStream);
-			InputStream localInputStream = localProcess.getInputStream();
-			DataInputStream localDataInputStream = new DataInputStream(
-					localInputStream);
 			String str1 = String.valueOf(paramString);
 			String str2 = str1 + "\n";
 			localDataOutputStream.writeBytes(str2);
 			localDataOutputStream.flush();
-			String str3 = null;
 			// while ((str3 = localDataInputStream.readLine()) != null) {
 			// Log.d("result", str3);
 			// }

@@ -1,22 +1,18 @@
 package com.zyitong.AppStore.activity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import org.json.JSONException;
 
-import android.annotation.SuppressLint;
+
 import android.app.Activity;
-import android.content.BroadcastReceiver;
+
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -32,27 +28,27 @@ import com.opensearch.javasdk.object.KeyTypeEnum;
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.R;
 import com.zyitong.AppStore.adapter.ListAdapter;
+import com.zyitong.AppStore.base.BaseActivity;
 import com.zyitong.AppStore.bean.ItemData;
 import com.zyitong.AppStore.bean.PageInfoData;
-import com.zyitong.AppStore.downloadmanager.DownloadLink;
 import com.zyitong.AppStore.http.HttpApiImple;
-import com.zyitong.AppStore.loading.LoadingDialog;
-import com.zyitong.AppStore.loading.WSError;
+import com.zyitong.AppStore.http.async.LoadingDialog;
+import com.zyitong.AppStore.http.async.WSError;
 import com.zyitong.AppStore.tools.AppLogger;
 import com.zyitong.AppStore.tools.UtilFun;
 import com.zyitong.AppStore.ui.AutoListView;
 import com.zyitong.AppStore.ui.AutoListView.OnLoadListener;
 import com.zyitong.AppStore.ui.AutoListView.OnRefreshListener;
+import com.zyitong.AppStore.base.BaseActivity.OnNetWorkConnectListener;
+import com.zyitong.AppStore.base.BaseActivity.OnNetWorkDisConListener;
 
-@SuppressLint("NewApi")
-public class MainActivity extends Activity implements OnRefreshListener,
-		OnLoadListener {
+public class MainActivity extends BaseActivity implements OnRefreshListener,
+		OnLoadListener ,OnNetWorkDisConListener,OnNetWorkConnectListener{
 	protected static final String[] String = null;
 	private AutoListView listView;
 	private ListAdapter adapter;
-	private List<ItemData> itemList = new ArrayList();// 保存当前listview所显示的所有数据
+	private List<ItemData> itemList = new ArrayList<ItemData>();// 保存当前listview所显示的所有数据
 	private int startpos = 0;
-	private boolean isConnected = false;
 	private int prevFlag = -1;
 	private int Flag = 0;
 	private int searchTime = 1000;// 查询间隔时间
@@ -60,14 +56,13 @@ public class MainActivity extends Activity implements OnRefreshListener,
 	private Timer timer;
 	private UtilFun util = null;
 	private Message msg = null;
-	private BroadcastReceiver connectionReceiver = null;
+	
 	public Handler handler = new Handler() {
-
 		@Override
 		public void handleMessage(Message msg) {
 			// TODO Auto-generated method stub
 			if (msg.obj != null) {
-				analyzeMessageInfo(msg);
+				analyzeMsgInfo(msg);
 			}
 		}
 	};
@@ -75,10 +70,9 @@ public class MainActivity extends Activity implements OnRefreshListener,
 	private final TimerTask updatalistviewtask = new TimerTask() {
 		public void run() {
 			for (int i = 0; i < itemList.size(); i++) {
-				String appName = util
-						.getFileName(itemList.get(i).getFilename());
-				int[] updateinfo = setMessageInfo(i, appName);
-				if (updateinfo != null) {
+				String appName = util.getFileName(itemList.get(i).getFilename());
+				int[] updateinfo = setMsgInfo(i, appName);
+				if (updateinfo[3] != 0) {					
 					msg = handler.obtainMessage();
 					msg.obj = updateinfo;
 					msg.sendToTarget();
@@ -88,30 +82,34 @@ public class MainActivity extends Activity implements OnRefreshListener,
 		}
 	};
 
-	private int[] setMessageInfo(int position, String appName) {
+	private int[] setMsgInfo(int position, String appName) {
 		int radio = AppStoreApplication.getInstance()
 				.getCurrentDownloadJobManager().getRatio(appName);
 		int[] messageInfo;
-		messageInfo = new int[5];
+		messageInfo = new int[4];
+		messageInfo[3] = 0;
 		if (radio != -1) {
 			int status = AppStoreApplication.getInstance()
 					.getCurrentDownloadJobManager().getStatus(appName);
-
+			
 			switch (status) {
 			case 0:
 				messageInfo[0] = position;
 				messageInfo[1] = -2;
 				messageInfo[2] = status;
+				messageInfo[3] = 1;
 				break;
 			case 3:
 				messageInfo[0] = position;
 				messageInfo[1] = radio;
 				messageInfo[2] = status;
+				messageInfo[3] = 1;
 				break;
 			case 4:
 				messageInfo[0] = position;
 				messageInfo[1] = radio;
 				messageInfo[2] = status;
+				messageInfo[3] = 1;
 				AppStoreApplication.getInstance()
 						.getCurrentDownloadJobManager()
 						.removeDownloadJob(appName);
@@ -120,13 +118,15 @@ public class MainActivity extends Activity implements OnRefreshListener,
 				messageInfo[0] = position;
 				messageInfo[1] = radio;
 				messageInfo[2] = status;
+				messageInfo[3] = 1;
 				break;
 			}
 		}
+		
 		return messageInfo;
 	}
 
-	private void analyzeMessageInfo(Message msg) {
+	private void analyzeMsgInfo(Message msg) {
 		int updateinfo[] = (int[]) msg.obj;
 		int position = updateinfo[0];
 		int radio = updateinfo[1];
@@ -148,45 +148,14 @@ public class MainActivity extends Activity implements OnRefreshListener,
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);// 隐藏标题栏
-		listenNetWork();
+		super.onCreate(savedInstanceState);	
 		setContentView(R.layout.main);
+		Log.e("MainActivity","MainActivity onCreate");
 		init();
 	}
 
-	private void listenNetWork() {
-		IntentFilter intentFilter = new IntentFilter();
-		intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-		connectionReceiver = new BroadcastReceiver() {
-
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				ConnectivityManager connectMgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-				NetworkInfo mobNetInfo = connectMgr
-						.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-				NetworkInfo wifiNetInfo = connectMgr
-						.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-				if (!mobNetInfo.isConnected() && !wifiNetInfo.isConnected()) {
-					AppStoreApplication.getInstance().isNetWorkConnected = false;
-					Toast.makeText(MainActivity.this, "网络异常，请检查网络！",
-							Toast.LENGTH_LONG).show();
-					Log.e("MainActivity", "网络断开了");
-
-				} else {
-					AppStoreApplication.getInstance().isNetWorkConnected = true;
-					if (itemList.size() == 0)
-						new NewTask(MainActivity.this, R.string.connectioning,
-								R.string.connectfail, AutoListView.LOAD)
-								.execute();
-					Log.e("MainActivity", "网络连接上了");
-
-				}
-			}
-		};
-		registerReceiver(connectionReceiver, intentFilter);
-	}
+	
 
 	@Override
 	protected void onStart() {
@@ -199,22 +168,14 @@ public class MainActivity extends Activity implements OnRefreshListener,
 	protected void onRestart() {
 		// TODO Auto-generated method stub
 		System.out.println("MainActivity onRestart");
-		/*
-		 * new NewTask(MainActivity.this, R.string.connectioning,
-		 * R.string.connectfail,AutoListView.REFRESH).execute();
-		 */
 		super.onRestart();
 	}
 
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
-		System.out.println("MainActivity onResume");
-		// 每次activity生命周期执行到onResume的时候初始化定时器
-
 		super.onResume();
-
-		getappList();
+		//getappList();
 	}
 
 	@Override
@@ -234,10 +195,7 @@ public class MainActivity extends Activity implements OnRefreshListener,
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
-		System.out.println("MainActivity onDestroy");
-		if (connectionReceiver != null) {
-			unregisterReceiver(connectionReceiver);
-		}
+		Log.e("MainActivity","MainActivity onDestroy");	
 		timer.cancel();
 		updatalistviewtask.cancel();
 		super.onDestroy();
@@ -268,6 +226,8 @@ public class MainActivity extends Activity implements OnRefreshListener,
 		getPageCache();
 		listView = (AutoListView) findViewById(R.id.listView);
 		InitList();
+		setListViewListener();
+		setNetWorkListener();
 		CacheProcc();
 	}
 
@@ -292,18 +252,21 @@ public class MainActivity extends Activity implements OnRefreshListener,
 	}
 
 	private void InitList() {
-
 		listView.setCacheColorHint(0);
 		listView.setDivider(getResources().getDrawable(R.drawable.tiao));
-		listView.setDividerHeight(1);
-
+		listView.setDividerHeight(3);
 		listView.setVerticalScrollBarEnabled(true);
-		// 改进
 		adapter = new ListAdapter(this, itemList, listView, "MainActivity");
 		listView.setAdapter(adapter);
+		listView.setItemsCanFocus(false);	
+	}
+	private void setListViewListener(){
 		listView.setOnRefreshListener(this);
 		listView.setOnLoadListener(this);
-		listView.setItemsCanFocus(false);
+	}
+	private void setNetWorkListener(){
+		setOnNetWorkConListener(this);
+		setOnNetWorkDisConListener(this);
 	}
 
 	private void getPageCache() {
@@ -342,7 +305,6 @@ public class MainActivity extends Activity implements OnRefreshListener,
 		case AutoListView.REFRESH:
 			listView.onRefreshComplete();
 			adapter.clearData();
-			System.out.println("refresh = " + itemList.size());
 			itemList.addAll(itemDataList);
 			adapter.addData(itemList);
 
@@ -360,21 +322,7 @@ public class MainActivity extends Activity implements OnRefreshListener,
 		// System.out.println("itemDataList.size() = "+itemList.size());
 		listView.setResultSize(itemDataList.size());
 		Log.v("MainActivity", "listview getitemcount = " + listView.getCount());
-		Log.v("MainActivity",
-				"listview getitemcount = " + listView.getChildCount());
-
 		adapter.notifyDataSetChanged();
-		isConnected = false;
-	}
-
-	private void loadData() {
-		startpos = itemList.size();
-		if (startpos > 0) {
-			ItemData temData = itemList.get(startpos - 1);
-			if (temData.getEnd() == 0 && !isConnected) {
-				Connect();
-			}
-		}
 	}
 
 	private void loadDataByCategory(int category) {
@@ -391,16 +339,14 @@ public class MainActivity extends Activity implements OnRefreshListener,
 		default:
 			break;
 		}
-
 	}
 
 	private void Connect() {
-		isConnected = true;
 		new NewTask(MainActivity.this, R.string.connectioning,
 				R.string.connectfail, AutoListView.LOAD).execute();
 	}
 
-	private void getappList() {
+	/*private void getappList() {
 		AppLogger.e("========== in getappList");
 		String accesskey = "lflMmtFvvNt5YobP";
 		String secret = "aYpz8CtTVSMWFnqaH1Q7uhki1NNQcL";
@@ -430,7 +376,7 @@ public class MainActivity extends Activity implements OnRefreshListener,
 
 		System.out.println("===========" + test);
 
-	}
+	}*/
 
 	private class NewTask extends LoadingDialog<Void, List<ItemData>> {
 		int loadcategory;
@@ -440,12 +386,10 @@ public class MainActivity extends Activity implements OnRefreshListener,
 			super(activity, loadingMsg, failMsg, loadcategory);
 			this.loadcategory = loadcategory;
 		}
-
 		@Override
 		public List<ItemData> doInBackground(Void... params) {
-			List<ItemData> itemDataList = new ArrayList();
-			DownloadLink download = AppStoreApplication.getInstance()
-					.getDownloadLink();
+			List<ItemData> itemDataList = new ArrayList<ItemData>();
+			
 			try {
 				String url = "shop/shop.jsp?code=tj&UserHeader="
 						+ AppStoreApplication.UserHeader + "&flag="
@@ -503,7 +447,7 @@ public class MainActivity extends Activity implements OnRefreshListener,
 		@Override
 		public void doStuffWithResult(List<ItemData> itemList) {
 			disPlayList(itemList, loadcategory);
-		}
+ 		}
 	}
 
 	@Override
@@ -516,7 +460,8 @@ public class MainActivity extends Activity implements OnRefreshListener,
 						Toast.LENGTH_SHORT).show();
 				exitTime = System.currentTimeMillis();
 			} else {
-				finish();
+				//finish();
+				onDestroy();
 				System.exit(0);
 			}
 			return true;
@@ -526,17 +471,30 @@ public class MainActivity extends Activity implements OnRefreshListener,
 
 	@Override
 	public void onRefresh() {
+		// TODO Auto-generated method stub
 		System.out.println("MainActivity onRefresh");
 		loadDataByCategory(0);
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
-	public void onLoad() {
-		// TODO Auto-generated method stub
+	public void onLoad() {	
 		System.out.println("MainActivity  onLoad");
 		loadDataByCategory(1);
+	}
+
+	@Override
+	public void onNetWorkConnect() {
+		// TODO Auto-generated method stub
+        if(itemList.size()==0){   	
+        	new NewTask(MainActivity.this, R.string.connectioning,
+					R.string.connectfail, AutoListView.LOAD).execute();
+		}
+	}
+
+	@Override
+	public void onNetWorkDisConnect() {
+		// TODO Auto-generated method stub
+		Toast.makeText(MainActivity.this, R.string.connectfail, Toast.LENGTH_SHORT);
 	}
 
 }

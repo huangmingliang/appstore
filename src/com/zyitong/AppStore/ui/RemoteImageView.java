@@ -7,7 +7,7 @@ import java.net.URL;
 import java.util.concurrent.RejectedExecutionException;
 
 import com.zyitong.AppStore.AppStoreApplication;
-import com.zyitong.AppStore.bean.ImageCache;
+import com.zyitong.AppStore.dao.ImageCache;
 
 import android.content.Context;
 import android.graphics.Bitmap;

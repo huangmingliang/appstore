@@ -1,27 +1,21 @@
-package com.zyitong.AppStore.loading;
+package com.zyitong.AppStore.http.async;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.widget.Toast;
 
-@TargetApi(Build.VERSION_CODES.CUPCAKE)
-@SuppressLint("NewApi")
 public abstract class LoadingDialog<Input, Result> extends
 		AsyncTask<Input, WSError, Result> {
 
 	// private ProgressDialog mProgressDialog;
 	@SuppressLint("NewApi")
 	protected Activity mActivity;
-	private int mLoadingMsg;
 	private int mFailMsg;
 
 	public LoadingDialog(Activity activity, int loadingMsg, int failMsg,
 			int loadcategory) {
 		this.mActivity = activity;
-		this.mLoadingMsg = loadingMsg;
 		this.mFailMsg = failMsg;
 	}
 
@@ -31,21 +25,18 @@ public abstract class LoadingDialog<Input, Result> extends
 		super.onCancelled();
 	}
 
-	@SuppressLint("NewApi")
 	@Override
 	public void onPreExecute() {
-		String title = "";
-		String message = mActivity.getString(mLoadingMsg);
+
 		super.onPreExecute();
 	}
+
 	@Override
 	public abstract Result doInBackground(Input... params);
 
 	@Override
 	public void onPostExecute(Result result) {
 		super.onPostExecute(result);
-
-		/* mProgressDialog.dismiss(); */
 
 		if (result != null) {
 			doStuffWithResult(result);
@@ -65,14 +56,13 @@ public abstract class LoadingDialog<Input, Result> extends
 	 * @param result
 	 * @return
 	 */
-	@TargetApi(Build.VERSION_CODES.CUPCAKE)
-	@SuppressLint("NewApi")
+
 	public abstract void doStuffWithResult(Result result);
 
 	@Override
 	protected void onProgressUpdate(WSError... values) {
-		Toast.makeText(mActivity, values[0].getMessage(), Toast.LENGTH_LONG)
-				.show();
+		/*Toast.makeText(mActivity, values[0].getMessage(), Toast.LENGTH_LONG)
+				.show();*/
 		this.cancel(true);
 		// mProgressDialog.dismiss();
 		super.onProgressUpdate(values);

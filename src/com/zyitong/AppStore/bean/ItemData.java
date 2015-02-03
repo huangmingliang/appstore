@@ -12,7 +12,7 @@ public class ItemData implements Serializable{
 	private static final long serialVersionUID = -3494650720669623411L;
 
 	private Drawable imageId; // Õº∆¨◊ ‘¥id
-	private long id;//
+	private int id;//
 	private String image; //‘§¿¿ÕºURL
 	private String name; //√˚≥∆
 	private String intro;//ΩÈ…‹
@@ -72,7 +72,7 @@ public class ItemData implements Serializable{
 		return id;
 	}
 	public void setId(long id) {
-		this.id = id;
+		this.id = (int)id;
 	}
 	public String getImage() {
 		return image;

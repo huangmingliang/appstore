@@ -1,6 +1,6 @@
 package com.zyitong.AppStore.activity;
 
-import java.util.Timer;
+
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
@@ -11,17 +11,11 @@ import android.widget.ImageView;
 
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.R;
-import com.zyitong.AppStore.tools.UtilFun;
+
 
 public class UpdateActivity extends Activity {
-	private long startTime;
 	private boolean touched = false;
-	private Timer timer;
-	private UtilFun utilFun;
 	private Thread thread;
-
-	private static String WeiBoRoot = android.os.Environment
-			.getExternalStorageDirectory().getAbsolutePath() + "/AppStore/";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +36,6 @@ public class UpdateActivity extends Activity {
 	private void init() {
 		ImageView mImageView = (ImageView) findViewById(R.id.animation_iv);
 		mImageView.setBackgroundResource(R.drawable.start_screen);
-		utilFun = new UtilFun(UpdateActivity.this);
 		AppStoreApplication.getInstance().clearCache();
 		thread = new Thread(new Runnable() {
 
@@ -52,7 +45,7 @@ public class UpdateActivity extends Activity {
 				AppStoreApplication.getInstance()
 						.getCurrentDownloadJobManager().initDownloadjob();
 				try {
-					thread.sleep(2 * 1000);
+					Thread.sleep(2 * 1000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

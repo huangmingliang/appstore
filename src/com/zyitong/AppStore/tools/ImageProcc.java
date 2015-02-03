@@ -1,4 +1,4 @@
-package com.zyitong.AppStore.bean;
+package com.zyitong.AppStore.tools;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
