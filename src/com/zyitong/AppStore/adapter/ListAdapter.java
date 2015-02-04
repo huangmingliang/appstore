@@ -360,7 +360,6 @@ public class ListAdapter extends BaseAdapter {
 			break;
 		case 4:
 			setdownloadButtonBackground(holder.imageDownloadView, R.string.app_install, R.drawable.load_button);			
-			//����app������Ϣ�ӵ�ǰ�����б����Ƴ�
 			dlButtontextlist.get(position).setRadio(0);
 			AppStoreApplication.getInstance().getCurrentDownloadJobManager().removeDownloadJob(util.getFileName(indexData.getFilename()));
 			break;

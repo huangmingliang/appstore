@@ -26,7 +26,6 @@ import com.zyitong.AppStore.base.BaseActivity;
 import com.zyitong.AppStore.base.BaseActivity.OnNetWorkConnectListener;
 import com.zyitong.AppStore.base.BaseActivity.OnNetWorkDisConListener;
 import com.zyitong.AppStore.bean.ItemData;
-import com.zyitong.AppStore.bean.PageInfoData;
 import com.zyitong.AppStore.http.HttpApiImple;
 import com.zyitong.AppStore.http.async.LoadingDialog;
 import com.zyitong.AppStore.http.async.WSError;
@@ -187,10 +186,7 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 		super.onDestroy();
 	}
 
-	public void dialogProcc() {
-		setPage(0);
-
-	}
+	
 
 	private void GetImei() {
 		String imei = AppStoreApplication.getInstance().getImei();
@@ -210,7 +206,6 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 		install_failed = getResources().getString(R.string.app_install_failed);
 		GetImei();
 		clearProcc();
-		getPageCache();
 		listView = (AutoListView) findViewById(R.id.listView);
 		InitList();
 		setListViewListener();
@@ -234,7 +229,6 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 			adapter.notifyDataSetChanged();
 		} else {
 			Active();
-			System.out.println("MainActivity itemList.size = ");
 		}
 	}
 
@@ -258,24 +252,7 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 		setOnNetWorkDisConListener(this);
 	}
 
-	private void getPageCache() {
-		PageInfoData pageData = AppStoreApplication.getInstance()
-				.getPamaterCache().getPage();
-		if (pageData != null) {
-			prevFlag = Flag = pageData.getFlag();
-			itemList = pageData.getItemList();
-		}
-	}
-
-	private void setPage(int itemID) {
-		AppStoreApplication.getInstance().getPamaterCache().removePage();
-		PageInfoData pageData = new PageInfoData();
-		pageData.setFlag(Flag);
-		pageData.setPageName("MainActivity");
-		pageData.setItemList(itemList);
-		pageData.setSelItem(itemID);
-		AppStoreApplication.getInstance().getPamaterCache().addPage(pageData);
-	}
+	
 
 	private void Active() {
 		if (prevFlag != Flag || prevFlag == Flag && itemList.size() == 0) {
@@ -418,7 +395,7 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 		if (keyCode == KeyEvent.KEYCODE_BACK
 				&& event.getAction() == KeyEvent.ACTION_DOWN) {
 			if ((System.currentTimeMillis() - exitTime) > 2000) {
-				Toast.makeText(getApplicationContext(), "�ٰ�һ���˳�����",
+				Toast.makeText(getApplicationContext(), R.string.press_again_exit,
 						Toast.LENGTH_SHORT).show();
 				exitTime = System.currentTimeMillis();
 			} else {
@@ -433,13 +410,11 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 
 	@Override
 	public void onRefresh() {
-		System.out.println("MainActivity onRefresh");
 		loadDataByCategory(0);
 	}
 
 	@Override
 	public void onLoad() {
-		System.out.println("MainActivity  onLoad");
 		loadDataByCategory(1);
 	}
 
@@ -456,4 +431,6 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 		Toast.makeText(MainActivity.this, R.string.connectfail,
 				Toast.LENGTH_SHORT).show();
 	}
+
+	
 }

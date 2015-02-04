@@ -36,6 +36,7 @@
     <string name="app_install">安装</string>
     <string name="app_open">打开</string>
     <string name="app_install_failed">安装失败</string>
+    <string name="press_again_exit">在按一次退出</string>
 
     <dimen name="Text_NoData_Size">20px</dimen>
     <dimen name="icon_size">60px</dimen>

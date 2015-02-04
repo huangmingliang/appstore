@@ -22,8 +22,7 @@ import android.util.Log;
 
 
 
-public class Caller {
-	
+public class Caller {	
 	/**
 	 * Cache for most recent request
 	 */
@@ -75,7 +74,7 @@ public class Caller {
 				data = convertStreamToString(inputStream);
 				// cache the result
 				if(requestCache != null){
-					//requestCache.put(url, data);
+					requestCache.put(url, data);
 				}
 			}
 			

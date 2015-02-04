@@ -6,7 +6,6 @@ import android.content.Intent;
 import com.zyitong.AppStore.dao.CurrentDownloadJobManager;
 import com.zyitong.AppStore.dao.DownloadLink;
 import com.zyitong.AppStore.dao.ImageCache;
-import com.zyitong.AppStore.dao.PamaterCache;
 import com.zyitong.AppStore.dao.RequestCache;
 import com.zyitong.AppStore.http.api.Caller;
 import com.zyitong.AppStore.service.DownLoadService;
@@ -15,7 +14,7 @@ import com.zyitong.AppStore.tools.AppLogger;
 public class AppStoreApplication extends Application {
 	public static String TAG = "AppStore";
 	// public static String GET_API="http://192.168.1.104:8080/";
-	public static String GET_API = "http://wap.vebclub.com/";// 下载图片
+	public static String GET_API = "http://wap.vebclub.com/";
 	public static String GETIMAGE_API = "http://www.vebclub.com/";
 	public static String UserHeader = "v2";
 	public static String Version = "v1.0.0";
@@ -25,14 +24,12 @@ public class AppStoreApplication extends Application {
 			.getExternalStorageDirectory().getAbsolutePath() + "/AppStore/";
 	private ImageCache mImageCache;
 	private RequestCache mRequestCache;
-	private PamaterCache mPamaterCache;
 	private DownloadLink mDownloadLink;
 	private String imei;
 	private CurrentDownloadJobManager currentDownloadJobList;
 	public boolean isNetWorkConnected = true;
 
 	public String getFilePath() {
-		// service 1 主题;2 游戏;3 电子书;4 铃声;5 图片;6 软件
 		String rootPath = "";
 		rootPath = "soft/";
 		rootPath = WeiBoRoot + rootPath;
@@ -57,8 +54,6 @@ public class AppStoreApplication extends Application {
 		super.onCreate();
 		mImageCache = new ImageCache();
 		mRequestCache = new RequestCache();
-
-		mPamaterCache = new PamaterCache();
 		Caller.setRequestCache(mRequestCache);
 		mDownloadLink = new DownloadLink();
 		currentDownloadJobList = new CurrentDownloadJobManager(this);
@@ -68,10 +63,6 @@ public class AppStoreApplication extends Application {
 
 	public ImageCache getImageCache() {
 		return mImageCache;
-	}
-
-	public PamaterCache getPamaterCache() {
-		return mPamaterCache;
 	}
 
 	public DownloadLink getDownloadLink() {
@@ -104,10 +95,9 @@ public class AppStoreApplication extends Application {
 	}
 
 	public void clearCache() {
-		// stopService();
+		//stopService();
 		mImageCache.clear();
 		mRequestCache.clear();
-		mPamaterCache.clear();
 		mDownloadLink.moveAll();
 	}
 

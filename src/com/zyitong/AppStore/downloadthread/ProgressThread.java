@@ -23,7 +23,7 @@ public class ProgressThread extends Thread {
 
 	private static final int REQUEST_TIMEROUT = 30 * 1000;
 	private int blockSize, downloadSizeMore;
-	private int threadNum = 5, _progress = 0;
+	private int threadNum = 5, progress = 0;
 	private String urlStr, filename;
 	private long prevsize = 0, downloadedSize = 0;
 	private FileDownloadJob dldata;
@@ -84,14 +84,14 @@ public class ProgressThread extends Thread {
 				}
 
 			} catch (ConnectTimeoutException e) {
-				util.addCurrentDownloadJob(appName, _progress,
+				util.addCurrentDownloadJob(appName, progress,
 						ItemData.APP_NETWORKEX, -1, noticData);
 				util.DowloadComplete(dldata);
 				dldata.setStatus(4);
 				dldata.setRun(false);
 				finished = true;
 			} catch (Exception e) {
-				util.addCurrentDownloadJob(appName, _progress,
+				util.addCurrentDownloadJob(appName, progress,
 						ItemData.APP_NETWORKEX, -1, noticData);
 				util.DowloadComplete(dldata);
 				dldata.setStatus(4);
@@ -113,7 +113,7 @@ public class ProgressThread extends Thread {
 
 					if (((downloadedSize - prevsize) * 100 / fileSize >= threadNum)
 							|| (downloadedSize == fileSize && fileSize > 0)) {
-						_progress = (int) ((downloadedSize * 100) / fileSize);
+						progress = (int) ((downloadedSize * 100) / fileSize);
 						prevsize = downloadedSize;
 
 					}
@@ -122,7 +122,7 @@ public class ProgressThread extends Thread {
 						for (int i = 0; i < fds.length; i++) {
 							fds[i].setFinished(true);
 						}
-						util.addCurrentDownloadJob(appName, _progress,
+						util.addCurrentDownloadJob(appName, progress,
 								ItemData.APP_FAIL, -1, noticData);
 						util.DowloadComplete(dldata);
 						finished = true;
@@ -130,25 +130,25 @@ public class ProgressThread extends Thread {
 						dldata.setRun(false);
 					}
 					sleep(300);
-					if (_progress != 100) {
+					if (progress != 100) {
 						if (!finished) {
-							util.addCurrentDownloadJob(appName, _progress,
+							util.addCurrentDownloadJob(appName, progress,
 									ItemData.APP_LOADING, fileSize, noticData);
 						}
 
 					}
-					if (_progress > 90) {
+					if (progress > 90) {
 						if (util.getUninatllApkInfo(context, filename))
-							_progress = 100;
+							progress = 100;
 
 					}
-					if (_progress == 100) {
+					if (progress == 100) {
 						String result = util.install(filename);
 						if (result.equals("Success")) {
-							util.addCurrentDownloadJob(appName, _progress,
+							util.addCurrentDownloadJob(appName, progress,
 									ItemData.APP_INSTALED, -1, noticData);
 						} else {
-							util.addCurrentDownloadJob(appName, _progress,
+							util.addCurrentDownloadJob(appName, progress,
 									ItemData.APP_FAIL, -1, noticData);
 
 						}
@@ -157,7 +157,7 @@ public class ProgressThread extends Thread {
 					}
 
 				} catch (Exception e) {
-					util.addCurrentDownloadJob(appName, _progress,
+					util.addCurrentDownloadJob(appName, progress,
 							ItemData.APP_NETWORKEX, -1, noticData);
 					util.DowloadComplete(dldata);
 					dldata.setStatus(4);
@@ -166,7 +166,7 @@ public class ProgressThread extends Thread {
 
 			}
 		} catch (Exception e) {
-			util.addCurrentDownloadJob(appName, _progress,
+			util.addCurrentDownloadJob(appName, progress,
 					ItemData.APP_NETWORKEX, -1, noticData);
 			util.DowloadComplete(dldata);
 			dldata.setStatus(4);
@@ -228,7 +228,7 @@ public class ProgressThread extends Thread {
 				fos.close();
 			} catch (IOException e) {
 				e.printStackTrace();
-				util.addCurrentDownloadJob(appName, _progress,
+				util.addCurrentDownloadJob(appName, progress,
 						ItemData.APP_NETWORKEX, -1, noticData);
 				util.DowloadComplete(dldata);
 				dldata.setStatus(4);

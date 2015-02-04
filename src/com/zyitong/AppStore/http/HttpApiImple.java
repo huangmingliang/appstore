@@ -10,8 +10,7 @@ import com.zyitong.AppStore.http.api.Caller;
 import com.zyitong.AppStore.http.api.SearchFunctions;
 import com.zyitong.AppStore.http.async.WSError;
 
-//GET_API="http://wap.vebclub.com/";//обтьм╪ф╛
-//GETIMAGE_API="http://www.vebclub.com/";
+
 public class HttpApiImple {
 	private static String GET_API = AppStoreApplication.GET_API;
 
