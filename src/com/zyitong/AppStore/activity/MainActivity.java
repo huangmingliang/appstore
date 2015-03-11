@@ -389,7 +389,7 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 	@Override
 	public void onNetWorkConnect() {
 		if(!AppStoreApplication.getInstance().isfirstconnect){
-			Toast.makeText(this, R.string.connection, Toast.LENGTH_SHORT);
+			Toast.makeText(this, R.string.connection, Toast.LENGTH_SHORT).show();
 		}
 	}
 

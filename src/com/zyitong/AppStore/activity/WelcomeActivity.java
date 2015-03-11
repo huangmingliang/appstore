@@ -13,7 +13,6 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.widget.ImageView;
 
-import com.squareup.picasso.Picasso;
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.R;
 import com.zyitong.AppStore.bean.AppListBean;

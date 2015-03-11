@@ -40,7 +40,7 @@ public class AutoListView extends ListView implements OnScrollListener {
 	private ProgressBar refreshing;
 
 	private TextView noData;
-	//private TextView loadFull;
+	// private TextView loadFull;
 	private TextView more;
 	private ProgressBar loading;
 
@@ -123,7 +123,7 @@ public class AutoListView extends ListView implements OnScrollListener {
 
 		inflater = LayoutInflater.from(context);
 		footer = inflater.inflate(R.layout.listview_footer, null);
-		//loadFull = (TextView) footer.findViewById(R.id.loadFull);
+		// loadFull = (TextView) footer.findViewById(R.id.loadFull);
 		noData = (TextView) footer.findViewById(R.id.noData);
 		more = (TextView) footer.findViewById(R.id.more);
 		loading = (ProgressBar) footer.findViewById(R.id.loading);
@@ -274,6 +274,7 @@ public class AutoListView extends ListView implements OnScrollListener {
 				header.getPaddingRight(), header.getPaddingBottom());
 		header.invalidate();
 	}
+
 	private void buttomPadding(int buttomPadding) {
 		footer.setPadding(footer.getPaddingLeft(), footer.getPaddingTop(),
 				footer.getPaddingRight(), buttomPadding);
@@ -283,19 +284,19 @@ public class AutoListView extends ListView implements OnScrollListener {
 	public void setResultSize(int resultSize) {
 		if (resultSize == 0) {
 			isLoadFull = true;
-			//loadFull.setVisibility(View.GONE);
+			// loadFull.setVisibility(View.GONE);
 			loading.setVisibility(View.GONE);
 			more.setVisibility(View.GONE);
 			noData.setVisibility(View.VISIBLE);
 		} else if (resultSize > 0 && resultSize < pageSize) {
 			isLoadFull = true;
-			//loadFull.setVisibility(View.VISIBLE);
+			// loadFull.setVisibility(View.VISIBLE);
 			loading.setVisibility(View.GONE);
 			more.setVisibility(View.GONE);
 			noData.setVisibility(View.GONE);
 		} else if (resultSize == pageSize) {
 			isLoadFull = false;
-			//loadFull.setVisibility(View.GONE);
+			// loadFull.setVisibility(View.GONE);
 			loading.setVisibility(View.VISIBLE);
 			more.setVisibility(View.VISIBLE);
 			noData.setVisibility(View.GONE);
@@ -338,20 +339,6 @@ public class AutoListView extends ListView implements OnScrollListener {
 			arrow.setVisibility(View.GONE);
 			tip.setVisibility(View.GONE);
 			lastUpdate.setVisibility(View.GONE);
-			break;
-		}
-	}
-	private void refreshFooterViewByState() {
-		switch (state) {
-		case NONE:
-			buttomPadding(-headerContentHeight);
-			break;
-		case PULL:
-			break;
-		case RELEASE:
-			break;
-		case REFRESHING:
-			buttomPadding(headerContentInitialHeight);
 			break;
 		}
 	}

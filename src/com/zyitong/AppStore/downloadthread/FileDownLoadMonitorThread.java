@@ -2,10 +2,8 @@ package com.zyitong.AppStore.downloadthread;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.zyitong.AppStore.AppStoreApplication;
-import com.zyitong.AppStore.R;
 import com.zyitong.AppStore.bean.FileDownloadJob;
 import com.zyitong.AppStore.dao.DownloadLink;
 import com.zyitong.AppStore.tools.AppLogger;

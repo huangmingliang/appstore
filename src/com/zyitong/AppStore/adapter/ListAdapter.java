@@ -7,7 +7,6 @@ import java.util.Map;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -179,7 +178,6 @@ public class ListAdapter extends BaseAdapter {
 				if(packageName == null)
 					packageName = util.getPackageName(
 						filename, mContext);
-				int status = indexData.getButtonFileflag();
 				if (AppStoreApplication.getInstance().isNetWorkConnected) {
 					if (indexData.getButtonFileflag() == ItemData.APP_INSTALL
 							|| indexData.getButtonFileflag() == ItemData.APP_FAIL
@@ -219,7 +217,7 @@ public class ListAdapter extends BaseAdapter {
 								AppLogger.e("packagename = " + packageName);
 								
 								String args = util.openApp(packageName, mContext);
-								AppLogger.e("packagename = " + "open after"+args);
+								AppLogger.i("packagename = " + "open after"+args);
 							}
 					
 					} else if (indexData.getButtonFileflag() == ItemData.APP_LOADING  ) {

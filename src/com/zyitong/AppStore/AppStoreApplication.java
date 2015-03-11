@@ -10,7 +10,6 @@ import com.zyitong.AppStore.bean.ItemData;
 import com.zyitong.AppStore.dao.CurrentDownloadJobManager;
 import com.zyitong.AppStore.dao.DownloadLink;
 import com.zyitong.AppStore.service.DownLoadService;
-import com.zyitong.AppStore.tools.UtilFun;
 
 public class AppStoreApplication extends Application {
 	private static AppStoreApplication instance;

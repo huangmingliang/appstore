@@ -1,12 +1,10 @@
 package com.zyitong.AppStore.dao;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.bean.CurrentDownloadJob;
@@ -17,13 +15,9 @@ import com.zyitong.AppStore.tools.UtilFun;
 public class CurrentDownloadJobManager {
 
 	private Map<String, CurrentDownloadJob> currentDownJobs = null;
-	private Context context;
-	private String AppStoreRoot = android.os.Environment
-			.getExternalStorageDirectory().getAbsolutePath() + "/AppStore/soft";
 	private UtilFun util = new UtilFun();
 
 	public CurrentDownloadJobManager(Context context) {
-		this.context = context;
 		currentDownJobs = new HashMap<String, CurrentDownloadJob>();
 	}
 
@@ -64,27 +58,6 @@ public class CurrentDownloadJobManager {
 		return currentDownJobs.size();
 
 	}
-
-	/*public void initDownloadjob() {
-		File mfile = new File(AppStoreRoot);
-		File files[] = mfile.listFiles();
-
-		for (int i = 0; i < files.length; i++) {
-			if (!util.getUninatllApkInfo(context, files[i].getPath())) {
-				String filename = util.getFileName(files[i].getPath());
-				String packagename = util.getPackageName(files[i].getPath(),
-						context);
-				if (packagename != null) {
-					Log.e("CurrentDownloadManager filename = ", filename);
-					CurrentDownloadJob currentDownloadJob = new CurrentDownloadJob();
-					currentDownloadJob.setPackageName(packagename);
-					currentDownloadJob.setFilestatus(ItemData.APP_READ);
-					currentDownloadJob.setRatio(-2);
-					addDownloadJob(currentDownloadJob);
-				}
-			}
-		}
-	}*/
 
 	public void addJobToDownloadLink() {
 		Iterator iter = currentDownJobs.entrySet().iterator();
@@ -133,9 +106,9 @@ public class CurrentDownloadJobManager {
 			isappredownload = false;
 		return isappredownload;
 	}
-	
-	public void setStatus(String packagename,int status){
-		if(currentDownJobs.containsKey(packagename)){
+
+	public void setStatus(String packagename, int status) {
+		if (currentDownJobs.containsKey(packagename)) {
 			currentDownJobs.get(packagename).setFilestatus(status);
 		}
 	}

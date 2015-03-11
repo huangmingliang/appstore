@@ -9,7 +9,6 @@ import java.net.URLConnection;
 
 import org.apache.http.conn.ConnectTimeoutException;
 
-import android.content.Context;
 import android.util.Log;
 
 import com.zyitong.AppStore.AppStoreApplication;
@@ -25,11 +24,11 @@ public class ProgressThread extends Thread {
 	private int blockSize, downloadSizeMore;
 	private int threadNum = 5, progress = 0;
 	private String urlStr, fileuri;
-	private long prevsize = 0, downloadedSize = 0;
+	private long downloadedSize = 0;
 	private FileDownloadJob dldata;
 	private int fileSize = 0;
 	private FileOpt opt = new FileOpt();
-	
+
 	private UtilFun util;
 	private String packagename;
 	FileDownloadJob fdData;
@@ -53,7 +52,7 @@ public class ProgressThread extends Thread {
 		AppStoreApplication.getInstance().getDownloadLink().getSize();
 		try {
 			Log.d("ProgressThread", "ProgressThread is Runing");
-			
+
 			File file = new File(fileuri);
 			if (!file.exists()) {
 				opt.deleteFile(fileuri);
@@ -86,7 +85,8 @@ public class ProgressThread extends Thread {
 				dldata.setStatus(4);
 				dldata.setRun(false);
 				finished = true;
-				AppLogger.e("=============   ConnectTimeoutException     11111");
+				AppLogger
+						.e("=============   ConnectTimeoutException     11111");
 			} catch (Exception e) {
 				util.addCurrentDownloadJob(packagename, progress,
 						ItemData.APP_NETWORKEX, fdData);
@@ -108,7 +108,6 @@ public class ProgressThread extends Thread {
 				}
 
 				progress = (int) ((downloadedSize * 100) / fileSize);
-				prevsize = downloadedSize;
 
 				if (!dldata.isRun()) {
 					for (int i = 0; i < fds.length; i++) {
@@ -126,7 +125,8 @@ public class ProgressThread extends Thread {
 					sleep(300);
 					boolean isReDownLoad = util.isAppReDownload(packagename);
 					if (isReDownLoad) {
-						AppLogger.e("ProgressThread" + packagename + "need redownload");
+						AppLogger.e("ProgressThread" + packagename
+								+ "need redownload");
 						for (int i = 0; i < fds.length; i++) {
 							fds[i].setFinished(true);
 						}
@@ -136,34 +136,37 @@ public class ProgressThread extends Thread {
 						finished = true;
 						dldata.setStatus(4);
 						dldata.setRun(false);
-					}else{
+					} else {
 						if (progress != 100) {
 							if (!finished) {
-								util.addCurrentDownloadJob(packagename, progress,
-										ItemData.APP_LOADING, fdData);
+								util.addCurrentDownloadJob(packagename,
+										progress, ItemData.APP_LOADING, fdData);
 							}
 						}
 						if (progress == 100) {
-							
+
 							String result = util.install(fileuri);
-							result = result.replaceAll("\n", "");	
+							result = result.replaceAll("\n", "");
 							if (result.endsWith("Success")) {
-								AppLogger.e("progress == 100 , result = " + result);
-								util.addCurrentDownloadJob(packagename, progress,
-										ItemData.APP_OPEN, fdData);
+								AppLogger.e("progress == 100 , result = "
+										+ result);
+								util.addCurrentDownloadJob(packagename,
+										progress, ItemData.APP_OPEN, fdData);
 							} else {
-								
-								AppLogger.e("progress == 100 , result = " + result);
-								util.addCurrentDownloadJob(packagename, progress,
-										ItemData.APP_FAIL, fdData);
+
+								AppLogger.e("progress == 100 , result = "
+										+ result);
+								util.addCurrentDownloadJob(packagename,
+										progress, ItemData.APP_FAIL, fdData);
 							}
 							finished = true;
 							util.DowloadComplete(dldata);
 							opt.deleteFile(fileuri);
-							AppLogger.e("ProgressThread install result = " + result);
+							AppLogger.e("ProgressThread install result = "
+									+ result);
 						}
 					}
-					
+
 				}
 			}
 		} catch (Exception e) {
