@@ -2,6 +2,8 @@ package com.zyitong.AppStore.tools;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
@@ -9,13 +11,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import org.json.JSONException;
-
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -25,17 +24,12 @@ import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.bean.CurrentDownloadJob;
 import com.zyitong.AppStore.bean.FileDownloadJob;
 import com.zyitong.AppStore.bean.ItemData;
-import com.zyitong.AppStore.bean.NoticData;
-import com.zyitong.AppStore.http.HttpApiImple;
-import com.zyitong.AppStore.http.async.WSError;
 
 public class UtilFun {
 	private Context context;
-	private FileOpt opt;
 
 	public UtilFun(Context context) {
 		this.context = context;
-		opt = new FileOpt();
 	}
 
 	public UtilFun() {
@@ -52,60 +46,61 @@ public class UtilFun {
 		return getCurrentTime("yyyy-MM-dd  HH:mm:ss");
 	}
 
-	public void addCurrentDownloadJob(String name, int ratio, int status,
-			long fileSize, NoticData notic) {
+	public void addCurrentDownloadJob(String packagename, int ratio,
+			int status, FileDownloadJob notic) {
 		CurrentDownloadJob currentDownloadJob = new CurrentDownloadJob();
-		currentDownloadJob.setFilename(name);
+		currentDownloadJob.setPackageName(packagename);
 		currentDownloadJob.setRatio(ratio);
 		currentDownloadJob.setFilestatus(status);
-		currentDownloadJob.setFilelength(fileSize);
 		currentDownloadJob.setData(notic);
-
 		AppStoreApplication.getInstance().getCurrentDownloadJobManager()
 				.addDownloadJob(currentDownloadJob);
 	}
 
+	public void setAppReDownLoad(String filename) {
+		AppStoreApplication.getInstance().getCurrentDownloadJobManager()
+				.setAppReDownload(filename);
+	}
+
+	public boolean isAppReDownload(String packagename) {
+		return AppStoreApplication.getInstance().getCurrentDownloadJobManager()
+				.isAppReDownload(packagename);
+	}
+
 	public FileDownloadJob DataChange(ItemData data) {
 		FileDownloadJob dldata = new FileDownloadJob();
-		int NOTIFICATION_ID = (int) data.getId();
-		// ����������б��Ѿ����ڸ�����
-		if (AppStoreApplication.getInstance().getDownloadLink()
-				.findNode((int) data.getId()))
-			return null;
+		int NOTIFICATION_ID = Integer.valueOf(data.getAppInfoBean().getId());
 
-		String name = data.getName();
+		if (AppStoreApplication.getInstance().getDownloadLink()
+				.findNode(Integer.valueOf(data.getAppInfoBean().getId()))) {
+			return AppStoreApplication
+					.getInstance()
+					.getDownloadLink()
+					.getNoticData(
+							Integer.valueOf(data.getAppInfoBean().getId()));
+		}
+
+		String name = data.getAppInfoBean().getTitle();
 
 		String filename = AppStoreApplication.getInstance().getFileName(
-				data.getFilename());
+				data.getAppInfoBean().getUrl());
 		String localPath = AppStoreApplication.getInstance().getFilePath();
-		filename = localPath + filename;
-		String url = data.getFilename();
-		String updateurl = "shop/shop.jsp?code=download&UserHeader="
-				+ AppStoreApplication.UserHeader + "&id=" + data.getId()
-				+ "&imei=" + AppStoreApplication.getInstance().getImei();
+		String fileuri = localPath + filename;
+		String url = data.getAppInfoBean().getUrl();
 
-		dldata.setFilename(filename);
+		dldata.setPackageName(data.getAppInfoBean().getPackagename());
+		dldata.setFileuri(fileuri);
 		dldata.setUrl(url);
-		dldata.setUpdateurl(updateurl);
 		dldata.setName(name);
 		dldata.setId(NOTIFICATION_ID);
 		dldata.setPath(localPath);
 		dldata.setRun(false);
 		dldata.setStatus(0);
 		return dldata;
-
 	}
 
 	public void DowloadComplete(FileDownloadJob dldata) {
 
-		HttpApiImple imple = new HttpApiImple();
-		try {
-			imple.uploadDownNum(dldata.getUpdateurl());
-		} catch (JSONException e) {
-			e.printStackTrace();
-		} catch (WSError e) {
-			e.printStackTrace();
-		}
 		AppStoreApplication.getInstance().getDownloadLink()
 				.delNode(dldata.getId());
 	}
@@ -117,10 +112,10 @@ public class UtilFun {
 		PackageInfo packageInfo = pm.getPackageArchiveInfo(uri,
 				PackageManager.GET_ACTIVITIES);
 		String packagename = packageInfo.packageName;
-		System.out.println("ListAdapter packageName = " + packagename);
+		AppLogger.e("isAppInstalled packageName = " + packagename);
 		if (checkApkExist(mContext, packagename))
 			installed = true;
-
+		AppLogger.e("isAppInstalled packageName = " + installed);
 		return installed;
 	}
 
@@ -128,55 +123,131 @@ public class UtilFun {
 		PackageManager pm = mContext.getPackageManager();
 		PackageInfo packageInfo = pm.getPackageArchiveInfo(uri,
 				PackageManager.GET_ACTIVITIES);
-		String packagename = packageInfo.packageName;
-		return packagename;
+		if (packageInfo != null) {
+			String packagename = packageInfo.packageName;
+			return packagename;
+		} else
+			return null;
+
 	}
 
 	public boolean checkApkExist(Context context, String packageName) {
 		if (packageName == null || "".equals(packageName))
 			return false;
 		try {
-			ApplicationInfo info = context.getPackageManager()
-					.getApplicationInfo(packageName,
-							PackageManager.GET_UNINSTALLED_PACKAGES);
+			context.getPackageManager().getApplicationInfo(packageName,
+					PackageManager.GET_UNINSTALLED_PACKAGES);
 			return true;
 		} catch (NameNotFoundException e) {
 			return false;
 		}
 	}
 
-	@SuppressLint("NewApi")
-	public void openApp(String packageName, Context mContext) {
+	private String getMainActivityName(String packageName, Context mContext) {
 		PackageInfo pi;
+		String className = null;
 		try {
 			pi = mContext.getPackageManager().getPackageInfo(packageName, 0);
 			Intent resolveIntent = new Intent(Intent.ACTION_MAIN, null);
 			resolveIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 			resolveIntent.setPackage(pi.packageName);
-
 			PackageManager pm = mContext.getPackageManager();
 			List<ResolveInfo> apps = pm.queryIntentActivities(resolveIntent, 0);
 			ResolveInfo ri = apps.iterator().next();
 			if (ri != null) {
-
-				String className = ri.activityInfo.name;
-				Intent intent = new Intent(Intent.ACTION_MAIN);
-				intent.addCategory(Intent.CATEGORY_LAUNCHER);
-
-				ComponentName cn = new ComponentName(packageName, className);
-
-				intent.setComponent(cn);
-				mContext.startActivity(intent);
+				className = ri.activityInfo.name;
+				AppLogger.e("open class name = " + className);
 			}
-
 		} catch (NameNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return className;
+	}
+
+	public String  openApp(String packageName, Context mContext) {
+
+		String mainActivityName = getMainActivityName(packageName, mContext);
+		AppLogger.e("getMainActivityName = " + mainActivityName);
+		String[] args = { "am", "start", "-n",packageName+"/"+mainActivityName };
+		AppLogger.e(""+args.toString());
+		// String result = "";
+		ProcessBuilder processBuilder = new ProcessBuilder(args);
+		Process process = null;
+		InputStream errIs = null;
+		InputStream inIs = null;
+
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			int read = -1;
+			process = processBuilder.start();
+			errIs = process.getErrorStream();
+			while ((read = errIs.read()) != -1) {
+				baos.write(read);
+			}
+
+			inIs = process.getInputStream();
+			while ((read = inIs.read()) != -1) {
+				baos.write(read);
+			}
+			byte[] data = baos.toByteArray();
+			// result = new String(data);
+			// AppLogger.e("install(String apkAbsolutePath) result = " +
+			// result);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		String str="";
+		for(int i=0;i<args.length;i++){	
+	        str+=(String)args[i];
+		}	
+		return str;
+
 
 	}
 
-	// ���ô���
+	// @SuppressLint("NewApi")
+	// public void openApp(String packageName, Context mContext) {
+	// PackageInfo pi;
+	// // try {
+	// // pi = mContext.getPackageManager().getPackageInfo(packageName, 0);
+	// // Intent resolveIntent = new Intent(Intent.ACTION_MAIN, null);
+	// // resolveIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+	// // resolveIntent.setPackage(pi.packageName);
+	// //
+	// // PackageManager pm = mContext.getPackageManager();
+	// // List<ResolveInfo> apps = pm.queryIntentActivities(resolveIntent, 0);
+	// // ResolveInfo ri = apps.iterator().next();
+	// // if (ri != null) {
+	// //
+	// // String className = ri.activityInfo.name;
+	// // AppLogger.e("open class name = "+className);
+	// // Intent intent ;
+	// // //intent.addCategory(Intent.CATEGORY_LAUNCHER);
+	// // intent = mContext.getPackageManager()
+	// // .getLaunchIntentForPackage(packageName);
+	// // intent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+	// // intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+	// //
+	// //
+	// // //ComponentName cn = new ComponentName(packageName, className);
+	// //
+	// // //intent.setComponent(cn);
+	// // mContext.startActivity(intent);
+	// // }
+	// //
+	// // } catch (NameNotFoundException e) {
+	// // e.printStackTrace();
+	// // }
+	//
+	// Intent intent = mContext.getPackageManager()
+	// .getLaunchIntentForPackage(packageName);
+	// intent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+	// intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+	// mContext.startActivity(intent);
+	//
+	// }
+
 	public boolean getUninatllApkInfo(Context context, String filePath) {
 
 		boolean result = false;
@@ -195,25 +266,13 @@ public class UtilFun {
 		return result;
 	}
 
-	public void setFileState(ItemData itemData) {
+	public void setAppState(ItemData itemData) {
+		String packagename = itemData.getAppInfoBean().getPackagename();
 
-		String filename = AppStoreApplication.getInstance().getFilePath()
-				+ AppStoreApplication.getInstance().getFileName(
-						itemData.getFilename());
-		if (!opt.exists(filename))
-			itemData.setButtonFileflag(ItemData.APP_INSTALED);
-		else if (getUninatllApkInfo(context, filename)) {
-			try {
-				if (isAppInstalled(filename, context))
-					itemData.setButtonFileflag(ItemData.APP_OPEN);
-				else
-					itemData.setButtonFileflag(ItemData.APP_INSTALED);
-			} catch (NameNotFoundException e) {
-				e.printStackTrace();
-			}
-		} else {
-			itemData.setButtonFileflag(ItemData.APP_INSTALED);
-		}
+		if (!checkApkExist(context, packagename))
+			itemData.setButtonFileflag(ItemData.APP_INSTALL);
+		else
+			itemData.setButtonFileflag(ItemData.APP_OPEN);
 	}
 
 	public String install(String apkAbsolutePath) {
@@ -239,6 +298,7 @@ public class UtilFun {
 			}
 			byte[] data = baos.toByteArray();
 			result = new String(data);
+			AppLogger.e("install(String apkAbsolutePath) result = " + result);
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
@@ -332,6 +392,50 @@ public class UtilFun {
 			substr = filename.substring(index + 1);
 		}
 		return substr;
+	}
+
+	public void makeAppStoreDir() {
+		String dirs = android.os.Environment.getExternalStorageDirectory()
+				.getAbsolutePath() + "/AppStore/soft";
+		File file = new File(dirs);
+		if (!file.exists())
+			file.mkdirs();
+	}
+
+	public boolean slientInstall(String uri) {
+		boolean result = false;
+		Process process = null;
+		OutputStream out = null;
+		try {
+			process = Runtime.getRuntime().exec("su");
+			out = process.getOutputStream();
+			DataOutputStream dataOutputStream = new DataOutputStream(out);
+			dataOutputStream.writeBytes("chmod 777 " + uri + "\n");
+			dataOutputStream
+					.writeBytes("LD_LIBRARY_PATH=/vendor/lib:/system/lib pm install -r "
+							+ uri);
+			// 提交命令
+			dataOutputStream.flush();
+			// 关闭流操作
+			dataOutputStream.close();
+			out.close();
+			int value = process.waitFor();
+
+			// 代表成功
+			if (value == 0) {
+				result = true;
+			} else if (value == 1) { // 失败
+				result = false;
+			} else { // 未知情况
+				result = false;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		return result;
 	}
 
 }

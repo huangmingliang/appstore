@@ -6,14 +6,14 @@
     android:orientation="horizontal" 
     android:background="@color/white">
 
-    <TextView
+  <!--   <TextView
         android:id="@+id/loadFull"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="5dp"
         android:text="@string/load_full"
-        android:visibility="gone" />
+        android:visibility="gone" /> -->
 
     <TextView
         android:id="@+id/noData"

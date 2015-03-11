@@ -2,15 +2,18 @@ package com.zyitong.AppStore.downloadthread;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.zyitong.AppStore.AppStoreApplication;
-import com.zyitong.AppStore.bean.NoticData;
+import com.zyitong.AppStore.R;
+import com.zyitong.AppStore.bean.FileDownloadJob;
 import com.zyitong.AppStore.dao.DownloadLink;
+import com.zyitong.AppStore.tools.AppLogger;
 
 public class FileDownLoadMonitorThread extends Thread {
 	private boolean isRuning = false;
-	private int MAXDOWN = 4;// 最多文件下载数
-	private int MAXTHREADNUM = 4;// 下载每个文件时最多开的线程数
+	public  static final int MAXDOWN = 2;
+	public static final int MAXTHREADNUM = 4;
 	private Context context;
 
 	public FileDownLoadMonitorThread(Context context) {
@@ -27,25 +30,28 @@ public class FileDownLoadMonitorThread extends Thread {
 	}
 
 	public void run() {
-		DownloadLink download = AppStoreApplication.getInstance()
-				.getDownloadLink();
 		while (isRuning) {
+			DownloadLink download = AppStoreApplication.getInstance()
+					.getDownloadLink();
 			int i = 1;
 			try {
 				int downloadingnum = download.getDownloadNum();
 				int size = download.getSize();
-				Log.d("FileDownLoadMonitorThread", "size=" + size
+				AppLogger.d("FileDownLoadMonitorThread"+ "size=" + size
 						+ "\tdownloadingnum=" + downloadingnum);
+				/*if(downloadingnum != 0)
+				    AppLogger.e("=============== "+download.getNoticData(0).getFilename());*/
+				
 				if (size > 0 && downloadingnum < MAXDOWN) {
 					Log.d("FileDownLoadMonitorThread", "start=" + i);
-					NoticData data = download.getNode();
+					FileDownloadJob data = download.getNode();
 					if (data != null) {
-						new ProgressThread(data, MAXTHREADNUM, context).start();
+						new ProgressThread(data, MAXTHREADNUM).start();
 						i++;
 					}
 				}
-				// 线程暂停两秒
-				Thread.sleep(2 * 1000);
+			
+				Thread.sleep(1 * 1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

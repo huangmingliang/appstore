@@ -5,17 +5,17 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.json.JSONException;
-
-import android.app.Activity;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Toast;
 
@@ -25,10 +25,10 @@ import com.zyitong.AppStore.adapter.ListAdapter;
 import com.zyitong.AppStore.base.BaseActivity;
 import com.zyitong.AppStore.base.BaseActivity.OnNetWorkConnectListener;
 import com.zyitong.AppStore.base.BaseActivity.OnNetWorkDisConListener;
+import com.zyitong.AppStore.bean.AppListBean;
 import com.zyitong.AppStore.bean.ItemData;
-import com.zyitong.AppStore.http.HttpApiImple;
-import com.zyitong.AppStore.http.async.LoadingDialog;
-import com.zyitong.AppStore.http.async.WSError;
+import com.zyitong.AppStore.dao.AppListDao;
+import com.zyitong.AppStore.tools.AppLogger;
 import com.zyitong.AppStore.tools.UtilFun;
 import com.zyitong.AppStore.ui.AutoListView;
 import com.zyitong.AppStore.ui.AutoListView.OnLoadListener;
@@ -40,7 +40,6 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 	private AutoListView listView;
 	private ListAdapter adapter;
 	private List<ItemData> itemList = new ArrayList<ItemData>();
-	private int startpos = 0;
 	private int prevFlag = -1;
 	private int Flag = 0;
 	private int searchTime = 1000;
@@ -49,7 +48,8 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 	private UtilFun util = null;
 	private Message msg = null;
 	private String install_failed;
-	
+	private View emptyView;
+
 	private Handler handler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -58,54 +58,57 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 			}
 		}
 	};
-
 	private final TimerTask updatalistviewtask = new TimerTask() {
 		public void run() {
 			for (int i = 0; i < itemList.size(); i++) {
-				String appName = util
-						.getFileName(itemList.get(i).getFilename());
-				int[] updateinfo = setMsgInfo(i, appName);
-				if (updateinfo[3] != 0) {
+				String packagename = itemList.get(i).getAppInfoBean()
+						.getPackagename();
+				int[] updateinfo = setMsgInfo(i, packagename);
+				if (0 != updateinfo[3]) {
 					msg = handler.obtainMessage();
 					msg.obj = updateinfo;
 					msg.sendToTarget();
 				}
-
 			}
 		}
 	};
 
-	private int[] setMsgInfo(int position, String appName) {
-		int radio = AppStoreApplication.getInstance()
-				.getCurrentDownloadJobManager().getRatio(appName);
-		int[] messageInfo;
-		messageInfo = new int[4];
+	private int[] setMsgInfo(int position, String packagename) {
+		int[] messageInfo = new int[4];
 		messageInfo[3] = 0;
+
+		int radio = AppStoreApplication.getInstance()
+				.getCurrentDownloadJobManager().getRatio(packagename);
+
 		if (radio != -1) {
 			int status = AppStoreApplication.getInstance()
-					.getCurrentDownloadJobManager().getStatus(appName);
-
+					.getCurrentDownloadJobManager().getStatus(packagename);
 			switch (status) {
-			case 0:
-				messageInfo[0] = position;
-				messageInfo[1] = -2;
-				messageInfo[2] = status;
-				messageInfo[3] = 1;
-				break;
-			case 3:
+		
+			case ItemData.APP_OPEN:
 				messageInfo[0] = position;
 				messageInfo[1] = radio;
 				messageInfo[2] = status;
 				messageInfo[3] = 1;
+				AppStoreApplication.getInstance()
+				.getCurrentDownloadJobManager()
+				.removeDownloadJob(packagename);
 				break;
-			case 4:
+			case ItemData.APP_FAIL:
 				messageInfo[0] = position;
 				messageInfo[1] = radio;
 				messageInfo[2] = status;
 				messageInfo[3] = 1;
 				AppStoreApplication.getInstance()
 						.getCurrentDownloadJobManager()
-						.removeDownloadJob(appName);
+						.removeDownloadJob(packagename);
+				break;
+			case ItemData.APP_REDOWNLOAD:
+				messageInfo[0] = position;
+				messageInfo[1] = radio;
+				messageInfo[2] = status;
+				messageInfo[3] = 1;
+				
 				break;
 			default:
 				messageInfo[0] = position;
@@ -124,12 +127,19 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 		int position = updateinfo[0];
 		int radio = updateinfo[1];
 		int status = updateinfo[2];
-		if (status == 4)
-			Toast.makeText(MainActivity.this,
-					itemList.get(position).getName() + install_failed,
-					Toast.LENGTH_SHORT).show();
-		if (radio != -1)
+		if (status == ItemData.APP_FAIL) {
+			Toast.makeText(
+					MainActivity.this,
+					itemList.get(position).getAppInfoBean().getTitle()
+							+ install_failed, Toast.LENGTH_SHORT).show();
+			String packagename = itemList.get(position).getAppInfoBean()
+					.getPackagename();
+			AppStoreApplication.getInstance().getCurrentDownloadJobManager()
+					.removeDownloadJob(packagename);
+		}
+		if (radio != -1) {
 			adapter.updateSingleRow(position, radio, status);
+		}
 	}
 
 	public static void launch(Context c, Bundle bundle) {
@@ -138,13 +148,12 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 		c.startActivity(intent);
 	}
 
-	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		requestWindowFeature(Window.FEATURE_NO_TITLE);// ���ر�����
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main);
-		Log.e("MainActivity", "MainActivity onCreate");
+		AppLogger.e("MainActivity onCreate");
 		init();
 	}
 
@@ -163,7 +172,6 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 	@Override
 	protected void onResume() {
 		super.onResume();
-		// getappList();
 	}
 
 	@Override
@@ -186,41 +194,25 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 		super.onDestroy();
 	}
 
-	
-
-	private void GetImei() {
-		String imei = AppStoreApplication.getInstance().getImei();
-		if (imei == null || imei.length() == 0) {
-			TelephonyManager telephonyManager = (TelephonyManager) this
-					.getSystemService(Context.TELEPHONY_SERVICE);
-			imei = telephonyManager.getDeviceId();
-
-			AppStoreApplication.getInstance().setImei(imei);
-		}
-	}
-
 	private void init() {
 		util = new UtilFun(this);
 		timer = new Timer(true);
 		timer.schedule(updatalistviewtask, 0, searchTime);
 		install_failed = getResources().getString(R.string.app_install_failed);
-		GetImei();
-		clearProcc();
 		listView = (AutoListView) findViewById(R.id.listView);
+		emptyView = (View) findViewById(R.id.empty_view);
+		emptyView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				getAppList(0, 8);
+			}
+		});
+		
 		InitList();
+		CacheProcc();
+		
 		setListViewListener();
 		setNetWorkListener();
-		CacheProcc();
-	}
-
-	private void clearProcc() {
-		Bundle bundle = this.getIntent().getExtras();
-		if (bundle != null) {
-			int clear = bundle.getInt("CLEAR");
-			if (clear == 100)
-				AppStoreApplication.getInstance().getDownloadLink()
-						.intrrentDown();
-		}
 	}
 
 	private void CacheProcc() {
@@ -237,9 +229,11 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 		listView.setDivider(getResources().getDrawable(R.drawable.tiao));
 		listView.setDividerHeight(3);
 		listView.setVerticalScrollBarEnabled(true);
-		adapter = new ListAdapter(this, itemList, listView, "MainActivity");
+		adapter = new ListAdapter(this, itemList, "MainActivity");
 		listView.setAdapter(adapter);
 		listView.setItemsCanFocus(false);
+		listView.setEmptyView(emptyView);
+		
 	}
 
 	private void setListViewListener() {
@@ -252,14 +246,11 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 		setOnNetWorkDisConListener(this);
 	}
 
-	
-
 	private void Active() {
 		if (prevFlag != Flag || prevFlag == Flag && itemList.size() == 0) {
 
 			adapter.clearData();
 			itemList.clear();
-			startpos = 0;
 			Connect();
 		}
 		prevFlag = Flag;
@@ -273,121 +264,100 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 			adapter.clearData();
 			itemList.addAll(itemDataList);
 			adapter.addData(itemList);
-
+			listView.setResultSize(itemDataList.size());
+			adapter.notifyDataSetChanged();
 			break;
 		case AutoListView.LOAD:
 			listView.onLoadComplete();
-			// itemList.clear();
 			itemList.addAll(itemDataList);
 			adapter.addData(itemList);
+			listView.setResultSize(itemDataList.size());
+			adapter.notifyDataSetChanged();
+			break;
+		case AutoListView.ERROR:
+			listView.onLoadComplete();
+			listView.setResultSize(8);
+			adapter.notifyDataSetChanged();
 			break;
 
 		default:
 			break;
 		}
-		// System.out.println("itemDataList.size() = "+itemList.size());
-		listView.setResultSize(itemDataList.size());
-		Log.v("MainActivity", "listview getitemcount = " + listView.getCount());
-		adapter.notifyDataSetChanged();
 	}
 
 	private void loadDataByCategory(int category) {
 		switch (category) {
 		case AutoListView.REFRESH:
-			new NewTask(MainActivity.this, R.string.connectioning,
-					R.string.connectfail, AutoListView.REFRESH).execute();
 			break;
 		case AutoListView.LOAD:
-			new NewTask(MainActivity.this, R.string.connectioning,
-					R.string.connectfail, AutoListView.LOAD).execute();
-			break;
+			if (itemList.size() == 0) {
+				getAppList(0, 8);
+			} else {
+				int timer = itemList.size() / 8;
+				getAppList((timer) * 8, 8);
+			}
 
+			break;
 		default:
 			break;
 		}
 	}
 
 	private void Connect() {
-		new NewTask(MainActivity.this, R.string.connectioning,
-				R.string.connectfail, AutoListView.LOAD).execute();
+		AppStoreApplication.getInstance().isfirstconnect = false;
+		if (AppStoreApplication.getInstance().itemData.size() != 0) {
+			List<ItemData> updatelist = new ArrayList<ItemData>();
+			updatelist.addAll(AppStoreApplication.getInstance().itemData);
+			disPlayList(updatelist, AutoListView.LOAD);
+			System.out.println("不为空");
+			AppStoreApplication.getInstance().itemData.clear();
+		}
 	}
 
-	private class NewTask extends LoadingDialog<Void, List<ItemData>> {
-		int loadcategory;
+	private void getAppList(int startPos, int docNum) {
 
-		public NewTask(Activity activity, int loadingMsg, int failMsg,
-				int loadcategory) {
-			super(activity, loadingMsg, failMsg, loadcategory);
-			this.loadcategory = loadcategory;
-		}
-
-		@Override
-		public List<ItemData> doInBackground(Void... params) {
-			List<ItemData> itemDataList = new ArrayList<ItemData>();
-
-			try {
-				String url = "shop/shop.jsp?code=tj&UserHeader="
-						+ AppStoreApplication.UserHeader + "&flag="
-						+ (Flag + 1) + "&start=" + startpos + "&imei="
-						+ AppStoreApplication.getInstance().getImei();
-				HttpApiImple imple = new HttpApiImple();
-				ItemData[] itemdata = imple.getListItem(url);
-				switch (loadcategory) {
-				case AutoListView.REFRESH:
-
-					for (int i = 0; itemdata != null && i < itemdata.length; i++) {
-
-						util.setFileState(itemdata[i]);
-						itemDataList.add(itemdata[i]);
+		AppListDao.getInstance().getAppListRX(startPos, docNum)
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(new Subscriber<AppListBean>() {
+					@Override
+					public void onNext(AppListBean bean) {
+						if (null != bean) {
+							List<ItemData> itemDataList = new ArrayList<ItemData>();
+							int resultnumber = Integer.valueOf(bean.result.num);
+							for (int i = 0; i < resultnumber; i++) {
+								ItemData item = new ItemData();
+								item.setAppInfoBean(bean.result.items.get(i));
+								AppLogger.e("== getapplist from server:"
+										+ bean.result.items.get(i).getTitle());
+								AppLogger.e("== getapplist from server:"
+										+ bean.result.items.get(i)
+												.getPackagename());
+								itemDataList.add(item);
+								util.setAppState(item);
+							}
+							disPlayList(itemDataList, AutoListView.LOAD);
+						}
 					}
-					break;
-				case AutoListView.LOAD:
-					// getappList();
 
-					Log.v("MainActivity", "getHttpApicount = "
-							+ itemdata.length);
-					for (int i = 0; itemdata != null && i < itemdata.length; i++) {
-
-						util.setFileState(itemdata[i]);
-						if (i == 1)
-							itemdata[i]
-									.setFilename("http://apk.r1.market.hiapk.com/data/upload/apkres/2015/1_22/21/com.tencent.mm_093944461.apk");
-						else if (i == 2)
-							itemdata[i]
-									.setFilename("http://apk.r1.market.hiapk.com/data/upload/2015/01_16/23/com.tencent.mobileqq_233135.apk");
-						else if (i == 3)
-							itemdata[i]
-									.setFilename("http://apk.r1.market.hiapk.com/data/upload/2015/01_22/18/com.qiyi.video_182142.apk");
-						itemDataList.add(itemdata[i]);
+					@Override
+					public void onCompleted() {
 					}
-					break;
 
-				default:
-					break;
-				}
-
-			} catch (JSONException e) {
-				String outText = e.getMessage();
-				WSError error = new WSError();
-				error.setMessage(outText);
-				publishProgress(error);
-			} catch (WSError e) {
-				e.setMessage(getResources().getString(R.string.networkerr));
-				publishProgress(e);
-			}
-
-			return itemDataList;
-		}
-
-		@Override
-		public void doStuffWithResult(List<ItemData> itemList) {
-			disPlayList(itemList, loadcategory);
-		}
-
-		@Override
-		public void onLoadfail() {
-			listView.onLoadComplete();
-		}
+					@Override
+					public void onError(Throwable e) {
+						if (!AppStoreApplication.getInstance().isNetWorkConnected) {
+							Toast.makeText(MainActivity.this,
+									R.string.networkerr, Toast.LENGTH_LONG)
+									.show();
+						} else
+							Toast.makeText(MainActivity.this,
+									R.string.loaderror, Toast.LENGTH_LONG)
+									.show();
+						listView.onLoadComplete();
+						listView.setResultSize(0);
+						AppLogger.e("ERROR===========" + e);
+					}
+				});
 	}
 
 	@Override
@@ -395,13 +365,11 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 		if (keyCode == KeyEvent.KEYCODE_BACK
 				&& event.getAction() == KeyEvent.ACTION_DOWN) {
 			if ((System.currentTimeMillis() - exitTime) > 2000) {
-				Toast.makeText(getApplicationContext(), R.string.press_again_exit,
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(),
+						R.string.press_again_exit, Toast.LENGTH_SHORT).show();
 				exitTime = System.currentTimeMillis();
 			} else {
-				// finish();
-				onDestroy();
-				System.exit(0);
+				finish();
 			}
 			return true;
 		}
@@ -410,19 +378,18 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 
 	@Override
 	public void onRefresh() {
-		loadDataByCategory(0);
+		AppLogger.e("==用户下拉了listview！！！！！！！！！！");
 	}
 
 	@Override
 	public void onLoad() {
-		loadDataByCategory(1);
+		loadDataByCategory(AutoListView.LOAD);
 	}
 
 	@Override
 	public void onNetWorkConnect() {
-		if (itemList.size() == 0) {
-			new NewTask(MainActivity.this, R.string.connectioning,
-					R.string.connectfail, AutoListView.LOAD).execute();
+		if(!AppStoreApplication.getInstance().isfirstconnect){
+			Toast.makeText(this, R.string.connection, Toast.LENGTH_SHORT);
 		}
 	}
 
@@ -430,7 +397,6 @@ public class MainActivity extends BaseActivity implements OnRefreshListener,
 	public void onNetWorkDisConnect() {
 		Toast.makeText(MainActivity.this, R.string.connectfail,
 				Toast.LENGTH_SHORT).show();
-	}
 
-	
+	}
 }

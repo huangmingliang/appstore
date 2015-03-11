@@ -21,6 +21,7 @@ import com.zyitong.AppStore.tools.UtilFun;
 public class AutoListView extends ListView implements OnScrollListener {
 	public static final int REFRESH = 0;
 	public static final int LOAD = 1;
+	public static final int ERROR = 2;
 
 	private static final int SPACE = 20;
 
@@ -39,7 +40,7 @@ public class AutoListView extends ListView implements OnScrollListener {
 	private ProgressBar refreshing;
 
 	private TextView noData;
-	private TextView loadFull;
+	//private TextView loadFull;
 	private TextView more;
 	private ProgressBar loading;
 
@@ -58,7 +59,7 @@ public class AutoListView extends ListView implements OnScrollListener {
 	private boolean isLoading;
 	private boolean loadEnable = true;
 	private boolean isLoadFull;
-	private int pageSize = 6;
+	private int pageSize = 8;
 
 	private OnRefreshListener onRefreshListener;
 	private OnLoadListener onLoadListener;
@@ -104,10 +105,8 @@ public class AutoListView extends ListView implements OnScrollListener {
 		this.pageSize = pageSize;
 	}
 
-	// ��ʼ�����
 	private void initView(Context context) {
 
-		// ���ü�ͷ��Ч
 		animation = new RotateAnimation(0, -180,
 				RotateAnimation.RELATIVE_TO_SELF, 0.5f,
 				RotateAnimation.RELATIVE_TO_SELF, 0.5f);
@@ -124,7 +123,7 @@ public class AutoListView extends ListView implements OnScrollListener {
 
 		inflater = LayoutInflater.from(context);
 		footer = inflater.inflate(R.layout.listview_footer, null);
-		loadFull = (TextView) footer.findViewById(R.id.loadFull);
+		//loadFull = (TextView) footer.findViewById(R.id.loadFull);
 		noData = (TextView) footer.findViewById(R.id.noData);
 		more = (TextView) footer.findViewById(R.id.more);
 		loading = (ProgressBar) footer.findViewById(R.id.loading);
@@ -205,14 +204,8 @@ public class AutoListView extends ListView implements OnScrollListener {
 	public boolean onTouchEvent(MotionEvent ev) {
 		switch (ev.getAction()) {
 		case MotionEvent.ACTION_DOWN:
-			System.out.println("AutoListView totalItemCount = "
-					+ totalItemCount);
 			if (totalItemCount != 2 && totalItemCount < 5) {
 				if (firstVisibleItem == 0) {
-					System.out.println("AutoListView firstVisibleItem = "
-							+ firstVisibleItem);
-					System.out.println("AutoListView totalItemCount = "
-							+ totalItemCount);
 					isRecorded = true;
 					startY = (int) ev.getY();
 				}
@@ -245,6 +238,8 @@ public class AutoListView extends ListView implements OnScrollListener {
 		}
 		int tmpY = (int) ev.getY();
 		int space = tmpY - startY;
+		int buttomY = (int) ev.getY();
+		int buttomSpace = buttomY - startY;
 		int topPadding = space - headerContentHeight;
 		switch (state) {
 		case NONE:
@@ -279,23 +274,28 @@ public class AutoListView extends ListView implements OnScrollListener {
 				header.getPaddingRight(), header.getPaddingBottom());
 		header.invalidate();
 	}
+	private void buttomPadding(int buttomPadding) {
+		footer.setPadding(footer.getPaddingLeft(), footer.getPaddingTop(),
+				footer.getPaddingRight(), buttomPadding);
+		footer.invalidate();
+	}
 
 	public void setResultSize(int resultSize) {
 		if (resultSize == 0) {
 			isLoadFull = true;
-			loadFull.setVisibility(View.GONE);
+			//loadFull.setVisibility(View.GONE);
 			loading.setVisibility(View.GONE);
 			more.setVisibility(View.GONE);
 			noData.setVisibility(View.VISIBLE);
 		} else if (resultSize > 0 && resultSize < pageSize) {
 			isLoadFull = true;
-			loadFull.setVisibility(View.VISIBLE);
+			//loadFull.setVisibility(View.VISIBLE);
 			loading.setVisibility(View.GONE);
 			more.setVisibility(View.GONE);
 			noData.setVisibility(View.GONE);
 		} else if (resultSize == pageSize) {
 			isLoadFull = false;
-			loadFull.setVisibility(View.GONE);
+			//loadFull.setVisibility(View.GONE);
 			loading.setVisibility(View.VISIBLE);
 			more.setVisibility(View.VISIBLE);
 			noData.setVisibility(View.GONE);
@@ -338,6 +338,20 @@ public class AutoListView extends ListView implements OnScrollListener {
 			arrow.setVisibility(View.GONE);
 			tip.setVisibility(View.GONE);
 			lastUpdate.setVisibility(View.GONE);
+			break;
+		}
+	}
+	private void refreshFooterViewByState() {
+		switch (state) {
+		case NONE:
+			buttomPadding(-headerContentHeight);
+			break;
+		case PULL:
+			break;
+		case RELEASE:
+			break;
+		case REFRESHING:
+			buttomPadding(headerContentInitialHeight);
 			break;
 		}
 	}

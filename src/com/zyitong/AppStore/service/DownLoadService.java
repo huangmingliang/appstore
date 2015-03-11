@@ -19,14 +19,8 @@ public class DownLoadService extends Service {
 
 	@Override
 	public void onCreate() {
-		// TODO Auto-generated method stub
 		Log.d("DownLoadNewService", "DownLoadNewService START");
 		fileThread = new FileDownLoadMonitorThread(this);
-		/*
-		 * IntentFilter intentFilter = new IntentFilter();
-		 * intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-		 * registerReceiver(connectionReceiver, intentFilter);
-		 */
 		init();
 	}
 
@@ -51,7 +45,7 @@ public class DownLoadService extends Service {
 		fileThread.setRuning(false);
 		timer.cancel();
 		updateDownloadListTask.cancel();
-		// unregisterReceiver(connectionReceiver);
+		
 	}
 
 	private void init() {
@@ -59,15 +53,10 @@ public class DownLoadService extends Service {
 
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
-				// Log.e("DownLoadNewService", "查询下载队列，看是否有符合要求的下载队列");
-				// 如果当前有网络连接
 				if (AppStoreApplication.getInstance().isNetWorkConnected) {
-					// 查询下载列表中是否有因为异常中断下载的app，如果有，就把它放在下载队列中重新下载
 					AppStoreApplication.getInstance()
 							.getCurrentDownloadJobManager()
-							.addJobToDownloadLink();
-					// AppStoreApplication.getInstance().getCurrentDownloadJobManager().initDownloadjob();
+							.addJobToDownloadLink();				
 				}
 
 			}

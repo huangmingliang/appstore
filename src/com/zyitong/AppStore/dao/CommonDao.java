@@ -1,10 +1,29 @@
 package com.zyitong.AppStore.dao;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.SimpleTimeZone;
+import java.util.TreeMap;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.commons.codec.binary.Base64;
+
+import android.annotation.SuppressLint;
+
+import com.zyitong.AppStore.tools.AppLogger;
+import com.zyitong.AppStore.tools.CommonConstant;
 
 public class CommonDao {
+	
+	private final String ISO8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
-	public static final HashMap<String, String> errCodeMap = new HashMap<String, String>();;
+	public static final HashMap<String, String> errCodeMap = new HashMap<String, String>();
 	static {
 		errCodeMap.put("1000", "系统内部错误");
 		errCodeMap.put("1001", "没有找到模版");
@@ -208,7 +227,9 @@ public class CommonDao {
 		errCodeMap.put("9009", "定义的字段数目超过系统允许的最大字段数");
 		errCodeMap.put("9010", "此字段保留字段名");
 		errCodeMap.put("9011", "字段已存在");
-		errCodeMap.put("9012", "索引名称必须以字母开头，由数字、26个英文字母或下划线组成，长度不超过30位，多值字段类型不能为SWS_TEXT或TEXT");
+		errCodeMap
+				.put("9012",
+						"索引名称必须以字母开头，由数字、26个英文字母或下划线组成，长度不超过30位，多值字段类型不能为SWS_TEXT或TEXT");
 		errCodeMap.put("9013", "不支持数组");
 		errCodeMap.put("9014", "不支持主键");
 		errCodeMap.put("9015", "未设定主键");
@@ -268,7 +289,83 @@ public class CommonDao {
 		errCodeMap.put("10400", "OSS前缀不合法");
 		errCodeMap.put("10450", "字段不存在");
 	}
-	
-	
 
+	public String genSignatureNonce() {
+		String randomCode = "";
+		for (int i = 0; i < 4; i++) {
+			int num = ((int) (0 + Math.random() * 10));
+			randomCode += String.valueOf(num);
+		}
+		String signatureNonce = String.valueOf(System.currentTimeMillis())
+				+ randomCode;
+
+		AppLogger.i("== signatureNonce: " + signatureNonce);
+
+		return signatureNonce;
+	}
+
+	@SuppressLint("SimpleDateFormat")
+	public String genTimestamp() {
+		SimpleDateFormat formatter = new SimpleDateFormat(
+				"YYYY-MM-DDThh:mm:ssZ");
+		Date curDate = new Date(System.currentTimeMillis());
+		String dateString = formatter.format(curDate);
+
+		AppLogger.i("== dateString: " + dateString);
+
+		return dateString;
+	}
+
+	protected String percentEncode(String value)
+			throws UnsupportedEncodingException {
+		return value != null ? URLEncoder.encode(value, "UTF-8")
+				.replace("+", "%20").replace("*", "%2A").replace("%7E", "~")
+				: null;
+	}
+
+	private String buildQuery(TreeMap<String, String> sortMap) {
+
+		StringBuilder query = new StringBuilder();
+		try {
+			for (Entry<String, String> entry : sortMap.entrySet()) {
+				query.append("&").append(percentEncode(entry.getKey()))
+						.append("=").append(percentEncode(entry.getValue()));
+
+			}
+		} catch (UnsupportedEncodingException e) {
+			// ignore
+		}
+
+		return query.substring(1);
+	}
+
+	protected String getAliyunSign(TreeMap<String, String> sortMap) {
+
+		try {
+			String stringToSign = buildQuery(sortMap);
+			stringToSign = "GET" + "&%2F&" + percentEncode(stringToSign);
+
+			final String ALGORITHM = "HmacSHA1";
+			final String ENCODING = "UTF-8";
+
+			String accessKeySecret = CommonConstant.ACCESS_KEY_SECRET + "&";
+			Mac mac = Mac.getInstance(ALGORITHM);
+			mac.init(new SecretKeySpec(accessKeySecret.getBytes(ENCODING),
+					ALGORITHM));
+			byte[] signData = mac.doFinal(stringToSign.getBytes(ENCODING));
+
+			String signature = new String(Base64.encodeBase64(signData));
+			//String signature = new String(Base64.encode(signData, 0));
+
+			return signature;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	protected String formatIso8601Date(Date date) {
+		SimpleDateFormat df = new SimpleDateFormat(ISO8601_DATE_FORMAT);
+		df.setTimeZone(new SimpleTimeZone(0, "GMT"));
+		return df.format(date);
+	}
 }

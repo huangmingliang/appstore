@@ -4,14 +4,22 @@
     android:layout_height="fill_parent"
     android:background="#ffffff" >
 
-    <com.zyitong.AppStore.ui.RemoteImageView
+    <!-- <com.zyitong.AppStore.ui.RemoteImageView
         android:id="@+id/iconView"
         android:layout_width="63dip"
         android:layout_height="63dip"
         android:layout_gravity="center_vertical"
         android:layout_marginBottom="10dip"
         android:layout_marginTop="10dip" >
-    </com.zyitong.AppStore.ui.RemoteImageView>
+    </com.zyitong.AppStore.ui.RemoteImageView> -->
+    <ImageView
+        android:id="@+id/iconView"
+        android:layout_width="63dip"
+        android:layout_height="63dip"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="10dip"
+        android:layout_marginTop="10dip" >
+    </ImageView>
 
     <LinearLayout
         android:id="@+id/RowLayout1"

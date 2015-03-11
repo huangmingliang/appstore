@@ -1,47 +1,34 @@
 package com.zyitong.AppStore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.Application;
 import android.content.Intent;
 
+import com.zyitong.AppStore.bean.ItemData;
 import com.zyitong.AppStore.dao.CurrentDownloadJobManager;
 import com.zyitong.AppStore.dao.DownloadLink;
-import com.zyitong.AppStore.dao.ImageCache;
-import com.zyitong.AppStore.dao.RequestCache;
-import com.zyitong.AppStore.http.api.Caller;
 import com.zyitong.AppStore.service.DownLoadService;
-import com.zyitong.AppStore.tools.AppLogger;
+import com.zyitong.AppStore.tools.UtilFun;
 
 public class AppStoreApplication extends Application {
-	public static String TAG = "AppStore";
-	// public static String GET_API="http://192.168.1.104:8080/";
-	public static String GET_API = "http://wap.vebclub.com/";
-	public static String GETIMAGE_API = "http://www.vebclub.com/";
-	public static String UserHeader = "v2";
-	public static String Version = "v1.0.0";
-	public static int perPageNum = 6;
 	private static AppStoreApplication instance;
 	private static String WeiBoRoot = android.os.Environment
 			.getExternalStorageDirectory().getAbsolutePath() + "/AppStore/";
-	private ImageCache mImageCache;
-	private RequestCache mRequestCache;
+	
 	private DownloadLink mDownloadLink;
-	private String imei;
-	private CurrentDownloadJobManager currentDownloadJobList;
+	private static CurrentDownloadJobManager currentDownloadJobManager = null;
 	public boolean isNetWorkConnected = true;
-
+	public boolean isfirstconnect = true;
+	public List<ItemData>itemData = new ArrayList<ItemData>();
+	
+	
 	public String getFilePath() {
 		String rootPath = "";
 		rootPath = "soft/";
 		rootPath = WeiBoRoot + rootPath;
 		return rootPath;
-	}
-
-	public String getImei() {
-		return imei;
-	}
-
-	public void setImei(String imei) {
-		this.imei = imei;
 	}
 
 	public static AppStoreApplication getInstance() {
@@ -50,31 +37,21 @@ public class AppStoreApplication extends Application {
 
 	@Override
 	public void onCreate() {
-		AppLogger.e("=======AppStoreApplication onCreate=======");
 		super.onCreate();
-		mImageCache = new ImageCache();
-		mRequestCache = new RequestCache();
-		Caller.setRequestCache(mRequestCache);
 		mDownloadLink = new DownloadLink();
-		currentDownloadJobList = new CurrentDownloadJobManager(this);
+		if (null == currentDownloadJobManager){
+			currentDownloadJobManager = new CurrentDownloadJobManager(this);
+		}
 		instance = this;
 		startService();
 	}
-
-	public ImageCache getImageCache() {
-		return mImageCache;
-	}
-
+	
 	public DownloadLink getDownloadLink() {
-		synchronized (mDownloadLink) {
 			return mDownloadLink;
-		}
 	}
 
 	public CurrentDownloadJobManager getCurrentDownloadJobManager() {
-		synchronized (currentDownloadJobList) {
-			return currentDownloadJobList;
-		}
+			return currentDownloadJobManager;
 	}
 
 	public String getFileName(String filename) {
@@ -96,9 +73,8 @@ public class AppStoreApplication extends Application {
 
 	public void clearCache() {
 		//stopService();
-		mImageCache.clear();
-		mRequestCache.clear();
 		mDownloadLink.moveAll();
+		currentDownloadJobManager.removeall();
 	}
 
 }

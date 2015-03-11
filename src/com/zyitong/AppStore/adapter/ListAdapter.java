@@ -8,48 +8,43 @@ import java.util.Map;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.ListView;
-import android.widget.ProgressBar;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.R;
+import com.zyitong.AppStore.bean.CurrentDownloadJob;
 import com.zyitong.AppStore.bean.FileDownloadJob;
 import com.zyitong.AppStore.bean.ItemData;
-import com.zyitong.AppStore.bean.NoticData;
-import com.zyitong.AppStore.tools.Util;
+import com.zyitong.AppStore.tools.AppLogger;
 import com.zyitong.AppStore.tools.UtilFun;
-import com.zyitong.AppStore.ui.RemoteImageView;
 
 @SuppressLint("ResourceAsColor")
 public class ListAdapter extends BaseAdapter {
-	
+
 	private Context mContext;
 	private List<ItemData> itemList;
 	private List<Map<String, Object>> mData;
 	private LayoutInflater mInflater;
-	private ListView listView;
-	
+
 	private UtilFun util = null;
-	
-	
-	
-	private List<dLoadButtonTextofRadio>dlButtontextlist;
+
+	private List<dLoadButtonTextofRadio> dlButtontextlist;
 
 	public ListAdapter(Context context, List<ItemData> itemList,
-			ListView listView, String className) {
+			String className) {
 		this.mContext = context;
 		mInflater = LayoutInflater.from(context);
 		this.itemList = itemList;
-		this.listView = listView;
-	
+
 		init();
 	}
 
@@ -57,12 +52,10 @@ public class ListAdapter extends BaseAdapter {
 		public int onLoadProgress();
 	}
 
-	public ListAdapter(Context context, List<ItemData> itemList,
-			ListView listView) {
+	public ListAdapter(Context context, List<ItemData> itemList) {
 		this.mContext = context;
 		mInflater = LayoutInflater.from(context);
 		this.itemList = itemList;
-		this.listView = listView;
 		init();
 	}
 
@@ -71,37 +64,34 @@ public class ListAdapter extends BaseAdapter {
 		mData = new ArrayList<Map<String, Object>>();
 		dlButtontextlist = new ArrayList<ListAdapter.dLoadButtonTextofRadio>();
 		for (int i = 0; i < itemList.size(); i++) {
-			
-				Map<String, Object> map = new HashMap<String, Object>();
-				map.put("name", itemList.get(i).getName());
-				map.put("star", itemList.get(i).getStar());
-				map.put("iconView", itemList.get(i).getImage());
-				map.put("filesize",
-						Util.getForMartSize(itemList.get(i).getFileSize(), 2));
-				map.put("downloadnum",
-						Util.getDownloadNum(itemList.get(i).getDownloadnum()));
-				
-				mData.add(map);			
-		}		
+
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("name", itemList.get(i).getAppInfoBean().getTitle());
+			map.put("star", Integer.valueOf(itemList.get(i).getAppInfoBean()
+					.getGrade()) / 20);
+			map.put("type", itemList.get(i).getAppInfoBean().getType());
+			map.put("iconView", itemList.get(i).getAppInfoBean().getThumbnail());
+
+			mData.add(map);
+		}
 	}
 
 	public void addData(List<ItemData> itemDataList) {
 		this.itemList = itemDataList;
 		for (int i = mData.size(); i < itemDataList.size(); i++) {
-			
-				Map<String, Object> map = new HashMap<String, Object>();
-				map.put("name", itemList.get(i).getName());
-				map.put("star", itemList.get(i).getStar());
-				map.put("iconView", itemList.get(i).getImage());
-				map.put("filesize",
-						Util.getForMartSize(itemList.get(i).getFileSize(), 2));
-				map.put("downloadnum",
-						Util.getDownloadNum(itemList.get(i).getDownloadnum()));
-				mData.add(map);
-				dLoadButtonTextofRadio dl = new dLoadButtonTextofRadio();
-				dl.setRadio(0);
-				dlButtontextlist.add(dl);
-		
+
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("name", itemList.get(i).getAppInfoBean().getTitle());
+			map.put("star", Integer.valueOf(itemList.get(i).getAppInfoBean()
+					.getGrade()) / 20);
+			map.put("type", itemList.get(i).getAppInfoBean().getType());
+			map.put("iconView", itemList.get(i).getAppInfoBean().getThumbnail());
+
+			mData.add(map);
+			dLoadButtonTextofRadio dl = new dLoadButtonTextofRadio();
+			dl.setRadio(0);
+			dlButtontextlist.add(dl);
+
 		}
 	}
 
@@ -109,163 +99,198 @@ public class ListAdapter extends BaseAdapter {
 		itemList.clear();
 		mData.clear();
 	}
-	
-	
+
 	@Override
 	public int getCount() {
-		// TODO Auto-generated method stub
 		return mData.size();
 	}
 
 	@Override
 	public Object getItem(int position) {
-		// TODO Auto-generated method stub
 		return itemList.get(position);
 	}
 
 	@Override
 	public long getItemId(int position) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		//Log.e("ListAdapter","getView().position = "+position);
-		// TODO Auto-generated method stub
 		final ViewHolder holder;
-		final ItemData indexData = itemList.get(position);	
-		if(convertView==null){					
+		final ItemData indexData = itemList.get(position);
+		if (convertView == null) {
 			holder = new ViewHolder();
 			convertView = mInflater.inflate(R.layout.item_row, null);
-			holder.iconView = (RemoteImageView) convertView
-					.findViewById(R.id.iconView);		
+			holder.iconView = (ImageView) convertView
+					.findViewById(R.id.iconView);
 			holder.name = (TextView) convertView.findViewById(R.id.name);
 			holder.textFileSizeView = (TextView) convertView
-					.findViewById(R.id.textFileSizeView);			
+					.findViewById(R.id.textFileSizeView);
 			holder.imageDownloadView = (Button) convertView
-					.findViewById(R.id.imageDownloadView);			
+					.findViewById(R.id.imageDownloadView);
 			holder.imageView1 = (View) convertView.findViewById(R.id.starView1);
 			holder.imageView2 = (View) convertView.findViewById(R.id.starView2);
 			holder.imageView3 = (View) convertView.findViewById(R.id.starView3);
 			holder.imageView4 = (View) convertView.findViewById(R.id.starView4);
 			holder.imageView5 = (View) convertView.findViewById(R.id.starView5);
-			
-			convertView.setTag(holder);					
-		}else{
-			holder = (ViewHolder) convertView.getTag();							
-		}
-		setView(holder, position, indexData);		
-		return convertView;
 
+			convertView.setTag(holder);
+		} else {
+			holder = (ViewHolder) convertView.getTag();
+		}
+		setView(holder, position, indexData);
+		return convertView;
 	}
-	
-	private void setView(ViewHolder holder, int position,final ItemData indexData){
-		
+
+	private void setView(ViewHolder holder, int position,
+			final ItemData indexData) {
+
 		final int positionn = position;
-		
-		String filename = AppStoreApplication.getInstance().getFilePath()+
-				AppStoreApplication.getInstance().getFileName(
-						indexData.getFilename());
-		int star = indexData.getStar();
+
+		String filename = AppStoreApplication.getInstance().getFilePath()
+				+ AppStoreApplication.getInstance().getFileName(
+						indexData.getAppInfoBean().getUrl());
+		int star = Integer.valueOf(indexData.getAppInfoBean().getGrade()) / 20;
 		setStar(holder, star);
-		holder.textFileSizeView.setText(R.string.game);
+		holder.textFileSizeView.setText(mData.get(position).get("type")
+				.toString());
 		holder.uri = filename;
 
 		holder.name.setText(mData.get(position).get("name").toString());
-		holder.iconView.setDefaultImage(R.drawable.loading_imageview);
-		
-		//testpicture
-		testSetPicture(positionn, holder);
-					
-		holder.iconView.setImageUrl(mData.get(position).get("iconView")
-					.toString(), position, listView);
-				
-		/*if(position!=2)
-			holder.iconView.setImageUrl("http://img.r1.market.hiapk.com/data/upload/2014/07_16/15/72_72_201407161548386365.png");
-		else
-			holder.iconView.setImageUrl("http://img.r1.market.hiapk.com/data/upload/2014/12_24/13/72_72_201412241343308502.png");*/
+		Picasso.with(mContext)
+				.load(mData.get(position).get("iconView").toString())
+				.placeholder(R.drawable.loading_imageview)
+				.error(R.drawable.loading_imageview).into(holder.iconView);
+
 		setDownloadButtonByflag(holder, positionn, indexData);
-				
+
 		holder.imageDownloadView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(final View v) {
-				System.out.println("click button = " + positionn);				
-				final Button dlbutton = (Button) v;				
-											
-					String filename =AppStoreApplication.getInstance().getFilePath()+AppStoreApplication.getInstance().getFileName(indexData.getFilename());
-					if(AppStoreApplication.getInstance().isNetWorkConnected){
-						if (indexData.getButtonFileflag()==ItemData.APP_INSTALED||indexData.getButtonFileflag()==ItemData.APP_FAIL) {
-							//dlbutton.setVisibility(View.GONE);
-							setdownloadButtonBackground(dlbutton, "0%", R.drawable.loading_button);
-							itemList.get(positionn).setButtonFileflag(3);
-							FileDownloadJob data = util.DataChange(indexData);
-							if (data != null) {							
-								NoticData noticData = new NoticData();
-								noticData.setFileDownloadJob(data);
-								AppStoreApplication.getInstance().getDownloadLink().addNode(noticData);
-							}
+				System.out.println("click button = " + positionn);
+				final Button dlbutton = (Button) v;
+
+				String filename = AppStoreApplication.getInstance()
+						.getFilePath()
+						+ AppStoreApplication.getInstance().getFileName(
+								indexData.getAppInfoBean().getUrl());
+				String packageName = indexData.getAppInfoBean().getPackagename();
+				if(packageName == null)
+					packageName = util.getPackageName(
+						filename, mContext);
+				int status = indexData.getButtonFileflag();
+				if (AppStoreApplication.getInstance().isNetWorkConnected) {
+					if (indexData.getButtonFileflag() == ItemData.APP_INSTALL
+							|| indexData.getButtonFileflag() == ItemData.APP_FAIL
+							|| indexData.getButtonFileflag() == ItemData.APP_REDOWNLOAD
+							|| indexData.getButtonFileflag() == ItemData.APP_NETWORKEX) {
+						setdownloadButtonBackground(dlbutton, "0%",
+								R.drawable.loading_button);
+
+						FileDownloadJob data = util.DataChange(indexData);
+						if (data != null) {
+							AppStoreApplication.getInstance().getDownloadLink()
+									.addNode(data);
+						}
+						if (!AppStoreApplication.getInstance()
+								.getDownloadLink().hasDownloadFree()) {
+							Toast.makeText(mContext, R.string.maxwarning,
+									Toast.LENGTH_LONG).show();
+							setdownloadButtonBackground(dlbutton, R.string.app_waitinstall,
+									R.drawable.loading_button);
+							AppStoreApplication.getInstance().getDownloadLink()
+							.addNode(data);
+							CurrentDownloadJob currentDownloadJob = new CurrentDownloadJob();
+							currentDownloadJob.setData(data);
+							currentDownloadJob.setFilestatus(ItemData.APP_WAIT);
+							currentDownloadJob.setPackageName(packageName);
+							currentDownloadJob.setRatio(0);
+							AppStoreApplication.getInstance().getCurrentDownloadJobManager().addDownloadJob(currentDownloadJob);
 							
-						} else if (indexData.getButtonFileflag() == ItemData.APP_OPEN) {
-							try {
-								if (util.isAppInstalled(filename, mContext)) {
-									String packageName = util.getPackageName(
-											filename, mContext);
-									util.openApp(packageName, mContext);
-								}
-							} catch (NameNotFoundException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						}			
-					}else 
-						Toast.makeText(mContext, R.string.connectfail, Toast.LENGTH_SHORT).show();
+						}
+						
+						itemList.get(positionn).setButtonFileflag(
+								ItemData.APP_LOADING);
+					} else if (indexData.getButtonFileflag() == ItemData.APP_OPEN) {
 					
-			}
-		});
+							if (util.checkApkExist(mContext, packageName)) {
 								
+								AppLogger.e("packagename = " + packageName);
+								
+								String args = util.openApp(packageName, mContext);
+								AppLogger.e("packagename = " + "open after"+args);
+							}
+					
+					} else if (indexData.getButtonFileflag() == ItemData.APP_LOADING  ) {
+						setdownloadButtonBackground(dlbutton,
+								R.string.app_install, R.drawable.load_button);
+						dlButtontextlist.get(positionn).setRadio(0);
+						
+						util.setAppReDownLoad(indexData.getAppInfoBean()
+								.getPackagename());
+						FileDownloadJob data = util.DataChange(indexData);
+						if(data != null){
+							AppStoreApplication.getInstance()
+							.getDownloadLink().delNode(data);
+						}
+						
+					} else if(indexData.getButtonFileflag() == ItemData.APP_WAIT){
+						
+						FileDownloadJob data = util.DataChange(indexData);
+						AppStoreApplication.getInstance().getCurrentDownloadJobManager().setStatus(packageName, ItemData.APP_INSTALL);
+						dlButtontextlist.get(positionn).setRadio(0);
+						if(data != null){
+							AppStoreApplication.getInstance()
+							.getDownloadLink().delNode(data);
+						}
+						setdownloadButtonBackground(dlbutton,
+								R.string.app_install, R.drawable.load_button);
+					} 
+				} else
+					Toast.makeText(mContext, R.string.connectfail,
+							Toast.LENGTH_SHORT).show();
+			}
+
+			
+		});
 	}
-	
-	public void updateSingleRow(int position,int radio,int status){
-		
-		Log.e("ListAdapter", "updateSingleRow");
-	
-			//View view = listView.getChildAt(position);	
-			Log.e("ListAdapter",dlButtontextlist.get(position).getRadio()+" ");
+
+	public void updateSingleRow(int position, int radio, int status) {
+
+		/*if (dlButtontextlist.get(position).getRadio() < radio
+				|| dlButtontextlist.get(position).getRadio() == radio) {
+			dlButtontextlist.get(position).setRadio(radio);
+		}*/
+		dlButtontextlist.get(position).setRadio(radio);
+
+		if (status == ItemData.APP_FAIL
+				||status == ItemData.APP_REDOWNLOAD
+				||status == ItemData.APP_OPEN
+				||status == ItemData.APP_NETWORKEX) {
 			
-			if(dlButtontextlist.get(position).getRadio()<radio||dlButtontextlist.get(position).getRadio()==radio)
-			   dlButtontextlist.get(position).setRadio(radio);
-			
-			if(status == 4)
-				dlButtontextlist.get(position).setRadio(0);
-			
-			itemList.get(position).setButtonFileflag(status);
-			notifyDataSetChanged();
-			//getView(position, view, listView);
+			dlButtontextlist.get(position).setRadio(0);
+		}
+		itemList.get(position).setButtonFileflag(status);
+		notifyDataSetChanged();
 	}
 
 	public final class ViewHolder {
-		public RemoteImageView iconView;
+		public ImageView iconView;
 		public TextView name;
-		public ProgressBar loadProgressBar;
-
 		public View imageView1;
 		public View imageView2;
 		public View imageView3;
 		public View imageView4;
 		public View imageView5;
-		
-
-		// public TextView textDownloadNumView;
 		public TextView textFileSizeView;
 		public Button imageDownloadView;
 		public String uri;
 
 	}
 
-	
 	private void setStar(ViewHolder holder, int star) {
-		
+
 		switch (star) {
 
 		case 1:
@@ -273,7 +298,7 @@ public class ListAdapter extends BaseAdapter {
 			holder.imageView2.setBackgroundResource(R.drawable.star02);
 			holder.imageView3.setBackgroundResource(R.drawable.star02);
 			holder.imageView4.setBackgroundResource(R.drawable.star02);
-			holder.imageView5.setBackgroundResource(R.drawable.star02);			
+			holder.imageView5.setBackgroundResource(R.drawable.star02);
 			break;
 		case 2:
 			holder.imageView1.setBackgroundResource(R.drawable.star01);
@@ -314,86 +339,77 @@ public class ListAdapter extends BaseAdapter {
 		}
 	}
 
-	private void testSetPicture(int position, ViewHolder holder) {
-		//Log.e("ListAdapter", "testSetPicture'position = "+position);
-		switch (position) {
-		case 0:
-			holder.iconView.setDefaultImage(R.drawable.qiyi_icon);
-			break;
-		case 1:
-			holder.iconView.setDefaultImage(R.drawable.jingdong_icon);
-			break;
-		case 2:
-			holder.iconView.setDefaultImage(R.drawable.xiecheng_icon);
-			break;
-		case 3:
-			holder.iconView.setDefaultImage(R.drawable.appicon);
-			break;
-		case 4:
-			holder.iconView.setDefaultImage(R.drawable.qq2011);
-			break;
-		case 5:
-			holder.iconView.setDefaultImage(R.drawable.yingxiangbiji_icon);
-			break;
-
-		default:
-			holder.iconView.setDefaultImage(R.drawable.loading_imageview);
-			break;
-		}
-
-	}
-	
-	private void setDownloadButtonByflag(ViewHolder holder,int position,final ItemData indexData){
+	private void setDownloadButtonByflag(ViewHolder holder, int position,
+			final ItemData indexData) {
 		switch (indexData.getButtonFileflag()) {
-		case 0:
-			AppStoreApplication.getInstance().getCurrentDownloadJobManager().completeCurrentDownLoadInfo(indexData);
-            break;	
-		case 1:
-			setdownloadButtonBackground(holder.imageDownloadView, R.string.app_install, R.drawable.load_button);
+
+		case ItemData.APP_OPEN:
+			setdownloadButtonBackground(holder.imageDownloadView,
+					R.string.app_open, R.drawable.open_button);
+			AppStoreApplication
+					.getInstance()
+					.getCurrentDownloadJobManager()
+					.removeDownloadJob(
+							indexData.getAppInfoBean().getPackagename());
 			break;
-		case 2:		
-			setdownloadButtonBackground(holder.imageDownloadView, R.string.app_open, R.drawable.open_button);
-			AppStoreApplication.getInstance().getCurrentDownloadJobManager().removeDownloadJob(util.getFileName(indexData.getFilename()));
+		case ItemData.APP_LOADING:
+			setdownloadButtonBackground(holder.imageDownloadView,
+					dlButtontextlist.get(position).getRadio() + "%",
+					R.drawable.loading_button);
 			break;
-		case 3:	
-			setdownloadButtonBackground(holder.imageDownloadView, dlButtontextlist.get(position).getRadio()+"%", R.drawable.loading_button);	
-			break;
-		case 4:
-			setdownloadButtonBackground(holder.imageDownloadView, R.string.app_install, R.drawable.load_button);			
+		case ItemData.APP_FAIL:
+			setdownloadButtonBackground(holder.imageDownloadView,
+					R.string.app_install, R.drawable.load_button);
 			dlButtontextlist.get(position).setRadio(0);
-			AppStoreApplication.getInstance().getCurrentDownloadJobManager().removeDownloadJob(util.getFileName(indexData.getFilename()));
+			AppStoreApplication
+					.getInstance()
+					.getCurrentDownloadJobManager()
+					.removeDownloadJob(
+							indexData.getAppInfoBean().getPackagename());
 			break;
-		case 5:	
-			setdownloadButtonBackground(holder.imageDownloadView, dlButtontextlist.get(position).getRadio()+"%", R.drawable.loading_button);			
+		case ItemData.APP_NETWORKEX:
+			setdownloadButtonBackground(holder.imageDownloadView,
+					R.string.app_reinstall, R.drawable.loading_button);
 			break;
+		case ItemData.APP_REDOWNLOAD:
+			setdownloadButtonBackground(holder.imageDownloadView,
+					R.string.app_install, R.drawable.load_button);
+			break;
+		case ItemData.APP_INSTALL:
+			setdownloadButtonBackground(holder.imageDownloadView,
+					R.string.app_install, R.drawable.load_button);
+			break;
+		case ItemData.APP_WAIT:
+			setdownloadButtonBackground(holder.imageDownloadView,
+					R.string.app_waitinstall, R.drawable.loading_button);
+			break;
+	
 		default:
 			break;
 		}
 	}
-	
-	private class dLoadButtonTextofRadio{
+
+	private class dLoadButtonTextofRadio {
 		int radio;
 
 		public int getRadio() {
-			synchronized (this) {
-				return radio;
-			}
-			
+			return radio;
 		}
 
 		public void setRadio(int radio) {
-			synchronized (this) {
-				this.radio = radio;
-			}
-			
+			this.radio = radio;
 		}
 	}
-	private void setdownloadButtonBackground(Button dlbutton,int string,int resource){
+
+	private void setdownloadButtonBackground(Button dlbutton, int string,
+			int resource) {
 		dlbutton.setText(string);
 		dlbutton.setBackgroundResource(resource);
 
 	}
-	private void setdownloadButtonBackground(Button dlbutton,String text,int resource){
+
+	private void setdownloadButtonBackground(Button dlbutton, String text,
+			int resource) {
 		dlbutton.setText(text);
 		dlbutton.setBackgroundResource(resource);
 

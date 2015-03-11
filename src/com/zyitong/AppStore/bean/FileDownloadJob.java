@@ -3,26 +3,32 @@ package com.zyitong.AppStore.bean;
 import com.zyitong.AppStore.tools.FileOpt;
 
 public class FileDownloadJob {
-	private String filename;
+	private String packagename;
+	private String fileuri;
 	private String url;
-	private String updateurl;
 	private String name;
 	private String path;
 	private int Id;
-	private int typeid;
 	private boolean isRun;
-	private int status; // 1×¼±¸ÏÂÔØ£¬2ÏÂÔØÖĞ£¬3ÏÂÔØÍê³É,4Ê§°Ü
+	private int status; //1å‡†å¤‡ä¸‹è½½ï¼Œ2ä¸‹è½½ä¸­ï¼Œ3ä¸‹è½½å®Œæˆ,4å¤±è´¥
 
 	public FileDownloadJob() {
 
 	}
 
-	public String getFilename() {
-		return filename;
+	public String getPackageName() {
+		return packagename;
 	}
 
-	public void setFilename(String filename) {
-		this.filename = filename;
+	public void setPackageName(String packagename) {
+		this.packagename = packagename;
+	}
+	public String getFileuri() {
+		return fileuri;
+	}
+
+	public void setFileuri(String fileuri) {
+		this.fileuri = fileuri;
 	}
 
 	public String getUrl() {
@@ -33,13 +39,7 @@ public class FileDownloadJob {
 		this.url = url;
 	}
 
-	public String getUpdateurl() {
-		return updateurl;
-	}
 
-	public void setUpdateurl(String updateurl) {
-		this.updateurl = updateurl;
-	}
 
 	public String getName() {
 		return name;
@@ -67,13 +67,6 @@ public class FileDownloadJob {
 		Id = id;
 	}
 
-	public int getTypeid() {
-		return typeid;
-	}
-
-	public void setTypeid(int typeid) {
-		this.typeid = typeid;
-	}
 
 	public boolean isRun() {
 		return isRun;

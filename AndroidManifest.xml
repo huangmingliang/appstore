@@ -5,6 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk android:minSdkVersion="7" />
+    <!-- 预装权限 -->
     <!-- android:sharedUserId="android.uid.system" -->
     <!-- <uses-permission android:name="android.permission.INSTALL_PACKAGES"/> -->
     <!-- 连接互联网权限 -->
@@ -26,7 +27,9 @@
         android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-        <activity android:name=".activity.UpdateActivity" >
+        <activity android:name=".activity.WelcomeActivity"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -35,20 +38,12 @@
         </activity>
         <activity
             android:name=".activity.MainActivity"
+            android:theme="@style/main_activity"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".activity.SearchActivity"
-            android:launchMode="singleTop" />
+        
 
         <service android:name=".service.DownLoadService" />
-        <service
-            android:name=".service.UpdateMGService"
-            android:enabled="true"
-            android:exported="true"
-            android:icon="@drawable/icon"
-            android:label="UpdateMGService" >
-        </service>
-
+        
         <activity
             android:name="com.zyitong.AppStore.base.BaseActivity"
             android:label="@string/title_activity_base" >

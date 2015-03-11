@@ -8,20 +8,7 @@ public class Util {
 		 result = result+"M";
 		 return result;
 	}
-	public static String getDownloadNum(int num)
-	{
-		 int data = num/10000;
-		 String result = "";
-		 if(data>0)
-		 {
-			 result = data+"万次下载";
-		 }else
-		 {
-			 result = num%10000+"次下载";
-		 }
-		
-		 return result;
-	}
+	
 	public static String getPlotSize(int size,int num)
 	{
 		double data =size/(100.00);

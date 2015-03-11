@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.view.Window;
 
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.tools.AppLogger;
@@ -21,6 +22,7 @@ public class BaseActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		AppLogger.i("BaseActivity oncreate");
 		listenNetWork();
 	}
