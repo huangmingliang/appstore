@@ -2,8 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.zyitong.AppStore"
     android:versionCode="1"
-    android:versionName="V1.0.0">
-
+    android:versionName="V1.0.0"
+    android:sharedUserId="android.uid.system">
+    <uses-permission android:name="android.permission.INSTALL_PACKAGES"/>
     <uses-sdk android:minSdkVersion="7" />
     <!-- 预装权限 -->
     <!-- android:sharedUserId="android.uid.system" -->
