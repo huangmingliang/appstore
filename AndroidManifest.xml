@@ -2,12 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.zyitong.AppStore"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="1.0" 
+    android:sharedUserId="android.uid.system">
 
     <uses-sdk android:minSdkVersion="7" />
     <!-- 预装权限 -->
     <!-- android:sharedUserId="android.uid.system" -->
     <!-- <uses-permission android:name="android.permission.INSTALL_PACKAGES"/> -->
+    <uses-permission android:name="android.permission.INSTALL_PACKAGES"/>
     <!-- 连接互联网权限 -->
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- 监控网络的权限 -->

@@ -30,7 +30,6 @@ public class WelcomeActivity extends Activity {
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		setContentView(R.layout.update);
 		ImageView mImageView = (ImageView) findViewById(R.id.animation_iv);
-    	//mImageView.setImageResource(R.drawable.start_screen);
 		mImageView.setImageBitmap(readBitMap(this, R.drawable.start_screen));
 		init();
 	}
