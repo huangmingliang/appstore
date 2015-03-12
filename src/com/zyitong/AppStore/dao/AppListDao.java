@@ -13,6 +13,7 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
+import com.google.gson.internal.LinkedTreeMap;
 import com.zyitong.AppStore.bean.AppListBean;
 import com.zyitong.AppStore.bean.AppVerboseBean;
 import com.zyitong.AppStore.tools.AppLogger;
@@ -91,6 +92,7 @@ public class AppListDao extends CommonDao {
 
 		AppListDaoInterface daoInterface = restAdapter
 				.create(AppListDaoInterface.class);
+		LinkedTreeMap l;
 
 		TreeMap<String, String> parameters = new TreeMap<String, String>(
 				new Comparator<String>() {

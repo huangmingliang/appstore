@@ -1,4 +1,4 @@
-package com.zyitong.AppStore.base;
+package com.zyitong.AppStore.activity;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;

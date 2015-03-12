@@ -21,10 +21,9 @@ import android.widget.Toast;
 
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.R;
+import com.zyitong.AppStore.activity.BaseActivity.OnNetWorkConnectListener;
+import com.zyitong.AppStore.activity.BaseActivity.OnNetWorkDisConListener;
 import com.zyitong.AppStore.adapter.ListAdapter;
-import com.zyitong.AppStore.base.BaseActivity;
-import com.zyitong.AppStore.base.BaseActivity.OnNetWorkConnectListener;
-import com.zyitong.AppStore.base.BaseActivity.OnNetWorkDisConListener;
 import com.zyitong.AppStore.bean.AppListBean;
 import com.zyitong.AppStore.bean.ItemData;
 import com.zyitong.AppStore.dao.AppListDao;

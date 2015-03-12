@@ -7,8 +7,6 @@ import com.google.gson.annotations.SerializedName;
  *
  */
 public class AppVerboseBean {
-	
-	
 	@SerializedName("id")
 	public String id;
 	
