@@ -238,8 +238,7 @@ public class AutoListView extends ListView implements OnScrollListener {
 		}
 		int tmpY = (int) ev.getY();
 		int space = tmpY - startY;
-		int buttomY = (int) ev.getY();
-		int buttomSpace = buttomY - startY;
+		
 		int topPadding = space - headerContentHeight;
 		switch (state) {
 		case NONE:
@@ -275,11 +274,7 @@ public class AutoListView extends ListView implements OnScrollListener {
 		header.invalidate();
 	}
 
-	private void buttomPadding(int buttomPadding) {
-		footer.setPadding(footer.getPaddingLeft(), footer.getPaddingTop(),
-				footer.getPaddingRight(), buttomPadding);
-		footer.invalidate();
-	}
+	
 
 	public void setResultSize(int resultSize) {
 		if (resultSize == 0) {
