@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.zyitong.AppStore"
     android:versionCode="1"
-    android:versionName="1.0"
+    android:versionName="V1.0.0"
      android:sharedUserId="android.uid.system">
 
     <uses-sdk android:minSdkVersion="7" />
