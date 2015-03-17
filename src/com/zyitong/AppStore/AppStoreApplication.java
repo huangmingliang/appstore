@@ -15,14 +15,10 @@ public class AppStoreApplication extends Application {
 	private static AppStoreApplication instance;
 	private static String WeiBoRoot = android.os.Environment
 			.getExternalStorageDirectory().getAbsolutePath() + "/AppStore/";
-	
 	private DownloadLink mDownloadLink;
 	private static CurrentDownloadJobManager currentDownloadJobManager = null;
 	public boolean isNetWorkConnected = true;
-	public boolean isfirstconnect = true;
 	public List<ItemData>itemData = new ArrayList<ItemData>();
-	
-	
 	public String getFilePath() {
 		String rootPath = "";
 		rootPath = "soft/";

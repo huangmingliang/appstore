@@ -28,7 +28,7 @@ public class WelcomeActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		setContentView(R.layout.update);
+		setContentView(R.layout.welcome_activity);
 		ImageView mImageView = (ImageView) findViewById(R.id.animation_iv);
 		mImageView.setImageBitmap(readBitMap(this, R.drawable.start_screen));
 		init();
@@ -69,7 +69,7 @@ public class WelcomeActivity extends Activity {
 							}
 							
 							Bundle bundle = new Bundle();
-							MainActivity.launch(WelcomeActivity.this, bundle);
+							MainActivity.startActivity(WelcomeActivity.this, bundle);
 							finish();
 							overridePendingTransition(R.layout.apvalue, R.layout.apvalue);
 						}
@@ -84,7 +84,7 @@ public class WelcomeActivity extends Activity {
 						AppLogger.e("ERROR===========" + e);
 						
 						Bundle bundle = new Bundle();
-						MainActivity.launch(WelcomeActivity.this, bundle);
+						MainActivity.startActivity(WelcomeActivity.this, bundle);
 						finish();
 						overridePendingTransition(R.layout.apvalue, R.layout.apvalue);
 					}

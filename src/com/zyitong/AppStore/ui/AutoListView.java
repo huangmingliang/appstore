@@ -16,31 +16,36 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.zyitong.AppStore.R;
+import com.zyitong.AppStore.tools.AppLogger;
 import com.zyitong.AppStore.tools.UtilFun;
 
 public class AutoListView extends ListView implements OnScrollListener {
 	public static final int REFRESH = 0;
 	public static final int LOAD = 1;
 	public static final int ERROR = 2;
+	public static final int SEARCH = 3;
+	public static final int BACK = 4;
+	public static final int RESUME = 5;
 
 	private static final int SPACE = 20;
 
-	private static final int NONE = 0;
-	private static final int PULL = 1;
-	private static final int RELEASE = 2;
-	private static final int REFRESHING = 3;
+	public static final int NONE = 0;
+	public static final int PULL = 1;
+	public static final int RELEASE = 2;
+	public static final int REFRESHING = 3;
 	private int state;
 
 	private LayoutInflater inflater;
 	private View header;
 	private View footer;
 	private TextView tip;
-	private TextView lastUpdate;
+	//private TextView lastUpdate;
 	private ImageView arrow;
-	private ProgressBar refreshing;
+	//private ProgressBar refreshing;
+	//public SearchFrame searchFrame;
 
 	private TextView noData;
-	// private TextView loadFull;
+	private TextView loadFull;
 	private TextView more;
 	private ProgressBar loading;
 
@@ -48,7 +53,7 @@ public class AutoListView extends ListView implements OnScrollListener {
 	private RotateAnimation reverseAnimation;
 
 	private int startY;
-
+	
 	private int firstVisibleItem;
 	private int totalItemCount;
 	private int scrollState;
@@ -59,9 +64,9 @@ public class AutoListView extends ListView implements OnScrollListener {
 	private boolean isLoading;
 	private boolean loadEnable = true;
 	private boolean isLoadFull;
-	private int pageSize = 8;
+	public static int pageSize = 8;
 
-	private OnRefreshListener onRefreshListener;
+	private OnSearchListener onSearchListener;
 	private OnLoadListener onLoadListener;
 
 	public AutoListView(Context context) {
@@ -79,8 +84,8 @@ public class AutoListView extends ListView implements OnScrollListener {
 		initView(context);
 	}
 
-	public void setOnRefreshListener(OnRefreshListener onRefreshListener) {
-		this.onRefreshListener = onRefreshListener;
+	public void setOnRefreshListener(OnSearchListener onSearchListener) {
+		this.onSearchListener = onSearchListener;
 	}
 
 	public void setOnLoadListener(OnLoadListener onLoadListener) {
@@ -99,6 +104,10 @@ public class AutoListView extends ListView implements OnScrollListener {
 
 	public int getPageSize() {
 		return pageSize;
+	}
+	
+	public int getState(){
+		return state;
 	}
 
 	public void setPageSize(int pageSize) {
@@ -123,16 +132,18 @@ public class AutoListView extends ListView implements OnScrollListener {
 
 		inflater = LayoutInflater.from(context);
 		footer = inflater.inflate(R.layout.listview_footer, null);
-		// loadFull = (TextView) footer.findViewById(R.id.loadFull);
+		loadFull = (TextView) footer.findViewById(R.id.loadFull);
+		
 		noData = (TextView) footer.findViewById(R.id.noData);
 		more = (TextView) footer.findViewById(R.id.more);
 		loading = (ProgressBar) footer.findViewById(R.id.loading);
 
 		header = inflater.inflate(R.layout.pull_to_refresh_header, null);
+		//searchFrame = (SearchFrame) header.findViewById(R.id.searchframe);
 		arrow = (ImageView) header.findViewById(R.id.arrow);
 		tip = (TextView) header.findViewById(R.id.tip);
-		lastUpdate = (TextView) header.findViewById(R.id.lastUpdate);
-		refreshing = (ProgressBar) header.findViewById(R.id.refreshing);
+		//lastUpdate = (TextView) header.findViewById(R.id.lastUpdate);
+		//refreshing = (ProgressBar) header.findViewById(R.id.refreshing);
 
 		headerContentInitialHeight = header.getPaddingTop();
 		measureView(header);
@@ -141,11 +152,13 @@ public class AutoListView extends ListView implements OnScrollListener {
 		this.addHeaderView(header);
 		this.addFooterView(footer);
 		this.setOnScrollListener(this);
+		
+		
 	}
 
 	public void onRefresh() {
-		if (onRefreshListener != null) {
-			onRefreshListener.onRefresh();
+		if (onSearchListener != null) {
+			onSearchListener.OnSearch();
 		}
 	}
 
@@ -156,8 +169,7 @@ public class AutoListView extends ListView implements OnScrollListener {
 	}
 
 	public void onRefreshComplete(String updateTime) {
-		lastUpdate.setText(this.getContext().getString(R.string.lastUpdateTime,
-				UtilFun.getCurrentTime()));
+		//lastUpdate.setText(this.getContext().getString(R.string.lastUpdateTime,UtilFun.getCurrentTime()));
 		state = NONE;
 		refreshHeaderViewByState();
 	}
@@ -204,13 +216,11 @@ public class AutoListView extends ListView implements OnScrollListener {
 	public boolean onTouchEvent(MotionEvent ev) {
 		switch (ev.getAction()) {
 		case MotionEvent.ACTION_DOWN:
-			if (totalItemCount != 2 && totalItemCount < 5) {
-				if (firstVisibleItem == 0) {
-					isRecorded = true;
-					startY = (int) ev.getY();
-				}
+		
+			if (firstVisibleItem == 0) {
+				isRecorded = true;
+				startY = (int) ev.getY();
 			}
-			// this.invalidate();
 			break;
 		case MotionEvent.ACTION_CANCEL:
 		case MotionEvent.ACTION_UP:
@@ -277,23 +287,30 @@ public class AutoListView extends ListView implements OnScrollListener {
 	
 
 	public void setResultSize(int resultSize) {
+		
 		if (resultSize == 0) {
 			isLoadFull = true;
-			// loadFull.setVisibility(View.GONE);
+			loadFull.setVisibility(View.GONE);
 			loading.setVisibility(View.GONE);
 			more.setVisibility(View.GONE);
 			noData.setVisibility(View.VISIBLE);
 		} else if (resultSize > 0 && resultSize < pageSize) {
 			isLoadFull = true;
-			// loadFull.setVisibility(View.VISIBLE);
+			loadFull.setVisibility(View.VISIBLE);
 			loading.setVisibility(View.GONE);
 			more.setVisibility(View.GONE);
 			noData.setVisibility(View.GONE);
 		} else if (resultSize == pageSize) {
 			isLoadFull = false;
-			// loadFull.setVisibility(View.GONE);
+			loadFull.setVisibility(View.GONE);
 			loading.setVisibility(View.VISIBLE);
 			more.setVisibility(View.VISIBLE);
+			noData.setVisibility(View.GONE);
+		} else if (resultSize > pageSize){
+			isLoadFull = false;
+			loadFull.setVisibility(View.GONE);
+			loading.setVisibility(View.GONE);
+			more.setVisibility(View.GONE);
 			noData.setVisibility(View.GONE);
 		}
 
@@ -304,15 +321,17 @@ public class AutoListView extends ListView implements OnScrollListener {
 		case NONE:
 			topPadding(-headerContentHeight);
 			tip.setText(R.string.pull_to_refresh);
-			refreshing.setVisibility(View.GONE);
+			//refreshing.setVisibility(View.GONE);
+			//searchFrame.setVisibility(View.GONE);
 			arrow.clearAnimation();
 			arrow.setImageResource(R.drawable.pull_to_refresh_arrow);
 			break;
 		case PULL:
 			arrow.setVisibility(View.VISIBLE);
 			tip.setVisibility(View.VISIBLE);
-			lastUpdate.setVisibility(View.VISIBLE);
-			refreshing.setVisibility(View.GONE);
+			//lastUpdate.setVisibility(View.VISIBLE);
+			//refreshing.setVisibility(View.GONE);
+			//searchFrame.setVisibility(View.GONE);
 			tip.setText(R.string.pull_to_refresh);
 			arrow.clearAnimation();
 			arrow.setAnimation(reverseAnimation);
@@ -320,8 +339,9 @@ public class AutoListView extends ListView implements OnScrollListener {
 		case RELEASE:
 			arrow.setVisibility(View.VISIBLE);
 			tip.setVisibility(View.VISIBLE);
-			lastUpdate.setVisibility(View.VISIBLE);
-			refreshing.setVisibility(View.GONE);
+			//lastUpdate.setVisibility(View.VISIBLE);
+			//refreshing.setVisibility(View.GONE);
+			//searchFrame.setVisibility(View.GONE);
 			tip.setText(R.string.pull_to_refresh);
 			tip.setText(R.string.release_to_refresh);
 			arrow.clearAnimation();
@@ -329,11 +349,14 @@ public class AutoListView extends ListView implements OnScrollListener {
 			break;
 		case REFRESHING:
 			topPadding(headerContentInitialHeight);
-			refreshing.setVisibility(View.VISIBLE);
+			AppLogger.e("autolistview is refreshing");
+			AppLogger.e("headerContentInitialHeight ==  ==  =="+headerContentInitialHeight);
+			//refreshing.setVisibility(View.VISIBLE);
+			//searchFrame.setVisibility(View.VISIBLE);
 			arrow.clearAnimation();
 			arrow.setVisibility(View.GONE);
 			tip.setVisibility(View.GONE);
-			lastUpdate.setVisibility(View.GONE);
+			//lastUpdate.setVisibility(View.GONE);
 			break;
 		}
 	}
@@ -341,7 +364,7 @@ public class AutoListView extends ListView implements OnScrollListener {
 	private void measureView(View child) {
 		ViewGroup.LayoutParams p = child.getLayoutParams();
 		if (p == null) {
-			p = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+			p = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
 					ViewGroup.LayoutParams.WRAP_CONTENT);
 		}
 		int childWidthSpec = ViewGroup.getChildMeasureSpec(0, 0 + 0, p.width);
@@ -354,11 +377,13 @@ public class AutoListView extends ListView implements OnScrollListener {
 			childHeightSpec = MeasureSpec.makeMeasureSpec(0,
 					MeasureSpec.UNSPECIFIED);
 		}
+		AppLogger.d("childHeightSpec = "+childHeightSpec);
+		AppLogger.d("childWidthSpec = "+childWidthSpec);
 		child.measure(childWidthSpec, childHeightSpec);
 	}
 
-	public interface OnRefreshListener {
-		public void onRefresh();
+	public interface OnSearchListener {
+		public void OnSearch();
 	}
 
 	public interface OnLoadListener {

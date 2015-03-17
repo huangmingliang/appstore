@@ -4,7 +4,7 @@
     android:versionCode="1"
     android:versionName="1.0">
 
-    <uses-sdk android:minSdkVersion="7" />
+    <uses-sdk android:minSdkVersion="11" />
     <!-- 预装权限 -->
     <!-- android:sharedUserId="android.uid.system" -->
     <!-- <uses-permission android:name="android.permission.INSTALL_PACKAGES"/> -->
@@ -40,13 +40,10 @@
             android:name=".activity.MainActivity"
             android:theme="@style/main_activity"
             android:screenOrientation="portrait" />
-        
-
         <service android:name=".service.DownLoadService" />
         
         <activity
-            android:name="com.zyitong.AppStore.base.BaseActivity"
-            android:label="@string/title_activity_base" >
+            android:name="com.zyitong.AppStore.base.BaseActivity">
         </activity>
     </application>
 
