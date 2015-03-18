@@ -79,6 +79,52 @@ public class AppListDao extends CommonDao {
 		}
 	}
 	
+	public AppListBean searchAppList(String query, int start, int docNum){
+		if(query == null){
+			AppLogger.e("== query is null");
+			return null;
+		}
+		
+		if (0 > start || docNum > 50){
+			AppLogger.e("== failed to getAppList. start " + start + " docNum " + docNum);
+			return null;
+		}
+
+		RestAdapter restAdapter = new RestAdapter.Builder().setEndpoint(
+				CommonConstant.REST_URL).build();
+
+		AppListDaoInterface daoInterface = restAdapter
+				.create(AppListDaoInterface.class);
+
+		TreeMap<String, String> parameters = new TreeMap<String, String>(
+				new Comparator<String>() {
+					@Override
+					public int compare(String o1, String o2) {
+						return o1.compareTo(o2);
+					}
+				});
+		
+		String haQuery = "config=format:json,start:" + start + ",hit:" + docNum + "&&query=default:'" + query+ "'" + " OR title:'" + query + "'" +" AND platform:'all'";
+		
+		parameters.put("query", haQuery);
+		parameters.put("index_name", CommonConstant.INDEX_NAME);
+		parameters.put("Version", CommonConstant.VERSION);
+		parameters.put("AccessKeyId", CommonConstant.ACCESS_KEY_ID);
+		parameters.put("Timestamp", formatIso8601Date(new Date()));
+		parameters.put("SignatureMethod", CommonConstant.SIGNATURE_METHOD);
+		parameters.put("SignatureVersion", CommonConstant.SIGNATURE_VERSION);
+		parameters.put("SignatureNonce", UUID.randomUUID().toString());
+		
+		parameters.put("Signature", getAliyunSign(parameters));
+		
+		AppListBean bean = daoInterface.getAppList(parameters);
+		if (null != bean) {
+			display(bean);
+		}
+
+		return bean;
+	}
+	
 
 	public AppListBean getAppList(int start, int docNum) {
 		
@@ -121,6 +167,30 @@ public class AppListDao extends CommonDao {
 		}
 
 		return bean;
+	}
+	
+	public Observable<AppListBean> searchAppListRX(final String query,
+			final int begPos, final int docNum) {
+		return Observable.create(
+				new Observable.OnSubscribe<AppListBean>() {
+					@Override
+					public void call(
+							Subscriber<? super AppListBean> subscriber) {
+
+						try {
+							AppListBean bean = searchAppList(query, begPos, docNum);
+							if (null != bean
+									&& bean.status.equals("OK")) {
+								subscriber.onNext(bean);
+							}
+						} catch (Exception e) {
+							subscriber.onError(e);
+						}
+
+						subscriber.onCompleted();
+						return;
+					}
+				}).subscribeOn(Schedulers.newThread());
 	}
 	
 	public Observable<AppListBean> getAppListRX(

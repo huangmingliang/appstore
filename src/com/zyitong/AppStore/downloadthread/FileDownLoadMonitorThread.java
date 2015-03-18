@@ -35,8 +35,8 @@ public class FileDownLoadMonitorThread extends Thread {
 			try {
 				int downloadingnum = download.getDownloadNum();
 				int size = download.getSize();
-				AppLogger.d("FileDownLoadMonitorThread"+ "size=" + size
-						+ "\tdownloadingnum=" + downloadingnum);
+				AppLogger.d("FileDownLoadMonitorThread"+ "    size=" + size
+						+ "\t  downloadingnum=" + downloadingnum);
 				/*if(downloadingnum != 0)
 				    AppLogger.e("=============== "+download.getNoticData(0).getFilename());*/
 				

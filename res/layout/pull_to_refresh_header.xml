@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="50dip"
+    android:layout_height="20dip"
+    android:background="@color/white"
     android:gravity="center"
-    android:orientation="vertical" 
-    android:background="@color/white">
+    android:orientation="vertical" >
 
+    
     <RelativeLayout
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="2dp"
-         >
+        android:paddingBottom="0dp" >
 
         <LinearLayout
             android:id="@+id/layout"
@@ -19,10 +19,23 @@
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:orientation="vertical" >
-
-            <ProgressBar
+            <!-- <com.zyitong.AppStore.ui.SearchFrame
+                android:id="@+id/searchframe"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center" /> -->
+           
+               <!--   <ProgressBar
                 android:id="@+id/refreshing"
-                style="@style/customProgressBar" />
+                style="@style/customProgressBar" /> -->
+           
+
+            
+            <!-- <TextView
+                android:id="@+id/SearchFrame"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center" /> -->
 
             <TextView
                 android:id="@+id/tip"
@@ -30,12 +43,12 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center" />
 
-            <TextView
+            <!-- <TextView
                 android:id="@+id/lastUpdate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:textSize="12sp" />
+                android:textSize="12sp" /> -->
         </LinearLayout>
 
         <ImageView
@@ -49,10 +62,10 @@
             android:src="@drawable/pull_to_refresh_arrow" />
     </RelativeLayout>
 
-    <ImageView
+   <!--  <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/h_line"
-        android:contentDescription="@string/d" />
+        android:contentDescription="@string/d" /> -->
 
 </LinearLayout>

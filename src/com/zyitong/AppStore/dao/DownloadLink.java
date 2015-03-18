@@ -1,12 +1,13 @@
 package com.zyitong.AppStore.dao;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.zyitong.AppStore.bean.FileDownloadJob;
 import com.zyitong.AppStore.downloadthread.FileDownLoadMonitorThread;
 
 public class DownloadLink {
-	LinkedList<FileDownloadJob> data = new LinkedList<FileDownloadJob>();
+	List<FileDownloadJob> data = new ArrayList<FileDownloadJob>();
 
 	private int downloadNum = 0;
 
@@ -73,15 +74,12 @@ public class DownloadLink {
 	}
 
 	public void delNode(int id) {
-		int index = -1;
 		for (int i = 0; i < data.size(); i++) {
 			if (data.get(i).getId() == id) {
-				index = i;
+				data.remove(i);
+				setDelNum();
 				break;
 			}
-		}
-		if (index >= 0) {
-			delNodeItem(index);
 		}
 	}
 

@@ -221,6 +221,12 @@ public class UtilFun {
 		else
 			itemData.setButtonFileflag(ItemData.APP_OPEN);
 	}
+	public void setResumeAppState(ItemData itemData) {
+		String packagename = itemData.getAppInfoBean().getPackagename();
+
+		if (!checkApkExist(context, packagename))
+			itemData.setButtonFileflag(ItemData.APP_INSTALL);
+	}
 
 	public String install(String apkAbsolutePath) {
 		String[] args = { "pm", "install", "-rf", apkAbsolutePath };

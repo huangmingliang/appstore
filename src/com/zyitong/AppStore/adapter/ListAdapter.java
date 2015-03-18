@@ -193,8 +193,8 @@ public class ListAdapter extends BaseAdapter {
 						}
 						if (!AppStoreApplication.getInstance()
 								.getDownloadLink().hasDownloadFree()) {
-							Toast.makeText(mContext, R.string.maxwarning,
-									Toast.LENGTH_LONG).show();
+							/*Toast.makeText(mContext, R.string.maxwarning,
+									Toast.LENGTH_LONG).show();*/
 							setdownloadButtonBackground(dlbutton, R.string.app_waitinstall,
 									R.drawable.loading_button);
 							AppStoreApplication.getInstance().getDownloadLink()
@@ -204,35 +204,17 @@ public class ListAdapter extends BaseAdapter {
 							currentDownloadJob.setFilestatus(ItemData.APP_WAIT);
 							currentDownloadJob.setPackageName(packageName);
 							currentDownloadJob.setRatio(0);
-							AppStoreApplication.getInstance().getCurrentDownloadJobManager().addDownloadJob(currentDownloadJob);
-							
+							AppStoreApplication.getInstance().getCurrentDownloadJobManager().addDownloadJob(currentDownloadJob);	
 						}
 						
 						itemList.get(positionn).setButtonFileflag(
 								ItemData.APP_LOADING);
-					} else if (indexData.getButtonFileflag() == ItemData.APP_OPEN) {
-					
-							if (util.checkApkExist(mContext, packageName)) {
-								
-								AppLogger.e("packagename = " + packageName);
-								
-								String args = util.openApp(packageName, mContext);
-								AppLogger.i("packagename = " + "open after"+args);
-							}
-					
-					} else if (indexData.getButtonFileflag() == ItemData.APP_LOADING  ) {
-						setdownloadButtonBackground(dlbutton,
-								R.string.app_install, R.drawable.load_button);
+					} else if (indexData.getButtonFileflag() == ItemData.APP_LOADING) {
+						/*setdownloadButtonBackground(dlbutton,
+								R.string.app_install, R.drawable.load_button);*/
 						dlButtontextlist.get(positionn).setRadio(0);
-						
 						util.setAppReDownLoad(indexData.getAppInfoBean()
-								.getPackagename());
-						FileDownloadJob data = util.DataChange(indexData);
-						if(data != null){
-							AppStoreApplication.getInstance()
-							.getDownloadLink().delNode(data);
-						}
-						
+								.getPackagename());					
 					} else if(indexData.getButtonFileflag() == ItemData.APP_WAIT){
 						
 						FileDownloadJob data = util.DataChange(indexData);
@@ -245,11 +227,22 @@ public class ListAdapter extends BaseAdapter {
 						setdownloadButtonBackground(dlbutton,
 								R.string.app_install, R.drawable.load_button);
 					} 
-				} else
+				} else{
 					Toast.makeText(mContext, R.string.connectfail,
 							Toast.LENGTH_SHORT).show();
+				}
+				if (indexData.getButtonFileflag() == ItemData.APP_OPEN) {
+					
+					if (util.checkApkExist(mContext, packageName)) {
+						
+						AppLogger.e("open packagename = " + packageName);
+						
+						String args = util.openApp(packageName, mContext);
+						AppLogger.i("packagename = " + "open after"+args);
+					}
+			
+			} 
 			}
-
 			
 		});
 	}
@@ -272,6 +265,7 @@ public class ListAdapter extends BaseAdapter {
 		itemList.get(position).setButtonFileflag(status);
 		notifyDataSetChanged();
 	}
+	
 
 	public final class ViewHolder {
 		public ImageView iconView;
