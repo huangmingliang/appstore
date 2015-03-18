@@ -36,6 +36,7 @@ import com.zyitong.AppStore.tools.UtilFun;
 import com.zyitong.AppStore.ui.AutoListView;
 import com.zyitong.AppStore.ui.AutoListView.OnLoadListener;
 import com.zyitong.AppStore.ui.AutoListView.OnSearchListener;
+import com.zyitong.AppStore.ui.MyProgressDialog;
 import com.zyitong.AppStore.ui.SearchFrame.OnEtSearchClickListener;
 import com.zyitong.AppStore.ui.SearchFrame.OnEtTextChangedListener;
 import com.zyitong.AppStore.ui.SearchFrame;
@@ -58,7 +59,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	private String searchString = new String();
 	private static int operate = 0;
 	private boolean emViewIsOnClick = false;
-	ProgressDialog MyDialog;
+	MyProgressDialog progressDialog = null;
 	private Handler handler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -248,7 +249,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 				AppLogger.e("edittext changed query =="+query);
 				adapter.clearData();
 				searchString = query;
-				MyDialog = ProgressDialog.show( MainActivity.this, " " , "加载中，请稍等...", true);
+				startProgressDialog();
 				
 				if(!query.equals("")){		
 					operate = 1;
@@ -343,17 +344,17 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 			break;
 		}
 	}
-	private void loadSearchDataByCategory(int category,boolean dlcencel) {
+	private void loadSearchDataByCategory(int category,boolean dialogcancel) {
 		switch (category) {
 		case AutoListView.LOAD:
 			if(itemList.size() == 0){
 				//lock();
-				SearchAppList(searchString, 0, AutoListView.pageSize,dlcencel);
+				SearchAppList(searchString, 0, AutoListView.pageSize,dialogcancel);
 			}else if(itemList.size()<AutoListView.pageSize){
 				break;
 			}else if(itemList.size()>=AutoListView.pageSize){
 				int timer = itemList.size() / AutoListView.pageSize;
-				SearchAppList(searchString,(timer) * AutoListView.pageSize, AutoListView.pageSize,dlcencel);		
+				SearchAppList(searchString,(timer) * AutoListView.pageSize, AutoListView.pageSize,dialogcancel);		
 			}		
 			break;
 		default:
@@ -361,7 +362,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		}
 	}
 
-	private void getAppList(int startPos, int docNum,final boolean dlcencel) {
+	private void getAppList(int startPos, int docNum,final boolean dialogcancel) {
 		AppListDao.getInstance().getAppListRX(startPos, docNum)
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(new Subscriber<AppListBean>() {
@@ -383,8 +384,8 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 							}
 							displayList(itemDataList);
 							emptyView.setVisibility(View.GONE);
-							if(dlcencel){
-								MyDialog.cancel();
+							if(dialogcancel){
+								stopProgressDialog();
 							}
 						}
 					}
@@ -411,7 +412,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 				});
 	}
 	
-	private void SearchAppList(String query ,int startPos, int docNum,final boolean dlcencel) {
+	private void SearchAppList(String query ,int startPos, int docNum,final boolean dialogcancel) {
 
 		AppListDao.getInstance().searchAppListRX(query, startPos, docNum)
 				.observeOn(AndroidSchedulers.mainThread())
@@ -433,8 +434,8 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 								util.setAppState(item);
 							}							
 							displayList(itemDataList);
-							if(dlcencel){
-								MyDialog.cancel();
+							if(dialogcancel){
+								stopProgressDialog();
 							}	
 						}
 					}
@@ -523,4 +524,19 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 				Toast.LENGTH_SHORT).show();
 
 	}
+	 private void startProgressDialog(){
+	        if (progressDialog == null){
+	            progressDialog = MyProgressDialog.createDialog(this);
+	            progressDialog.setMessage(R.string.dialog_loading);
+	        }
+	         
+	        progressDialog.show();
+	    }
+	     
+	    private void stopProgressDialog(){
+	        if (progressDialog != null){
+	            progressDialog.dismiss();
+	            progressDialog = null;
+	        }
+	    }
 }
