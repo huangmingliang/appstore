@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="45dip"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dip"
+        android:layout_marginRight="10dip"
+        android:layout_marginTop="5dip"
+        android:background="#FFFFFF" >
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="0.5dip"
+            android:layout_alignParentTop="true"
+            android:background="#C2C2C2" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:layout_alignParentBottom="true"
+            android:background="#C2C2C2" />
+
+        <View
+            android:layout_width="0.5dip"
+            android:layout_height="fill_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:background="#C2C2C2" />
+
+        <View
+            android:layout_width="1dip"
+            android:layout_height="fill_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:background="#C2C2C2" />
+
+        <View
+            android:id="@+id/sousuo_icon"
+            android:layout_width="27dip"
+            android:layout_height="27dip"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dip"
+            android:layout_marginStart="15dip"
+            android:background="@drawable/query" />
+
+        <EditText
+            android:id="@+id/edit_search"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_margin="3dip"
+            android:layout_marginLeft="5dip"
+            android:layout_marginStart="5dip"
+            android:layout_toEndOf="@id/sousuo_icon"
+            android:layout_toRightOf="@id/sousuo_icon"
+            android:background="#FFFFFF"
+            android:ems="10"
+            android:hint="@string/input_appname"
+            android:singleLine="true"
+            android:textColor="#363636" />
+        <!-- <ImageView android:id="@+id/ivDeleteText"
+		    	    android:layout_width="wrap_content"
+		    	    android:layout_height="wrap_content"
+		    	    android:layout_alignParentRight="true"
+		    	    android:src="@drawable/private_delete"
+		    	    android:layout_centerInParent="true"
+		    	    android:paddingRight="0dip"
+		    	    android:visibility="visible"/> -->
+    </RelativeLayout>
