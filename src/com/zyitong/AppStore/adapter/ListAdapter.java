@@ -193,8 +193,8 @@ public class ListAdapter extends BaseAdapter {
 						}
 						if (!AppStoreApplication.getInstance()
 								.getDownloadLink().hasDownloadFree()) {
-							Toast.makeText(mContext, R.string.maxwarning,
-									Toast.LENGTH_LONG).show();
+							/*Toast.makeText(mContext, R.string.maxwarning,
+									Toast.LENGTH_LONG).show();*/
 							setdownloadButtonBackground(dlbutton, R.string.app_waitinstall,
 									R.drawable.loading_button);
 							AppStoreApplication.getInstance().getDownloadLink()

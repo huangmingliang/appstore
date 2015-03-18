@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,7 +22,6 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.R;
 import com.zyitong.AppStore.adapter.ListAdapter;
@@ -47,7 +46,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	private AutoListView listView;
 	private ListAdapter adapter;
 	private List<ItemData> itemList = new ArrayList<ItemData>();
-
+	//private List<ItemData> searchList = new ArrayList<ItemData>();
 	private int searchTime = 1000;
 	private long exitTime = 0;
 	private Timer timer;
@@ -59,6 +58,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	private String searchString = new String();
 	private static int operate = 0;
 	private boolean emViewIsOnClick = false;
+	ProgressDialog MyDialog;
 	private Handler handler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -226,7 +226,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		
 				if(!emViewIsOnClick){
 					emViewIsOnClick = true;
-					getAppList(0, 8);
+					getAppList(0, 8 , false);
 					
 				}		
 			}
@@ -234,8 +234,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		
 		searchFrame = (SearchFrame) findViewById(R.id.main_searchframe);
 		final EditText editText = (EditText)searchFrame.findViewById(R.id.edit_search);
-		searchFrame.setEtSearchListener(new OnEtSearchClickListener() {
-			
+		searchFrame.setEtSearchListener(new OnEtSearchClickListener() {	
 			@Override
 			public void onClick() {
 				
@@ -248,18 +247,24 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 				String query = editText.getText().toString().trim();
 				AppLogger.e("edittext changed query =="+query);
 				adapter.clearData();
-				if(!query.equals("")){
-					searchString = query;
-					SearchAppList(query, 0, AutoListView.pageSize);
+				searchString = query;
+				MyDialog = ProgressDialog.show( MainActivity.this, " " , "加载中，请稍等...", true);
+				
+				if(!query.equals("")){		
+					operate = 1;
+					if (null != adapter){
+						adapter.clearData();
+					}
+					
+					SearchAppList(query, 0, AutoListView.pageSize,true);
 				}else {
 					operate = 0;
 					if (null != adapter){
 						adapter.clearData();
-						itemList.clear();
 					}
 					listView.onRefreshComplete();
 					searchFrame.setVisibility(View.GONE);
-					loadGetDataByCategory(AutoListView.LOAD);
+					loadGetDataByCategory(AutoListView.LOAD,true);
 				}
 			}
 		});
@@ -300,10 +305,8 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	}
 
 	private void Active() {
-		
 		adapter.clearData();
 		itemList.clear();
-		
 		if (AppStoreApplication.getInstance().itemData.size() != 0) {
 			List<ItemData> updatelist = new ArrayList<ItemData>();
 			updatelist.addAll(AppStoreApplication.getInstance().itemData);
@@ -324,18 +327,15 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		adapter.notifyDataSetChanged();
 		return;
 	}
-	
 
-	private void loadGetDataByCategory(int category) {
+	private void loadGetDataByCategory(int category,boolean dlCencel) {
 		switch (category) {
-		case AutoListView.REFRESH:
-			break;
 		case AutoListView.LOAD:
 			if (itemList.size() == 0) {
-				getAppList(0, AutoListView.pageSize);
+				getAppList(0, AutoListView.pageSize,dlCencel);
 			} else {
 				int timer = itemList.size() / AutoListView.pageSize;
-				getAppList((timer) * AutoListView.pageSize, AutoListView.pageSize);
+				getAppList((timer) * AutoListView.pageSize, AutoListView.pageSize,dlCencel);
 			}
 
 			break;
@@ -343,27 +343,25 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 			break;
 		}
 	}
-	private void loadSearchDataByCategory(int category) {
+	private void loadSearchDataByCategory(int category,boolean dlcencel) {
 		switch (category) {
 		case AutoListView.LOAD:
 			if(itemList.size() == 0){
-				SearchAppList(searchString, 0, AutoListView.pageSize);
+				//lock();
+				SearchAppList(searchString, 0, AutoListView.pageSize,dlcencel);
 			}else if(itemList.size()<AutoListView.pageSize){
 				break;
 			}else if(itemList.size()>=AutoListView.pageSize){
 				int timer = itemList.size() / AutoListView.pageSize;
-				SearchAppList(searchString,(timer) * AutoListView.pageSize, AutoListView.pageSize);		
+				SearchAppList(searchString,(timer) * AutoListView.pageSize, AutoListView.pageSize,dlcencel);		
 			}		
-			break;
-		case AutoListView.SEARCH:
-			
 			break;
 		default:
 			break;
 		}
 	}
 
-	private void getAppList(int startPos, int docNum) {
+	private void getAppList(int startPos, int docNum,final boolean dlcencel) {
 		AppListDao.getInstance().getAppListRX(startPos, docNum)
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(new Subscriber<AppListBean>() {
@@ -385,6 +383,9 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 							}
 							displayList(itemDataList);
 							emptyView.setVisibility(View.GONE);
+							if(dlcencel){
+								MyDialog.cancel();
+							}
 						}
 					}
 
@@ -403,14 +404,14 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 									R.string.loaderror, Toast.LENGTH_LONG)
 									.show();
 						listView.onLoadComplete();
-						listView.setResultSize(0);
+						listView.setResultSize(AutoListView.pageSize+1);
 						emViewIsOnClick = false;
 						AppLogger.e("ERROR===========" + e);
 					}
 				});
 	}
 	
-	private void SearchAppList(String query ,int startPos, int docNum) {
+	private void SearchAppList(String query ,int startPos, int docNum,final boolean dlcencel) {
 
 		AppListDao.getInstance().searchAppListRX(query, startPos, docNum)
 				.observeOn(AndroidSchedulers.mainThread())
@@ -430,12 +431,13 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 												.getPackagename());
 								itemDataList.add(item);
 								util.setAppState(item);
-							}
+							}							
 							displayList(itemDataList);
-							
+							if(dlcencel){
+								MyDialog.cancel();
+							}	
 						}
 					}
-
 					@Override
 					public void onCompleted() {
 					}
@@ -452,6 +454,8 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 									.show();
 						listView.onLoadComplete();
 						listView.setResultSize(0);
+						
+						//unlock();
 						AppLogger.e("ERROR===========" + e);
 					}
 				});
@@ -478,12 +482,11 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 			}else{
 				operate = 0;
 				if (null != adapter){
-					itemList.clear();
 					adapter.clearData();
 				}
 				listView.onRefreshComplete();
 				searchFrame.setVisibility(View.GONE);
-				loadGetDataByCategory(AutoListView.LOAD);
+				loadGetDataByCategory(AutoListView.LOAD,false);
 				return true;
 			}
 		}
@@ -499,19 +502,19 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	@Override
 	public void onLoad() {
 		if(operate == 0){
-			loadGetDataByCategory(AutoListView.LOAD);
+			loadGetDataByCategory(AutoListView.LOAD,false);
 		}else{
-			loadSearchDataByCategory(AutoListView.LOAD);
+			loadSearchDataByCategory(AutoListView.LOAD,false);
 		}
 	}
 
 	@Override
 	public void onNetWorkConnect() {
-		if(operate == 0){
-			loadGetDataByCategory(AutoListView.LOAD);
+		/*if(operate == 0){
+			loadGetDataByCategory(AutoListView.LOAD,false);
 		}else{
-			loadSearchDataByCategory(AutoListView.LOAD);
-		}
+			loadSearchDataByCategory(AutoListView.LOAD,false);
+		}*/
 	}
 
 	@Override

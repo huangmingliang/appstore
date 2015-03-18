@@ -306,14 +306,13 @@ public class AutoListView extends ListView implements OnScrollListener {
 			loading.setVisibility(View.VISIBLE);
 			more.setVisibility(View.VISIBLE);
 			noData.setVisibility(View.GONE);
-		} else if (resultSize > pageSize){
+		} else if (resultSize == pageSize+1){
 			isLoadFull = false;
 			loadFull.setVisibility(View.GONE);
 			loading.setVisibility(View.GONE);
 			more.setVisibility(View.GONE);
 			noData.setVisibility(View.GONE);
-		}
-
+		} 
 	}
 
 	private void refreshHeaderViewByState() {

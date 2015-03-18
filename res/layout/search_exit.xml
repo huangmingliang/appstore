@@ -7,6 +7,7 @@
         android:layout_centerVertical="true"
         android:layout_marginLeft="10dip"
         android:layout_marginRight="10dip"
+        android:layout_marginTop="5dip"
         android:background="#FFFFFF" >
 
         <View
@@ -58,4 +59,12 @@
             android:hint="@string/input_appname"
             android:singleLine="true"
             android:textColor="#363636" />
+        <!-- <ImageView android:id="@+id/ivDeleteText"
+		    	    android:layout_width="wrap_content"
+		    	    android:layout_height="wrap_content"
+		    	    android:layout_alignParentRight="true"
+		    	    android:src="@drawable/private_delete"
+		    	    android:layout_centerInParent="true"
+		    	    android:paddingRight="0dip"
+		    	    android:visibility="visible"/> -->
     </RelativeLayout>
