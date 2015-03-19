@@ -55,7 +55,7 @@ public class AutoListView extends ListView implements OnScrollListener {
 	private int startY;
 	
 	private int firstVisibleItem;
-	private int totalItemCount;
+	//private int totalItemCount;
 	private int scrollState;
 	private int headerContentInitialHeight;
 	private int headerContentHeight;
@@ -63,7 +63,7 @@ public class AutoListView extends ListView implements OnScrollListener {
 	private boolean isRecorded;
 	private boolean isLoading;
 	private boolean loadEnable = true;
-	private boolean isLoadFull;
+	public boolean isLoadFull;
 	public static int pageSize = 8;
 
 	private OnSearchListener onSearchListener;
@@ -111,7 +111,7 @@ public class AutoListView extends ListView implements OnScrollListener {
 	}
 
 	public void setPageSize(int pageSize) {
-		this.pageSize = pageSize;
+		AutoListView.pageSize = pageSize;
 	}
 
 	private void initView(Context context) {
@@ -187,7 +187,7 @@ public class AutoListView extends ListView implements OnScrollListener {
 	public void onScroll(AbsListView view, int firstVisibleItem,
 			int visibleItemCount, int totalItemCount) {
 		this.firstVisibleItem = firstVisibleItem;
-		this.totalItemCount = totalItemCount;
+		//this.totalItemCount = totalItemCount;
 	}
 
 	@Override
@@ -312,7 +312,13 @@ public class AutoListView extends ListView implements OnScrollListener {
 			loading.setVisibility(View.GONE);
 			more.setVisibility(View.GONE);
 			noData.setVisibility(View.GONE);
-		} 
+		} else if (resultSize > pageSize+1){
+			isLoadFull = true;
+			loadFull.setVisibility(View.VISIBLE);
+			loading.setVisibility(View.GONE);
+			more.setVisibility(View.GONE);
+			noData.setVisibility(View.GONE);
+		}
 	}
 
 	private void refreshHeaderViewByState() {

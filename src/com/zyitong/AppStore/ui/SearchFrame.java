@@ -17,8 +17,10 @@ import com.zyitong.AppStore.R;
 public class SearchFrame extends RelativeLayout {
 	
 	private EditText etSearch;
+	private Button cancelButton;
 	private OnEtSearchClickListener mOnEtSearchClickListener;
 	private OnEtTextChangedListener mOnEtTextChangedListener;
+	private OnCancelButtonListener mCancelButtonListener;
 	
 	public interface OnEtSearchClickListener {
 		public void onClick();
@@ -26,12 +28,16 @@ public class SearchFrame extends RelativeLayout {
 	public interface OnEtTextChangedListener {
 		public void chanaged();
 	}
+	public interface OnCancelButtonListener {
+		public void onClick();
+	}
 	
 	public SearchFrame(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		LayoutInflater infater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         infater.inflate(R.layout.search_exit,this,true);      
-		etSearch = (EditText) this.findViewById(R.id.edit_search);	
+		etSearch = (EditText) this.findViewById(R.id.edit_search);
+		cancelButton = (Button) this.findViewById(R.id.button_cancel);
 		etSearch.setOnTouchListener(new OnTouchListener() {
 			
 			@Override
@@ -61,7 +67,13 @@ public class SearchFrame extends RelativeLayout {
 				mOnEtTextChangedListener.chanaged();
 			}
 		});
-		
+		cancelButton.setOnClickListener(new OnClickListener() {		
+			@Override
+			public void onClick(View v) {
+				etSearch.setText("");
+				mCancelButtonListener.onClick();
+			}
+		});	
 	}
 	
 	public void setEtSearchListener(OnEtSearchClickListener listener){
@@ -69,6 +81,9 @@ public class SearchFrame extends RelativeLayout {
 	}
 	public void setEtTextChangedListener(OnEtTextChangedListener listener){
 		mOnEtTextChangedListener = listener;
+	}
+	public void setCancelButtonListener(OnCancelButtonListener listener){
+		mCancelButtonListener = listener;
 	}
 
 }
