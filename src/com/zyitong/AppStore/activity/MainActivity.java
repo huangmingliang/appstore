@@ -48,7 +48,8 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	private List<ItemData> itemList = new ArrayList<ItemData>();
 	//private List<ItemData> searchBeforeList = new ArrayList<ItemData>();
 	private int searchTime = 1000;
-	//private long exitTime = 0;
+	private final int TRIGGER_SERACH = 1;
+	private final long SEARCH_TRIGGER_DELAY_IN_MS = 1000;
 	private Timer timer;
 	private UtilFun util = null;
 	private Message msg = null;
@@ -67,6 +68,22 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 			}
 		}
 	};
+	
+	private Handler edChangedHander = new Handler(){
+
+		@Override
+		public void handleMessage(Message msg) {
+			 if (msg.what == TRIGGER_SERACH) {
+				 AppLogger.e("edittext changed query ==" + searchString);		
+					
+					if (null != adapter) {
+						adapter.clearData();
+					}
+					progressDialog = ProgressDialog.show(MainActivity.this, "等待加载", "数据加载中...");
+					SearchAppList(searchString, 0, AutoListView.pageSize, true);
+			 }
+		}
+	};
 	private final TimerTask updatalistviewtask = new TimerTask() {
 		public void run() {
 
@@ -82,6 +99,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 			}
 		}
 	};
+	
 
 	private int[] setMsgInfo(int position, String packagename) {
 		int[] messageInfo = new int[4];
@@ -131,16 +149,13 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		int radio = updateinfo[1];
 		int status = updateinfo[2];
 		if (status == ItemData.APP_FAIL) {
-
 			String packagename;
-
 			packagename = itemList.get(position).getAppInfoBean()
 					.getPackagename();
 			Toast.makeText(
 					MainActivity.this,
 					itemList.get(position).getAppInfoBean().getTitle()
 							+ install_failed, Toast.LENGTH_SHORT).show();
-
 			AppStoreApplication.getInstance().getCurrentDownloadJobManager()
 					.removeDownloadJob(packagename);
 		}
@@ -238,15 +253,10 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 			@Override
 			public void chanaged() {
 				String query = editText.getText().toString().trim();
-				AppLogger.e("edittext changed query ==" + query);
-				adapter.clearData();
 				searchString = query;
 				operate = 1;
-				if (null != adapter) {
-					adapter.clearData();
-				}
-				progressDialog = ProgressDialog.show(MainActivity.this, "等待加载", "数据加载中...");
-				SearchAppList(query, 0, AutoListView.pageSize, true);							
+				edChangedHander.removeMessages(TRIGGER_SERACH);
+				edChangedHander.sendEmptyMessageDelayed(TRIGGER_SERACH, SEARCH_TRIGGER_DELAY_IN_MS);
 			}
 		});
 		searchFrame.setCancelButtonListener(new OnCancelButtonListener() {		
@@ -254,7 +264,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 			public void onClick() {
 				operate = 0;
 				listView.onRefreshComplete();
-				searchFrame.setVisibility(View.GONE);				
+				searchFrame.setVisibility(View.GONE);	
 			}
 		});
 		InitList();
@@ -319,6 +329,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	private void loadGetDataByCategory(int category, boolean dlCencel) {
 		switch (category) {
 		case AutoListView.LOAD:
+			progressDialog = ProgressDialog.show(MainActivity.this, "等待加载", "数据加载中...");
 			if (itemList.size() == 0) {
 				getAppList(0, AutoListView.pageSize, dlCencel);
 			} else {
@@ -335,6 +346,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	private void loadSearchDataByCategory(int category, boolean dialogcancel) {
 		switch (category) {
 		case AutoListView.LOAD:
+			progressDialog = ProgressDialog.show(MainActivity.this, "等待加载", "数据加载中...");
 			if (itemList.size() == 0) {
 				// lock();
 				SearchAppList(searchString, 0, AutoListView.pageSize,
@@ -498,9 +510,9 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	@Override
 	public void onLoad() {
 		if (operate == 0) {
-			loadGetDataByCategory(AutoListView.LOAD, false);
+			loadGetDataByCategory(AutoListView.LOAD, true);
 		} else {
-			loadSearchDataByCategory(AutoListView.LOAD, false);
+			loadSearchDataByCategory(AutoListView.LOAD, true);
 		}
 	}
 

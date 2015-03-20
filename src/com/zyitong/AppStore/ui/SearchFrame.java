@@ -53,7 +53,7 @@ public class SearchFrame extends RelativeLayout {
 						
 			@Override
 			public void afterTextChanged(Editable s) {
-							
+				mOnEtTextChangedListener.chanaged();			
 			}
 
 			@Override
@@ -64,7 +64,7 @@ public class SearchFrame extends RelativeLayout {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before,
 					int count) {
-				mOnEtTextChangedListener.chanaged();
+				
 			}
 		});
 		cancelButton.setOnClickListener(new OnClickListener() {		
