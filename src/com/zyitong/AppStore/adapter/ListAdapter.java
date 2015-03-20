@@ -228,8 +228,10 @@ public class ListAdapter extends BaseAdapter {
 								R.string.app_install, R.drawable.load_button);
 					} 
 				} else{
-					Toast.makeText(mContext, R.string.connectfail,
-							Toast.LENGTH_SHORT).show();
+					if(indexData.getButtonFileflag() != ItemData.APP_OPEN){
+						Toast.makeText(mContext, R.string.connectfail,
+								Toast.LENGTH_SHORT).show();
+					}		
 				}
 				if (indexData.getButtonFileflag() == ItemData.APP_OPEN) {
 					
