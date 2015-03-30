@@ -7,6 +7,7 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -36,6 +37,8 @@ public class WelcomeActivity extends Activity {
 
 	@Override
 	protected void onDestroy() {
+		System.gc();
+		System.out.println("WelcomeActivity onDestroy");
 		super.onDestroy();
 	}
 
@@ -68,10 +71,10 @@ public class WelcomeActivity extends Activity {
 								utilFun.setAppState(item);
 							}
 							
-							Bundle bundle = new Bundle();
-							MainActivity.startActivity(WelcomeActivity.this, bundle);
+							Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
+							WelcomeActivity.this.startActivity(intent);
 							finish();
-							overridePendingTransition(R.layout.apvalue, R.layout.apvalue);
+							//overridePendingTransition(R.layout.apvalue, R.layout.apvalue);
 						}
 					}
 
@@ -82,11 +85,10 @@ public class WelcomeActivity extends Activity {
 					@Override
 					public void onError(Throwable e) {
 						AppLogger.e("ERROR===========" + e);
-						
-						Bundle bundle = new Bundle();
-						MainActivity.startActivity(WelcomeActivity.this, bundle);
+						Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
+						WelcomeActivity.this.startActivity(intent);
 						finish();
-						overridePendingTransition(R.layout.apvalue, R.layout.apvalue);
+						//overridePendingTransition(R.layout.apvalue, R.layout.apvalue);
 					}
 				});
 	}

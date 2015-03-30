@@ -12,10 +12,8 @@ public class FileDownLoadMonitorThread extends Thread {
 	private boolean isRuning = false;
 	public  static final int MAXDOWN = 2;
 	public static final int MAXTHREADNUM = 4;
-	private Context context;
 
 	public FileDownLoadMonitorThread(Context context) {
-		this.context = context;
 	}
 
 	public boolean isRuning() {

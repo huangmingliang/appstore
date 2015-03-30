@@ -214,30 +214,36 @@ public class AutoListView extends ListView implements OnScrollListener {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
-		switch (ev.getAction()) {
-		case MotionEvent.ACTION_DOWN:
-		
-			if (firstVisibleItem == 0) {
-				isRecorded = true;
-				startY = (int) ev.getY();
-			}
-			break;
-		case MotionEvent.ACTION_CANCEL:
-		case MotionEvent.ACTION_UP:
-			if (state == PULL) {
-				state = NONE;
-				refreshHeaderViewByState();
-			} else if (state == RELEASE) {
-				state = REFRESHING;
-				refreshHeaderViewByState();
-				onRefresh();
-			}
-			isRecorded = false;
-			break;
-		case MotionEvent.ACTION_MOVE:
+		try {
+			switch (ev.getAction()) {
+			case MotionEvent.ACTION_DOWN:
+			
+				if (firstVisibleItem == 0) {
+					isRecorded = true;
+					startY = (int) ev.getY();
+				}
+				break;
+			case MotionEvent.ACTION_CANCEL:
+			case MotionEvent.ACTION_UP:
+				if (state == PULL) {
+					state = NONE;
+					refreshHeaderViewByState();
+				} else if (state == RELEASE) {
+					state = REFRESHING;
+					refreshHeaderViewByState();
+					onRefresh();
+				}
+				isRecorded = false;
+				break;
+			case MotionEvent.ACTION_MOVE:
 
-			whenMove(ev);
-			break;
+				whenMove(ev);
+				break;
+			}
+			
+		} catch (Exception e) {
+			AppLogger.e("listview onTouchEvent Exception");
+			return super.onTouchEvent(ev);
 		}
 		return super.onTouchEvent(ev);
 	}

@@ -88,12 +88,18 @@ public class AppListDao extends CommonDao {
 			AppLogger.e("== failed to getAppList. start " + start + " docNum " + docNum);
 			return null;
 		}
+		
+		AppLogger.e("== 333333333333");
 
 		RestAdapter restAdapter = new RestAdapter.Builder().setEndpoint(
 				CommonConstant.REST_URL).build();
 
+		
+		AppLogger.e("== 4444444444444");
 		AppListDaoInterface daoInterface = restAdapter
 				.create(AppListDaoInterface.class);
+		
+		AppLogger.e("== 55555555555555555");
 
 		TreeMap<String, String> parameters = new TreeMap<String, String>(
 				new Comparator<String>() {
@@ -104,6 +110,8 @@ public class AppListDao extends CommonDao {
 				});
 		
 		String haQuery = "config=format:json,start:" + start + ",hit:" + docNum + "&&query=default:'" + query+ "'" + " OR title:'" + query + "'" +" AND platform:'all'";
+		
+		AppLogger.e("== 666666666666");
 		
 		parameters.put("query", haQuery);
 		parameters.put("index_name", CommonConstant.INDEX_NAME);
@@ -116,10 +124,22 @@ public class AppListDao extends CommonDao {
 		
 		parameters.put("Signature", getAliyunSign(parameters));
 		
-		AppListBean bean = daoInterface.getAppList(parameters);
-		if (null != bean) {
-			display(bean);
+		AppLogger.e("== 77777777");
+		
+		AppListBean bean = null;
+		try {
+			bean = daoInterface.getAppList(parameters);
+			if (null != bean) {
+				display(bean);
+				AppLogger.e("== aaaaaaaaaaa");
+				
+			}
+		} catch (Exception e) {
+			AppLogger.e("== eeeee " + e.toString());
 		}
+
+		
+		AppLogger.e("== 8888888888");
 
 		return bean;
 	}
@@ -174,14 +194,18 @@ public class AppListDao extends CommonDao {
 					@Override
 					public void call(
 							Subscriber<? super AppListBean> subscriber) {
+						AppLogger.e("searchAppListRX  call");
 
 						try {
 							AppListBean bean = searchAppList(query, begPos, docNum);
+							
+							AppLogger.e("searchAppList after bean call");
 							if (null != bean
 									&& bean.status.equals("OK")) {
 								subscriber.onNext(bean);
 							}
 						} catch (Exception e) {
+							AppLogger.e("searchAppList Exception e:" + e.toString());
 							subscriber.onError(e);
 						}
 

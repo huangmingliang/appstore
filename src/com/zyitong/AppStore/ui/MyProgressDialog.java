@@ -10,12 +10,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class MyProgressDialog extends Dialog {
-    private Context context = null;
     private static MyProgressDialog customProgressDialog = null;
      
     public MyProgressDialog(Context context){
         super(context);
-        this.context = context;
     }
      
     public MyProgressDialog(Context context, int theme) {

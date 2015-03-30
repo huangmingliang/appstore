@@ -10,6 +10,7 @@ import com.zyitong.AppStore.bean.ItemData;
 import com.zyitong.AppStore.dao.CurrentDownloadJobManager;
 import com.zyitong.AppStore.dao.DownloadLink;
 import com.zyitong.AppStore.service.DownLoadService;
+import com.zyitong.AppStore.tools.AppLogger;
 
 public class AppStoreApplication extends Application {
 	private static AppStoreApplication instance;
@@ -33,6 +34,7 @@ public class AppStoreApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		AppLogger.e("==== AppStoreApplication onCreate ====");
 		mDownloadLink = new DownloadLink();
 		if (null == currentDownloadJobManager){
 			currentDownloadJobManager = new CurrentDownloadJobManager(this);
@@ -71,5 +73,6 @@ public class AppStoreApplication extends Application {
 		mDownloadLink.moveAll();
 		currentDownloadJobManager.removeall();
 	}
+	
 
 }
