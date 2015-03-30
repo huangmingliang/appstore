@@ -4,6 +4,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.downloadthread.FileDownLoadMonitorThread;
+import com.zyitong.AppStore.tools.AppLogger;
+
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
@@ -45,7 +47,7 @@ public class DownLoadService extends Service {
 		fileThread.setRuning(false);
 		timer.cancel();
 		updateDownloadListTask.cancel();
-		
+		AppLogger.e("===DownLoadService onDestroy===");
 	}
 
 	private void init() {

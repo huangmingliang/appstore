@@ -14,9 +14,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -35,29 +35,29 @@ import com.zyitong.AppStore.ui.AutoListView;
 import com.zyitong.AppStore.ui.AutoListView.OnLoadListener;
 import com.zyitong.AppStore.ui.AutoListView.OnSearchListener;
 import com.zyitong.AppStore.ui.SearchFrame;
-import com.zyitong.AppStore.ui.SearchFrame.OnCancelButtonListener;
 import com.zyitong.AppStore.ui.SearchFrame.OnEtSearchClickListener;
 import com.zyitong.AppStore.ui.SearchFrame.OnEtTextChangedListener;
 
 public class MainActivity extends BaseActivity implements OnSearchListener,
-		OnLoadListener, OnNetWorkDisConListener, OnNetWorkConnectListener {
+		OnLoadListener {
 
 	private AutoListView listView;
 	private ListAdapter adapter;
 	private List<ItemData> itemList = new ArrayList<ItemData>();
-	//private List<ItemData> searchBeforeList = new ArrayList<ItemData>();
-	private int searchTime = 1000;
+	private final int searchTime = 1000;
 	private final int TRIGGER_SERACH = 1;
-	private final long SEARCH_TRIGGER_DELAY_IN_MS = 1000;
+	private final long SEARCH_TRIGGER_DELAY_IN_MS = 200;
 	private Timer timer;
 	private UtilFun util = null;
 	private Message msg = null;
 	private String install_failed;
 	private View emptyView;
 	private SearchFrame searchFrame;
+	private EditText editText ;
 	private String searchString = new String();
 	private static int operate = 0;
 	private boolean emViewIsOnClick = false;
+	private boolean isSearch = true;
 	ProgressDialog progressDialog = null;
 	private Handler handler = new Handler() {
 		@Override
@@ -67,25 +67,28 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 			}
 		}
 	};
-	
-	private Handler edChangedHander = new Handler(){
 
+	private Handler edChangedHander = new Handler(){
 		@Override
 		public void handleMessage(Message msg) {
-			 if (msg.what == TRIGGER_SERACH) {
-				 AppLogger.e("edittext changed query ==" + searchString);		
-					
-					if (null != adapter) {
-						adapter.clearData();
-					}
-					progressDialog = ProgressDialog.show(MainActivity.this, "等待加载", "数据加载中...");
-					SearchAppList(searchString, 0, AutoListView.pageSize, true);
+			 if (msg.what == TRIGGER_SERACH || msg.what == 3) {
+				 AppLogger.e("edittext changed query ==" + searchString);				
+					if(isSearch){
+						isSearch = false;
+						showProgressDialog();
+						if (null != adapter) {
+							adapter.clearData();
+							adapter.notifyDataSetChanged();
+						}
+						AppLogger.e("==== before searchString");
+						SearchAppList(searchString, 0, AutoListView.pageSize, true);
+						AppLogger.e("==== after searchString");
+					}		
 			 }
 		}
 	};
 	private final TimerTask updatalistviewtask = new TimerTask() {
 		public void run() {
-
 			for (int i = 0; i < itemList.size(); i++) {
 				String packagename = itemList.get(i).getAppInfoBean()
 						.getPackagename();
@@ -103,10 +106,8 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	private int[] setMsgInfo(int position, String packagename) {
 		int[] messageInfo = new int[4];
 		messageInfo[3] = 0;
-
 		int radio = AppStoreApplication.getInstance()
 				.getCurrentDownloadJobManager().getRatio(packagename);
-
 		if (radio != -1) {
 			int status = AppStoreApplication.getInstance()
 					.getCurrentDownloadJobManager().getStatus(packagename);
@@ -138,7 +139,6 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 				break;
 			}
 		}
-
 		return messageInfo;
 	}
 
@@ -175,13 +175,11 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main);
 		AppLogger.e("MainActivity onCreate");
-
 		init();
 	}
 
 	@Override
 	protected void onStart() {
-
 		super.onStart();
 	}
 
@@ -192,13 +190,11 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 
 	@Override
 	protected void onResume() {
-
 		for (int i = 0; i < itemList.size(); i++) {
 			util.setResumeAppState(itemList.get(i));
 		}
 		adapter.addData(itemList);
 		adapter.notifyDataSetChanged();
-
 		super.onResume();
 	}
 
@@ -238,7 +234,8 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		});
 
 		searchFrame = (SearchFrame) findViewById(R.id.main_searchframe);
-		final EditText editText = (EditText) searchFrame
+		
+		editText = (EditText) searchFrame
 				.findViewById(R.id.edit_search);
 		searchFrame.setEtSearchListener(new OnEtSearchClickListener() {
 			@Override
@@ -246,7 +243,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 
 			}
 		});
-	
+		
 		searchFrame.setEtTextChangedListener(new OnEtTextChangedListener() {
 
 			@Override
@@ -254,22 +251,25 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 				String query = editText.getText().toString().trim();
 				searchString = query;
 				operate = 1;
-				edChangedHander.removeMessages(TRIGGER_SERACH);
-				edChangedHander.sendEmptyMessageDelayed(TRIGGER_SERACH, SEARCH_TRIGGER_DELAY_IN_MS);
-			}
-		});
-		searchFrame.setCancelButtonListener(new OnCancelButtonListener() {		
-			@Override
-			public void onClick() {
-				operate = 0;
-				listView.onRefreshComplete();
-				searchFrame.setVisibility(View.GONE);	
+				if(query.equals("")){
+					operate = 0;
+					edChangedHander.removeMessages(TRIGGER_SERACH);
+					edChangedHander.removeMessages(3);
+					edChangedHander.sendEmptyMessageDelayed(3, 1500);
+					InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);    
+					if (imm.isActive()) {
+						imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_NOT_ALWAYS);   
+					}
+				}else{
+					edChangedHander.removeMessages(TRIGGER_SERACH);
+					edChangedHander.sendEmptyMessageDelayed(TRIGGER_SERACH, SEARCH_TRIGGER_DELAY_IN_MS);	
+				}
+				
 			}
 		});
 		InitList();
 		CacheProcc();
 		setListViewListener();
-		setNetWorkListener();
 	}
 
 	private void CacheProcc() {
@@ -295,12 +295,6 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		listView.setOnRefreshListener(this);
 		listView.setOnLoadListener(this);
 	}
-
-	private void setNetWorkListener() {
-		setOnNetWorkConListener(this);
-		setOnNetWorkDisConListener(this);
-	}
-
 	private void Active() {
 		adapter.clearData();
 		itemList.clear();
@@ -311,7 +305,6 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 			AppStoreApplication.getInstance().itemData.clear();
 		} else {
 			emptyView.setVisibility(View.VISIBLE);
-
 		}
 	}
 
@@ -328,13 +321,20 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	private void loadGetDataByCategory(int category, boolean dlCencel) {
 		switch (category) {
 		case AutoListView.LOAD:
-			progressDialog = ProgressDialog.show(MainActivity.this, "等待加载", "数据加载中...");
 			if (itemList.size() == 0) {
-				getAppList(0, AutoListView.pageSize, dlCencel);
+				if(isSearch){
+					isSearch = false;
+					showProgressDialog();
+					getAppList(0, AutoListView.pageSize, dlCencel);
+				}
 			} else {
-				int timer = itemList.size() / AutoListView.pageSize;
-				getAppList((timer) * AutoListView.pageSize,
-						AutoListView.pageSize, dlCencel);
+				if(isSearch){
+					isSearch = false;
+					showProgressDialog();
+					int timer = itemList.size() / AutoListView.pageSize;
+					getAppList((timer) * AutoListView.pageSize,
+							AutoListView.pageSize, dlCencel);
+				}
 			}
 			break;
 		default:
@@ -345,17 +345,24 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	private void loadSearchDataByCategory(int category, boolean dialogcancel) {
 		switch (category) {
 		case AutoListView.LOAD:
-			progressDialog = ProgressDialog.show(MainActivity.this, "等待加载", "数据加载中...");
+			//progressDialog.hide();
 			if (itemList.size() == 0) {
-				// lock();
-				SearchAppList(searchString, 0, AutoListView.pageSize,
-						dialogcancel);
+				if(isSearch){
+					isSearch = false;
+					showProgressDialog();
+					SearchAppList(searchString, 0, AutoListView.pageSize,
+							dialogcancel);
+				}
 			} else if (itemList.size() < AutoListView.pageSize) {
 				break;
 			} else if (itemList.size() >= AutoListView.pageSize) {
 				int timer = itemList.size() / AutoListView.pageSize;
-				SearchAppList(searchString, (timer) * AutoListView.pageSize,
-						AutoListView.pageSize, dialogcancel);
+				if(isSearch){
+					isSearch = false;
+					showProgressDialog();
+					SearchAppList(searchString, (timer) * AutoListView.pageSize,
+							AutoListView.pageSize, dialogcancel);
+				}
 			}
 			break;
 		default:
@@ -387,28 +394,29 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 							emptyView.setVisibility(View.GONE);
 							if (dialogcancel) {
 								progressDialog.cancel();
+							    isSearch = true;
 							}
 						}
 					}
-
 					@Override
 					public void onCompleted() {
+						
 					}
-
 					@Override
 					public void onError(Throwable e) {
 						if (!AppStoreApplication.getInstance().isNetWorkConnected) {
 							Toast.makeText(MainActivity.this,
-									R.string.networkerr, 1000).show();
+									R.string.networkerr, searchTime).show();
 						} else
 							Toast.makeText(MainActivity.this,
 									R.string.loaderror, Toast.LENGTH_LONG)
 									.show();
 						listView.onLoadComplete();
 						listView.setResultSize(AutoListView.pageSize + 1);
-						//stopProgressDialog();
+						adapter.notifyDataSetChanged();
 						if (dialogcancel) {
 							progressDialog.cancel();
+							isSearch = true;
 						}
 						emViewIsOnClick = false;
 						AppLogger.e("ERROR===========" + e);
@@ -442,27 +450,30 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 							displayList(itemDataList);
 							if (dialogcancel) {
 								progressDialog.cancel();
+								isSearch = true;
 							}
 						}
 					}
 					@Override
 					public void onCompleted() {
+						AppLogger.e("SearchAppList  onCompleted");
 						
 					}
 					@Override
 					public void onError(Throwable e) {
 						if (!AppStoreApplication.getInstance().isNetWorkConnected) {
 							Toast.makeText(MainActivity.this,
-									R.string.networkerr, 1000).show();
+									R.string.networkerr, searchTime).show();
 						} else
 							Toast.makeText(MainActivity.this,
 									R.string.loaderror, Toast.LENGTH_LONG)
 									.show();
 						listView.onLoadComplete();
 						listView.setResultSize(AutoListView.pageSize + 1);
-						//stopProgressDialog();
+						adapter.notifyDataSetChanged();
 						if (dialogcancel) {
 							progressDialog.cancel();
+							isSearch = true;
 						}
 						emViewIsOnClick = false;
 						AppLogger.e("ERROR===========" + e);
@@ -470,40 +481,14 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 				});
 	}
 
-	/*@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK
-				&& event.getAction() == KeyEvent.ACTION_DOWN) {
-			AppLogger.e("listView.getState = " + listView.getState());
-			if (listView.getState() != AutoListView.REFRESHING) {
-				
-				 * if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() ==
-				 * KeyEvent.ACTION_DOWN) { if ((System.currentTimeMillis() -
-				 * exitTime) > 2000) { Toast.makeText(getApplicationContext(),
-				 * R.string.press_again_exit, Toast.LENGTH_SHORT).show();
-				 * exitTime = System.currentTimeMillis(); } else { finish(); }
-				 * return true; }
-				 
-				finish();
-			} else {
-				operate = 0;
-				if (null != adapter) {
-					adapter.clearData();
-				}
-				listView.onRefreshComplete();
-				searchFrame.setVisibility(View.GONE);
-				loadGetDataByCategory(AutoListView.LOAD, false);
-				return true;
-			}
-		}
-		return super.onKeyDown(keyCode, event);
-	}*/
-
 	@Override
 	public void OnSearch() {
-		
 		searchFrame.setVisibility(View.VISIBLE);
-		
+		editText.requestFocus();
+		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);    
+		if (imm.isActive()) {
+			imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_NOT_ALWAYS);   
+		}
 	}
 
 	@Override
@@ -515,22 +500,28 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		}
 	}
 
-	@Override
-	public void onNetWorkConnect() {
-		/*
-		 * if(operate == 0){ loadGetDataByCategory(AutoListView.LOAD,false);
-		 * }else{ loadSearchDataByCategory(AutoListView.LOAD,false); }
-		 */
-	}
-
-	@Override
-	public void onNetWorkDisConnect() {
+	public void NetWorkDisConnect(){
 		Toast.makeText(MainActivity.this, R.string.connectfail,
 				Toast.LENGTH_SHORT).show();
 
+		AppLogger.e("MainActivity NetWorkDisConnect");
+	}
+	public void NetWorkConnect(){
+		AppLogger.e("MainActivity NetWorkConnect");
+		if(operate == 0){
+			if(itemList.size()== 0)
+	    		loadGetDataByCategory(AutoListView.LOAD,true);
+		}else{
+			if(itemList.size()== 0)
+				loadSearchDataByCategory(AutoListView.LOAD,true); 
+		}
 	}
 
 
-	
+
+	private void showProgressDialog(){
+		progressDialog = ProgressDialog.show(MainActivity.this, "等待加载", "数据加载中...");
+		//progressDialog.setCancelable(true);
+	}	
 }
 

@@ -33,17 +33,13 @@ public class ListAdapter extends BaseAdapter {
 	private List<ItemData> itemList;
 	private List<Map<String, Object>> mData;
 	private LayoutInflater mInflater;
-
 	private UtilFun util = null;
-
 	private List<dLoadButtonTextofRadio> dlButtontextlist;
-
 	public ListAdapter(Context context, List<ItemData> itemList,
 			String className) {
 		this.mContext = context;
 		mInflater = LayoutInflater.from(context);
 		this.itemList = itemList;
-
 		init();
 	}
 
@@ -63,14 +59,12 @@ public class ListAdapter extends BaseAdapter {
 		mData = new ArrayList<Map<String, Object>>();
 		dlButtontextlist = new ArrayList<ListAdapter.dLoadButtonTextofRadio>();
 		for (int i = 0; i < itemList.size(); i++) {
-
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("name", itemList.get(i).getAppInfoBean().getTitle());
 			map.put("star", Integer.valueOf(itemList.get(i).getAppInfoBean()
 					.getGrade()) / 20);
 			map.put("type", itemList.get(i).getAppInfoBean().getType());
 			map.put("iconView", itemList.get(i).getAppInfoBean().getThumbnail());
-
 			mData.add(map);
 		}
 	}
@@ -78,19 +72,16 @@ public class ListAdapter extends BaseAdapter {
 	public void addData(List<ItemData> itemDataList) {
 		this.itemList = itemDataList;
 		for (int i = mData.size(); i < itemDataList.size(); i++) {
-
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("name", itemList.get(i).getAppInfoBean().getTitle());
 			map.put("star", Integer.valueOf(itemList.get(i).getAppInfoBean()
 					.getGrade()) / 20);
 			map.put("type", itemList.get(i).getAppInfoBean().getType());
 			map.put("iconView", itemList.get(i).getAppInfoBean().getThumbnail());
-
 			mData.add(map);
 			dLoadButtonTextofRadio dl = new dLoadButtonTextofRadio();
 			dl.setRadio(0);
 			dlButtontextlist.add(dl);
-
 		}
 	}
 
@@ -199,6 +190,9 @@ public class ListAdapter extends BaseAdapter {
 									R.drawable.loading_button);
 							AppStoreApplication.getInstance().getDownloadLink()
 							.addNode(data);
+							AppLogger.e("====+"+data.getFileuri());
+							AppLogger.e("====+"+data.getPackageName());
+							AppLogger.e("====+"+data.getName());
 							CurrentDownloadJob currentDownloadJob = new CurrentDownloadJob();
 							currentDownloadJob.setData(data);
 							currentDownloadJob.setFilestatus(ItemData.APP_WAIT);
@@ -206,15 +200,20 @@ public class ListAdapter extends BaseAdapter {
 							currentDownloadJob.setRatio(0);
 							AppStoreApplication.getInstance().getCurrentDownloadJobManager().addDownloadJob(currentDownloadJob);	
 						}
-						
+						AppLogger.e("====+"+data.getFileuri());
+						AppLogger.e("====+"+data.getPackageName());
+						AppLogger.e("====+"+data.getName());
 						itemList.get(positionn).setButtonFileflag(
 								ItemData.APP_LOADING);
 					} else if (indexData.getButtonFileflag() == ItemData.APP_LOADING) {
-						/*setdownloadButtonBackground(dlbutton,
-								R.string.app_install, R.drawable.load_button);*/
-						dlButtontextlist.get(positionn).setRadio(0);
-						util.setAppReDownLoad(indexData.getAppInfoBean()
-								.getPackagename());					
+						
+						
+							dlButtontextlist.get(positionn).setRadio(0);
+							util.setAppReDownLoad(indexData.getAppInfoBean()
+									.getPackagename());
+							FileDownloadJob data = util.DataChange(indexData);
+							AppStoreApplication.getInstance().getDownloadLink()
+							.delNode(data.getId());						
 					} else if(indexData.getButtonFileflag() == ItemData.APP_WAIT){
 						
 						FileDownloadJob data = util.DataChange(indexData);
@@ -286,7 +285,6 @@ public class ListAdapter extends BaseAdapter {
 	private void setStar(ViewHolder holder, int star) {
 
 		switch (star) {
-
 		case 1:
 			holder.imageView1.setBackgroundResource(R.drawable.star01);
 			holder.imageView2.setBackgroundResource(R.drawable.star02);
@@ -329,7 +327,6 @@ public class ListAdapter extends BaseAdapter {
 			holder.imageView4.setBackgroundResource(R.drawable.star02);
 			holder.imageView5.setBackgroundResource(R.drawable.star02);
 			break;
-
 		}
 	}
 
