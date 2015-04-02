@@ -76,10 +76,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 					}
 
 					showProgressDialog();
-
-					AppLogger.e("==== before searchString");
 					SearchAppList(searchString, 0, AutoListView.pageSize, true);
-					AppLogger.e("==== after searchString");
 				}
 			} else if (msg.what == TRIGGER_GET) {
 				if (isSearch) {
@@ -89,10 +86,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 						adapter.clearData();
 						adapter.notifyDataSetChanged();
 					}
-
-					AppLogger.e("==== before searchString");
 					getAppList(0, AutoListView.pageSize, true);
-					AppLogger.e("==== after searchString");
 				}
 			}
 		}
@@ -191,7 +185,6 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main);
-		AppLogger.e("MainActivity onCreate");
 		init();
 	}
 
@@ -227,7 +220,6 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 
 	@Override
 	protected void onDestroy() {
-		Log.e("MainActivity", "MainActivity onDestroy");
 		timer.cancel();
 		updatalistviewtask.cancel();
 		handler.removeCallbacksAndMessages(null);
@@ -265,24 +257,17 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 					searchString = searchString.replaceAll("[`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……& amp;*（）——+|{}【】‘；：”“’。，、？|-]", "");
 				}
 
-				AppLogger.e("==== searchFrame on change. query: "
-						+ searchString);
-
 				operate = 1;
 				if (searchString.equals("")) {
 					operate = 0;
-					AppLogger.e("==== operate @@@. query: " + searchString);
 					if (null != adapter) {
 						adapter.clearData();
 						adapter.notifyDataSetChanged();
 					}
 
-					AppLogger.e("==== remove message. query: " + searchString);
 					handler.removeMessages(TRIGGER_SERACH);
 					handler.removeMessages(TRIGGER_GET);
 					handler.sendEmptyMessageDelayed(TRIGGER_GET, 1500);
-					AppLogger.e("==== send message. query: " + searchString);
-
 				} else {
 					if (null != adapter) {
 						adapter.clearData();
@@ -343,7 +328,6 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		itemList.addAll(itemDataList);
 		adapter.addData(itemList);
 		listView.setResultSize(itemDataList.size());
-		AppLogger.e("disPlayGetList itemList = " + itemList.size());
 		adapter.notifyDataSetChanged();
 		return;
 	}
@@ -416,12 +400,6 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 								ItemData item = new ItemData();
 								item.setAppInfoBean(appListBean.result.items
 										.get(i));
-								AppLogger.e("== getapplist from server:"
-										+ appListBean.result.items.get(i)
-												.getTitle());
-								AppLogger.e("== getapplist from server:"
-										+ appListBean.result.items.get(i)
-												.getPackagename());
 								itemDataList.add(item);
 								util.setAppState(item);
 							}
@@ -459,8 +437,6 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 
 	private void SearchAppList(String query, int startPos, int docNum,
 			final boolean dialogcancel) {
-		AppLogger.e("SearchAppList  query = " + query + "  startPos = "
-				+ startPos + "docNum = " + docNum);
 
 		AppListDao.getInstance().searchAppListRX(query, startPos, docNum)
 				.observeOn(AndroidSchedulers.mainThread())
@@ -474,7 +450,6 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 
 					@Override
 					public void onCompleted() {
-						AppLogger.e("SearchAppList  onCompleted");
 						if (null != appListBean) {
 							List<ItemData> itemDataList = new ArrayList<ItemData>();
 							int resultnumber = Integer
@@ -483,12 +458,6 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 								ItemData item = new ItemData();
 								item.setAppInfoBean(appListBean.result.items
 										.get(i));
-								AppLogger.e("== getapplist from server:"
-										+ appListBean.result.items.get(i)
-												.getTitle());
-								AppLogger.e("== getapplist from server:"
-										+ appListBean.result.items.get(i)
-												.getPackagename());
 								itemDataList.add(item);
 								util.setAppState(item);
 							}

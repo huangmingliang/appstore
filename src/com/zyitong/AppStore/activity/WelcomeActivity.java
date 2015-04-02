@@ -56,7 +56,6 @@ public class WelcomeActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		System.gc();
-		System.out.println("WelcomeActivity onDestroy");
 		super.onDestroy();
 	}
 
@@ -87,11 +86,6 @@ public class WelcomeActivity extends Activity {
 							for (int i = 0; i < resultnumber; i++) {
 								ItemData item = new ItemData();
 								item.setAppInfoBean(getListBean.result.items.get(i));
-								AppLogger.e("== getapplist from server:"
-										+ getListBean.result.items.get(i).getTitle());
-								AppLogger.e("== getapplist from server:"
-										+ getListBean.result.items.get(i)
-												.getPackagename());
 								itemDataList.add(item);
 								utilFun.setAppState(item);
 							}

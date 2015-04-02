@@ -46,7 +46,6 @@ public class SearchFrame extends RelativeLayout {
 				}
 				
 				mOnEtTextChangedListener.chanaged();
-				AppLogger.e("==== afterTextChanged.");
 			}
 
 			@Override
@@ -64,9 +63,7 @@ public class SearchFrame extends RelativeLayout {
 		ivDeleteText.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				AppLogger.e("==== before delte view onClick.");
 				etSearch.setText("");
-				AppLogger.e("==== after delte view onClick.");
 			}
 		});
 	}

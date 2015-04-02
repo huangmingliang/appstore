@@ -241,7 +241,6 @@ public class AutoListView extends ListView implements OnScrollListener {
 				isRecorded = false;
 				break;
 			case MotionEvent.ACTION_MOVE:
-				AppLogger.e("---===Action_move");
 				whenMove(ev);
 				break;
 			}
@@ -365,8 +364,6 @@ public class AutoListView extends ListView implements OnScrollListener {
 			break;
 		case REFRESHING:
 			topPadding(headerContentInitialHeight);
-			AppLogger.e("autolistview is refreshing");
-			AppLogger.e("headerContentInitialHeight ==  ==  =="+headerContentInitialHeight);
 			//refreshing.setVisibility(View.VISIBLE);
 			//searchFrame.setVisibility(View.VISIBLE);
 			arrow.clearAnimation();
@@ -393,8 +390,6 @@ public class AutoListView extends ListView implements OnScrollListener {
 			childHeightSpec = MeasureSpec.makeMeasureSpec(0,
 					MeasureSpec.UNSPECIFIED);
 		}
-		AppLogger.d("childHeightSpec = "+childHeightSpec);
-		AppLogger.d("childWidthSpec = "+childWidthSpec);
 		child.measure(childWidthSpec, childHeightSpec);
 	}
 

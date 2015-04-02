@@ -39,80 +39,39 @@ public class AppListDao extends CommonDao {
 		int count = 0;
 
 		if (null != bean) {
-			AppLogger.i("=====  AppListDao  BEGIN======");
-			AppLogger.i("== status " + bean.status);
 
 			if (null != bean.errors && bean.errors.size() > 0
 					&& null != bean.errors.get(0)) {
-				AppLogger.e("== code " + bean.errors.get(0).code);
-				AppLogger.e("== error info " + bean.errors.get(0).message);
 			}
 
 			if (null != bean.result) {
-				AppLogger.i("== searchtime " + bean.result.searchtime);
-				AppLogger.i("== total " + bean.result.total);
-				AppLogger.i("== num " + bean.result.num);
-				AppLogger.i("== viewtotal " + bean.result.viewtotal);
 
 				if (null != bean.result.num && null != bean.result.items) {
 					count = bean.result.items.size();
 					AppVerboseBean verboseBean;
 					for (i = 0; i < count; i++) {
 						verboseBean = bean.result.items.get(i);
-						AppLogger.i("== index: " + i + " id " + verboseBean.id);
-						AppLogger.i("== index: " + i + " title "
-								+ verboseBean.title);
-						AppLogger.i("== index: " + i + " type "
-								+ verboseBean.type);
-						AppLogger.i("== index: " + i + " body "
-								+ verboseBean.body);
-						AppLogger.i("== index: " + i + " url "
-								+ verboseBean.url);
-						AppLogger.i("== index: " + i + " author "
-								+ verboseBean.author);
-						AppLogger.i("== index: " + i + " thumbnail "
-								+ verboseBean.thumbnail);
-						AppLogger.i("== index: " + i + " grade "
-								+ verboseBean.grade);
-						AppLogger.i("== index: " + i + " platform "
-								+ verboseBean.platform);
-						AppLogger.i("== index: " + i + " version "
-								+ verboseBean.version);
-						AppLogger.i("== index: " + i + " update_type "
-								+ verboseBean.update_type);
-						AppLogger.i("== index: " + i + " packagename "
-								+ verboseBean.packagename);
 					}
 				}
 			}
-
-			AppLogger.i("=====  VoiceClientListDao  END======");
 		}
 	}
 
 	public AppListBean searchAppList(String query, int start, int docNum) {
 		if (query == null || query.length() == 0) {
-			AppLogger.e("== query is null");
 			return null;
 		}
-		AppLogger.e("== query length:" + query.length());
 
 		if (0 > start || docNum > 50) {
-			AppLogger.e("== failed to getAppList. start " + start + " docNum "
-					+ docNum);
 			return null;
 		}
-
-		AppLogger.e("== 333333333333");
 
 		RestAdapter restAdapter = new RestAdapter.Builder().setEndpoint(
 				CommonConstant.REST_URL).build();
 
-		AppLogger.e("== 4444444444444");
 		AppListDaoInterface daoInterface = restAdapter
 				.create(AppListDaoInterface.class);
 
-		AppLogger.e("== 55555555555555555");
 
 		TreeMap<String, String> parameters = new TreeMap<String, String>(
 				new Comparator<String>() {
@@ -129,42 +88,24 @@ public class AppListDao extends CommonDao {
 				.append(" AND platform:'all'");
 
 		parameters.put("query", sb.toString());
-		AppLogger.e("== 666666" + sb.toString());
 		parameters.put("index_name", CommonConstant.INDEX_NAME);
-		AppLogger.e("== 666666" + CommonConstant.INDEX_NAME);
 		parameters.put("Version", CommonConstant.VERSION);
-		AppLogger.e("== 666666" + CommonConstant.VERSION);
 		parameters.put("AccessKeyId", CommonConstant.ACCESS_KEY_ID);
-		AppLogger.e("== 666666" + CommonConstant.ACCESS_KEY_ID);
 		parameters.put("Timestamp", formatIso8601Date(new Date()));
-		AppLogger.e("== 666666  formatIso8601Date(new Date())");
 		parameters.put("SignatureMethod", CommonConstant.SIGNATURE_METHOD);
-		AppLogger.e("== 666666" + CommonConstant.SIGNATURE_METHOD);
 		parameters.put("SignatureVersion", CommonConstant.SIGNATURE_VERSION);
-		AppLogger.e("== 666666" + CommonConstant.SIGNATURE_VERSION);
 		parameters.put("SignatureNonce", UUID.randomUUID().toString());
-		AppLogger.e("== 666666" + UUID.randomUUID().toString());
 		parameters.put("Signature", getAliyunSign(parameters));
-		AppLogger.e("== 666666==");
-
-		AppLogger.e("== 77777777");
-		AppLogger.e("== query : " + query);
-		AppLogger.e("== query length:" + query.length());
-
 		AppListBean bean = null;
 		try {
 			bean = daoInterface.getAppList(parameters);
 			if (null != bean) {
-				AppLogger.e("== aaaaaaaaaaa");
 				display(bean);
 
 			}
 		} catch (Exception e) {
 			AppLogger.e("== eeeee " + e.toString());
 		}
-
-		AppLogger.e("== 8888888888");
-
 		return bean;
 	}
 

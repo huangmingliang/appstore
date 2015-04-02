@@ -164,9 +164,6 @@ public class ListAdapter extends BaseAdapter {
 		holder.imageDownloadView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(final View v) {
-				System.out.println("click button = " + positionn);
-				AppLogger.e("click button = "
-						+ indexData.getAppInfoBean().title);
 				final Button dlbutton = (Button) v;
 
 				String filename = AppStoreApplication.getInstance()
@@ -198,9 +195,6 @@ public class ListAdapter extends BaseAdapter {
 									R.drawable.loading_button);
 							AppStoreApplication.getInstance().getDownloadLink()
 									.addNode(data);
-							AppLogger.e("====+" + data.getFileuri());
-							AppLogger.e("====+" + data.getPackageName());
-							AppLogger.e("====+" + data.getName());
 							CurrentDownloadJob currentDownloadJob = new CurrentDownloadJob();
 							currentDownloadJob.setData(data);
 							currentDownloadJob.setFilestatus(ItemData.APP_WAIT);
@@ -210,13 +204,8 @@ public class ListAdapter extends BaseAdapter {
 									.getCurrentDownloadJobManager()
 									.addDownloadJob(currentDownloadJob);
 						}
-						AppLogger.e("====+" + data.getFileuri());
-						AppLogger.e("====+" + data.getPackageName());
-						AppLogger.e("====+" + data.getName());
 						itemList.get(positionn).setButtonFileflag(
 								ItemData.APP_LOADING);
-						AppLogger.e("==== + after");
-						AppLogger.e("==== ItemData.size = " + itemList.size());
 					} else if (indexData.getButtonFileflag() == ItemData.APP_LOADING) {
 
 						dlButtontextlist.get(positionn).setRadio(0);
@@ -248,11 +237,7 @@ public class ListAdapter extends BaseAdapter {
 				if (indexData.getButtonFileflag() == ItemData.APP_OPEN) {
 
 					if (util.checkApkExist(mContext, packageName)) {
-
-						AppLogger.e("open packagename = " + packageName);
-
 						String args = util.openApp(packageName, mContext);
-						AppLogger.i("packagename = " + "open after" + args);
 					}
 
 				}

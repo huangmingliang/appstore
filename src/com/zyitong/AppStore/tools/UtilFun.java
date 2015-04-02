@@ -112,10 +112,8 @@ public class UtilFun {
 		PackageInfo packageInfo = pm.getPackageArchiveInfo(uri,
 				PackageManager.GET_ACTIVITIES);
 		String packagename = packageInfo.packageName;
-		AppLogger.e("isAppInstalled packageName = " + packagename);
 		if (checkApkExist(mContext, packagename))
 			installed = true;
-		AppLogger.e("isAppInstalled packageName = " + installed);
 		return installed;
 	}
 
@@ -156,7 +154,6 @@ public class UtilFun {
 			ResolveInfo ri = apps.iterator().next();
 			if (ri != null) {
 				className = ri.activityInfo.name;
-				AppLogger.e("open class name = " + className);
 			}
 		} catch (NameNotFoundException e) {
 			e.printStackTrace();
@@ -167,10 +164,8 @@ public class UtilFun {
 	public String openApp(String packageName, Context mContext) {
 
 		String mainActivityName = getMainActivityName(packageName, mContext);
-		AppLogger.e("getMainActivityName = " + mainActivityName);
 		String[] args = { "am", "start", "-n",
 				packageName + "/" + mainActivityName };
-		AppLogger.e("" + args.toString());
 		ProcessBuilder processBuilder = new ProcessBuilder(args);
 		Process process = null;
 		InputStream errIs = null;
@@ -205,7 +200,6 @@ public class UtilFun {
 		boolean result = false;
 		try {
 			PackageManager pm = context.getPackageManager();
-			AppLogger.e("" + filePath);
 			PackageInfo info = pm.getPackageArchiveInfo(filePath,
 					PackageManager.GET_ACTIVITIES);
 			if (info != null) {
@@ -213,7 +207,6 @@ public class UtilFun {
 			}
 		} catch (Exception e) {
 			result = false;
-			AppLogger.e("Exception :" + e.toString());
 		}
 		return result;
 	}
@@ -256,7 +249,6 @@ public class UtilFun {
 			}
 			byte[] data = baos.toByteArray();
 			result = new String(data);
-			AppLogger.e("install(String apkAbsolutePath) result = " + result);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
