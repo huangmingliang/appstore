@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">VEB应用市场</string>
+    <string name="app_name">VEB应用</string>
     <string name="NO_TUJIAN_DATA">没推荐数据</string>
     <string name="NO_FILE_DATA">没文件数据</string>
-    <string name="vebappstore">VEB应用市场</string>
+    <string name="vebappstore">VEB应用</string>
     
     <string name="networkerr">网络错误！请查看手机数据连接是否正常</string>
     <string name="jsonerr">json解析失败</string>

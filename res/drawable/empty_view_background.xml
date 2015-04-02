@@ -1,8 +1,8 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">  
   
-    <item android:drawable="@drawable/view_press" android:state_pressed="true"/>  
+    <item android:drawable="@drawable/blank" android:state_pressed="true"/>  
     <item android:drawable="@drawable/backup_sd_restore" android:state_focused="false" android:state_pressed="false"/>  
-    <item android:drawable="@drawable/view_press"  android:state_focused="true"/>  
+    <item android:drawable="@drawable/blank"  android:state_focused="true"/>  
     <item android:drawable="@drawable/backup_sd_restore" android:state_focused="false"/>  
   
 </selector>  

@@ -3,6 +3,7 @@ package com.zyitong.AppStore.activity;
 import java.io.InputStream;
 import java.util.List;
 
+import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import android.app.Activity;
@@ -12,6 +13,8 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.widget.ImageView;
 
 import com.zyitong.AppStore.AppStoreApplication;
@@ -24,6 +27,8 @@ import com.zyitong.AppStore.tools.UtilFun;
 
 public class WelcomeActivity extends Activity {
 	private UtilFun utilFun;
+	private static final int MESS_WHAT = 10;
+	private static final int DELAY_TIME = 1000;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +39,23 @@ public class WelcomeActivity extends Activity {
 		mImageView.setImageBitmap(readBitMap(this, R.drawable.start_screen));
 		init();
 	}
+	
+	private Handler handler = new Handler(){
+
+		@Override
+		public void handleMessage(Message msg) {
+			if(msg.what == 10){
+				Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
+				WelcomeActivity.this.startActivity(intent);
+				finish();
+			}
+		}
+		
+	};
 
 	@Override
 	protected void onDestroy() {
 		System.gc();
-		System.out.println("WelcomeActivity onDestroy");
 		super.onDestroy();
 	}
 
@@ -48,25 +65,27 @@ public class WelcomeActivity extends Activity {
 
 		getAppList(0, 8);
 	}
-
+	
 	private void getAppList(int startPos, int docNum) {
 
 		AppListDao.getInstance().getAppListRX(startPos, docNum)
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(new Subscriber<AppListBean>() {
+					AppListBean getListBean = null;
 					@Override
 					public void onNext(AppListBean bean) {
-						if (null != bean) {
+						getListBean = bean;
+						
+					}
+
+					@Override
+					public void onCompleted() {
+						if (null != getListBean) {
 							List<ItemData> itemDataList = AppStoreApplication.getInstance().itemData;
-							int resultnumber = Integer.valueOf(bean.result.num);
+							int resultnumber = Integer.valueOf(getListBean.result.num);
 							for (int i = 0; i < resultnumber; i++) {
 								ItemData item = new ItemData();
-								item.setAppInfoBean(bean.result.items.get(i));
-								AppLogger.e("== getapplist from server:"
-										+ bean.result.items.get(i).getTitle());
-								AppLogger.e("== getapplist from server:"
-										+ bean.result.items.get(i)
-												.getPackagename());
+								item.setAppInfoBean(getListBean.result.items.get(i));
 								itemDataList.add(item);
 								utilFun.setAppState(item);
 							}
@@ -74,21 +93,13 @@ public class WelcomeActivity extends Activity {
 							Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
 							WelcomeActivity.this.startActivity(intent);
 							finish();
-							//overridePendingTransition(R.layout.apvalue, R.layout.apvalue);
 						}
-					}
-
-					@Override
-					public void onCompleted() {
 					}
 
 					@Override
 					public void onError(Throwable e) {
 						AppLogger.e("ERROR===========" + e);
-						Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
-						WelcomeActivity.this.startActivity(intent);
-						finish();
-						//overridePendingTransition(R.layout.apvalue, R.layout.apvalue);
+						handler.sendEmptyMessageDelayed(MESS_WHAT, DELAY_TIME);
 					}
 				});
 	}

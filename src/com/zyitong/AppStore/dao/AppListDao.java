@@ -38,69 +38,41 @@ public class AppListDao extends CommonDao {
 	public void display(AppListBean bean) {
 		int i = 0;
 		int count = 0;
-		
+
 		if (null != bean) {
-			AppLogger.i("=====  AppListDao  BEGIN======");
-			AppLogger.i("== status " + bean.status);
-			
-			if (null != bean.errors && bean.errors.size() > 0 && null != bean.errors.get(0)){
-				AppLogger.e("== code " + bean.errors.get(0).code);
-				AppLogger.e("== error info " + bean.errors.get(0).message);
+
+			if (null != bean.errors && bean.errors.size() > 0
+					&& null != bean.errors.get(0)) {
 			}
-			
-			if (null != bean.result){
-				AppLogger.i("== searchtime " + bean.result.searchtime);
-				AppLogger.i("== total " + bean.result.total);
-				AppLogger.i("== num " + bean.result.num);
-				AppLogger.i("== viewtotal " + bean.result.viewtotal);
-				
-				if (null != bean.result.num && null != bean.result.items){
+
+			if (null != bean.result) {
+
+				if (null != bean.result.num && null != bean.result.items) {
 					count = bean.result.items.size();
 					AppVerboseBean verboseBean;
-					for (i = 0; i < count; i++){
+					for (i = 0; i < count; i++) {
 						verboseBean = bean.result.items.get(i);
-						AppLogger.i("== index: " + i + " id " + verboseBean.id);
-						AppLogger.i("== index: " + i + " title " + verboseBean.title);
-						AppLogger.i("== index: " + i + " type " + verboseBean.type);
-						AppLogger.i("== index: " + i + " body " + verboseBean.body);
-						AppLogger.i("== index: " + i + " url " + verboseBean.url);
-						AppLogger.i("== index: " + i + " author " + verboseBean.author);
-						AppLogger.i("== index: " + i + " thumbnail " + verboseBean.thumbnail);
-						AppLogger.i("== index: " + i + " grade " + verboseBean.grade);
-						AppLogger.i("== index: " + i + " platform " + verboseBean.platform);
-						AppLogger.i("== index: " + i + " version " + verboseBean.version);
-						AppLogger.i("== index: " + i + " update_type " + verboseBean.update_type);
-						AppLogger.i("== index: " + i + " packagename " + verboseBean.packagename);
 					}
 				}
 			}
-			
-			AppLogger.i("=====  VoiceClientListDao  END======");
 		}
 	}
-	
-	public AppListBean searchAppList(String query, int start, int docNum){
-		if(query == null){
-			AppLogger.e("== query is null");
+
+	public AppListBean searchAppList(String query, int start, int docNum) {
+		if (query == null || query.length() == 0) {
 			return null;
 		}
-		
-		if (0 > start || docNum > 50){
-			AppLogger.e("== failed to getAppList. start " + start + " docNum " + docNum);
+
+		if (0 > start || docNum > 50) {
 			return null;
 		}
-		
-		AppLogger.e("== 333333333333");
 
 		RestAdapter restAdapter = new RestAdapter.Builder().setEndpoint(
 				CommonConstant.REST_URL).build();
 
-		
-		AppLogger.e("== 4444444444444");
 		AppListDaoInterface daoInterface = restAdapter
 				.create(AppListDaoInterface.class);
-		
-		AppLogger.e("== 55555555555555555");
+
 
 		TreeMap<String, String> parameters = new TreeMap<String, String>(
 				new Comparator<String>() {
@@ -109,12 +81,14 @@ public class AppListDao extends CommonDao {
 						return o1.compareTo(o2);
 					}
 				});
-		
-		String haQuery = "config=format:json,start:" + start + ",hit:" + docNum + "&&query=default:'" + query+ "'" + " OR title:'" + query + "'" +" AND platform:'all'";
-		
-		AppLogger.e("== 666666666666");
-		
-		parameters.put("query", haQuery);
+
+		StringBuffer sb = new StringBuffer();
+		sb.append("config=format:json,start:").append(start).append(",hit:")
+				.append(docNum).append("&&query=default:'").append(query)
+				.append("'").append(" OR title:'").append(query).append("'")
+				.append(" AND platform:'all'");
+
+		parameters.put("query", sb.toString());
 		parameters.put("index_name", CommonConstant.INDEX_NAME);
 		parameters.put("Version", CommonConstant.VERSION);
 		parameters.put("AccessKeyId", CommonConstant.ACCESS_KEY_ID);
@@ -122,34 +96,25 @@ public class AppListDao extends CommonDao {
 		parameters.put("SignatureMethod", CommonConstant.SIGNATURE_METHOD);
 		parameters.put("SignatureVersion", CommonConstant.SIGNATURE_VERSION);
 		parameters.put("SignatureNonce", UUID.randomUUID().toString());
-		
 		parameters.put("Signature", getAliyunSign(parameters));
-		
-		AppLogger.e("== 77777777");
-		
 		AppListBean bean = null;
 		try {
 			bean = daoInterface.getAppList(parameters);
 			if (null != bean) {
 				display(bean);
-				AppLogger.e("== aaaaaaaaaaa");
-				
+
 			}
 		} catch (Exception e) {
 			AppLogger.e("== eeeee " + e.toString());
 		}
-
-		
-		AppLogger.e("== 8888888888");
-
 		return bean;
 	}
-	
 
 	public AppListBean getAppList(int start, int docNum) {
-		
-		if (0 > start || docNum > 50){
-			AppLogger.e("== failed to getAppList. start " + start + " docNum " + docNum);
+
+		if (0 > start || docNum > 50) {
+			AppLogger.e("== failed to getAppList. start " + start + " docNum "
+					+ docNum);
 			return null;
 		}
 
@@ -167,9 +132,10 @@ public class AppListDao extends CommonDao {
 						return o1.compareTo(o2);
 					}
 				});
-		
-		String haQuery = "config=format:json,start:" + start + ",hit:" + docNum + "&&query=platform:'all'";
-		
+
+		String haQuery = "config=format:json,start:" + start + ",hit:" + docNum
+				+ "&&query=platform:'all'";
+
 		parameters.put("query", haQuery);
 		parameters.put("index_name", CommonConstant.INDEX_NAME);
 		parameters.put("Version", CommonConstant.VERSION);
@@ -178,9 +144,9 @@ public class AppListDao extends CommonDao {
 		parameters.put("SignatureMethod", CommonConstant.SIGNATURE_METHOD);
 		parameters.put("SignatureVersion", CommonConstant.SIGNATURE_VERSION);
 		parameters.put("SignatureNonce", UUID.randomUUID().toString());
-		
+
 		parameters.put("Signature", getAliyunSign(parameters));
-		
+
 		AppListBean bean = daoInterface.getAppList(parameters);
 		if (null != bean) {
 			display(bean);
@@ -188,56 +154,50 @@ public class AppListDao extends CommonDao {
 
 		return bean;
 	}
-	
+
 	public Observable<AppListBean> searchAppListRX(final String query,
 			final int begPos, final int docNum) {
-		return Observable.create(
-				new Observable.OnSubscribe<AppListBean>() {
-					@Override
-					public void call(
-							Subscriber<? super AppListBean> subscriber) {
-						AppLogger.e("searchAppListRX  call");
+		return Observable.create(new Observable.OnSubscribe<AppListBean>() {
+			@Override
+			public void call(Subscriber<? super AppListBean> subscriber) {
+				AppLogger.e("searchAppListRX  call");
 
-						try {
-							AppListBean bean = searchAppList(query, begPos, docNum);
-							
-							AppLogger.e("searchAppList after bean call");
-							if (null != bean
-									&& bean.status.equals("OK")) {
-								subscriber.onNext(bean);
-							}
-						} catch (Exception e) {
-							AppLogger.e("searchAppList Exception e:" + e.toString());
-							subscriber.onError(e);
-						}
+				try {
+					AppListBean bean = searchAppList(query, begPos, docNum);
 
-						subscriber.onCompleted();
-						return;
+					AppLogger.e("searchAppList after bean call");
+					if (null != bean && bean.status.equals("OK")) {
+						subscriber.onNext(bean);
 					}
-				}).subscribeOn(Schedulers.newThread());
+				} catch (Exception e) {
+					AppLogger.e("searchAppList Exception e:" + e.toString());
+					subscriber.onError(e);
+				}
+
+				subscriber.onCompleted();
+				return;
+			}
+		}).subscribeOn(Schedulers.newThread());
 	}
-	
-	public Observable<AppListBean> getAppListRX(
-			final int begPos, final int docNum) {
-		return Observable.create(
-				new Observable.OnSubscribe<AppListBean>() {
-					@Override
-					public void call(
-							Subscriber<? super AppListBean> subscriber) {
 
-						try {
-							AppListBean bean = getAppList(begPos, docNum);
-							if (null != bean
-									&& bean.status.equals("OK")) {
-								subscriber.onNext(bean);
-							}
-						} catch (Exception e) {
-							subscriber.onError(e);
-						}
+	public Observable<AppListBean> getAppListRX(final int begPos,
+			final int docNum) {
+		return Observable.create(new Observable.OnSubscribe<AppListBean>() {
+			@Override
+			public void call(Subscriber<? super AppListBean> subscriber) {
 
-						subscriber.onCompleted();
-						return;
+				try {
+					AppListBean bean = getAppList(begPos, docNum);
+					if (null != bean && bean.status.equals("OK")) {
+						subscriber.onNext(bean);
 					}
-				}).subscribeOn(Schedulers.newThread());
+				} catch (Exception e) {
+					subscriber.onError(e);
+				}
+
+				subscriber.onCompleted();
+				return;
+			}
+		}).subscribeOn(Schedulers.newThread());
 	}
 }

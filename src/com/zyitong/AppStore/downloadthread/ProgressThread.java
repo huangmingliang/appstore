@@ -54,10 +54,11 @@ public class ProgressThread extends Thread {
 			Log.d("ProgressThread", "ProgressThread is Runing");
 
 			File file = new File(fileuri);
-			if (!file.exists()) {
+			if (file.exists()) {
 				opt.deleteFile(fileuri);
 			}
-
+			util.addCurrentDownloadJob(packagename, 0,
+					ItemData.APP_LOADING, fdData);
 			URL url = new URL(urlStr);
 			URLConnection conn = null;
 
@@ -113,12 +114,15 @@ public class ProgressThread extends Thread {
 					for (int i = 0; i < fds.length; i++) {
 						fds[i].setFinished(true);
 					}
-					util.addCurrentDownloadJob(packagename, progress,
-							ItemData.APP_NETWORKEX, fdData);
-					util.DowloadComplete(dldata);
-					finished = true;
-					dldata.setStatus(4);
-					dldata.setRun(false);
+					if(!finished){
+						util.addCurrentDownloadJob(packagename, progress,
+								ItemData.APP_NETWORKEX, fdData);
+						util.DowloadComplete(dldata);
+						finished = true;
+						dldata.setStatus(4);
+						dldata.setRun(false);
+					}
+					
 				}
 
 				if (dldata.isRun()) {
@@ -130,12 +134,15 @@ public class ProgressThread extends Thread {
 						for (int i = 0; i < fds.length; i++) {
 							fds[i].setFinished(true);
 						}
-						util.addCurrentDownloadJob(packagename, progress,
-								ItemData.APP_INSTALL, fdData);
-						util.DowloadComplete(dldata);
-						finished = true;
-						dldata.setStatus(4);
-						dldata.setRun(false);
+						if(!finished){
+							util.addCurrentDownloadJob(packagename, progress,
+									ItemData.APP_INSTALL, fdData);
+							util.DowloadComplete(dldata);
+							finished = true;
+							dldata.setStatus(4);
+							dldata.setRun(false);
+						}
+						
 					} else {
 						if (progress != 100) {
 							if (!finished) {

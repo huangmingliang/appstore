@@ -45,6 +45,14 @@ public class CurrentDownloadJobManager {
 					currentDownloadJob);
 		}
 	}
+	
+	public void updateDownloadJob(String packageName, int ratio,
+			int status, FileDownloadJob notic){
+		currentDownJobs.get(packageName).setRatio(ratio);
+		currentDownJobs.get(packageName).setFilestatus(status);
+		currentDownJobs.get(packageName).setData(notic);
+		
+	}
 
 	public void removeDownloadJob(String packagename) {
 
@@ -123,5 +131,12 @@ public class CurrentDownloadJobManager {
 
 	public void removeall() {
 		currentDownJobs.clear();
+	}
+	
+	public boolean isCurrJobExist(String packageName){
+		if(currentDownJobs.containsKey(packageName)){
+			return true;
+		}
+		return false;
 	}
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import android.app.ProgressDialog;
@@ -16,16 +15,18 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.InputMethodManager;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
-
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.R;
-import com.zyitong.AppStore.activity.BaseActivity.OnNetWorkConnectListener;
-import com.zyitong.AppStore.activity.BaseActivity.OnNetWorkDisConListener;
+
 import com.zyitong.AppStore.adapter.ListAdapter;
+
 import com.zyitong.AppStore.bean.AppListBean;
 import com.zyitong.AppStore.bean.ItemData;
 import com.zyitong.AppStore.dao.AppListDao;
@@ -35,7 +36,6 @@ import com.zyitong.AppStore.ui.AutoListView;
 import com.zyitong.AppStore.ui.AutoListView.OnLoadListener;
 import com.zyitong.AppStore.ui.AutoListView.OnSearchListener;
 import com.zyitong.AppStore.ui.SearchFrame;
-import com.zyitong.AppStore.ui.SearchFrame.OnEtSearchClickListener;
 import com.zyitong.AppStore.ui.SearchFrame.OnEtTextChangedListener;
 
 public class MainActivity extends BaseActivity implements OnSearchListener,
@@ -45,15 +45,18 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	private ListAdapter adapter;
 	private List<ItemData> itemList = new ArrayList<ItemData>();
 	private final int searchTime = 1000;
-	private final int TRIGGER_SERACH = 1;
+	private final int TRIGGER_SERACH = 3000;
+	private final int TRIGGER_GET = 2000;
+	private final int TRIGGER_UPDATE = 4000;
 	private final long SEARCH_TRIGGER_DELAY_IN_MS = 200;
 	private Timer timer;
 	private UtilFun util = null;
 	private Message msg = null;
 	private String install_failed;
-	private View emptyView;
+	private FrameLayout emptyView;
+	private ImageButton imageButton;
 	private SearchFrame searchFrame;
-	private EditText editText ;
+	private EditText editText;
 	private String searchString = new String();
 	private static int operate = 0;
 	private boolean emViewIsOnClick = false;
@@ -62,48 +65,79 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	private Handler handler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-			if (msg.obj != null) {
-				analyzeMsgInfo(msg);
-			}
-		}
-	};
+			AppLogger.e("==== edChangedHander: what " + msg.what);
+			if (msg.what == TRIGGER_UPDATE) {
+				handleButtonUpdate();
 
-	private Handler edChangedHander = new Handler(){
-		@Override
-		public void handleMessage(Message msg) {
-			 if (msg.what == TRIGGER_SERACH || msg.what == 3) {
-				 AppLogger.e("edittext changed query ==" + searchString);				
-					if(isSearch){
-						isSearch = false;
-						showProgressDialog();
-						if (null != adapter) {
-							adapter.clearData();
-							adapter.notifyDataSetChanged();
-						}
-						AppLogger.e("==== before searchString");
-						SearchAppList(searchString, 0, AutoListView.pageSize, true);
-						AppLogger.e("==== after searchString");
-					}		
-			 }
-		}
-	};
-	private final TimerTask updatalistviewtask = new TimerTask() {
-		public void run() {
-			for (int i = 0; i < itemList.size(); i++) {
-				String packagename = itemList.get(i).getAppInfoBean()
-						.getPackagename();
-				int[] updateinfo = setMsgInfo(i, packagename);
-				if (0 != updateinfo[3]) {
-					msg = handler.obtainMessage();
-					msg.obj = updateinfo;
-					msg.sendToTarget();
+			} else if (msg.what == TRIGGER_SERACH) {
+				if (isSearch) {
+					isSearch = false;
+					if (null != adapter) {
+						adapter.clearData();
+						adapter.notifyDataSetChanged();
+					}
+
+					showProgressDialog();
+					SearchAppList(searchString, 0, AutoListView.pageSize, true);
+				}
+			} else if (msg.what == TRIGGER_GET) {
+				if (isSearch) {
+					isSearch = false;
+
+					if (null != adapter) {
+						adapter.clearData();
+						adapter.notifyDataSetChanged();
+					}
+					getAppList(0, AutoListView.pageSize, true);
 				}
 			}
 		}
 	};
-	
+
+	private void handleButtonUpdate() {
+
+		for (int i = 0; i < itemList.size(); i++) {
+
+			String packagename = itemList.get(i).getAppInfoBean()
+					.getPackagename();
+
+			int[] updateinfo = setMsgInfo(i, packagename);
+			if(updateinfo[3] == 0){
+				continue;
+			}
+			int position = updateinfo[0];
+			int radio = updateinfo[1];
+			int status = updateinfo[2];
+		
+
+			if (status == ItemData.APP_FAIL) {
+				Toast.makeText(
+						MainActivity.this,
+						itemList.get(position).getAppInfoBean().getTitle()
+								+ install_failed, Toast.LENGTH_SHORT).show();
+				AppStoreApplication.getInstance()
+						.getCurrentDownloadJobManager()
+						.removeDownloadJob(packagename);
+			}
+			if (radio != -1) {
+				adapter.updateSingleRow(position, radio, status);
+			}
+		}
+
+		return;
+	}
+
+	private final TimerTask updatalistviewtask = new TimerTask() {
+		public void run() {
+			msg = handler.obtainMessage();
+			msg.what = TRIGGER_UPDATE;
+			msg.sendToTarget();
+
+		}
+	};
 
 	private int[] setMsgInfo(int position, String packagename) {
+
 		int[] messageInfo = new int[4];
 		messageInfo[3] = 0;
 		int radio = AppStoreApplication.getInstance()
@@ -142,27 +176,6 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		return messageInfo;
 	}
 
-	private void analyzeMsgInfo(Message msg) {
-		int updateinfo[] = (int[]) msg.obj;
-		int position = updateinfo[0];
-		int radio = updateinfo[1];
-		int status = updateinfo[2];
-		if (status == ItemData.APP_FAIL) {
-			String packagename;
-			packagename = itemList.get(position).getAppInfoBean()
-					.getPackagename();
-			Toast.makeText(
-					MainActivity.this,
-					itemList.get(position).getAppInfoBean().getTitle()
-							+ install_failed, Toast.LENGTH_SHORT).show();
-			AppStoreApplication.getInstance().getCurrentDownloadJobManager()
-					.removeDownloadJob(packagename);
-		}
-		if (radio != -1) {
-			adapter.updateSingleRow(position, radio, status);
-		}
-	}
-
 	public static void startActivity(Context c, Bundle bundle) {
 		Intent intent = new Intent(c, MainActivity.class);
 		intent.putExtras(bundle);
@@ -174,7 +187,6 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main);
-		AppLogger.e("MainActivity onCreate");
 		init();
 	}
 
@@ -210,9 +222,9 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 
 	@Override
 	protected void onDestroy() {
-		Log.e("MainActivity", "MainActivity onDestroy");
 		timer.cancel();
 		updatalistviewtask.cancel();
+		handler.removeCallbacksAndMessages(null);
 		super.onDestroy();
 	}
 
@@ -222,8 +234,9 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		timer.schedule(updatalistviewtask, 0, searchTime);
 		install_failed = getResources().getString(R.string.app_install_failed);
 		listView = (AutoListView) findViewById(R.id.listView);
-		emptyView = (View) findViewById(R.id.empty_view);
-		emptyView.setOnClickListener(new OnClickListener() {
+		emptyView = (FrameLayout) findViewById(R.id.empty_view);
+		imageButton = (ImageButton) emptyView.findViewById(R.id.empty_view1);
+		imageButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (!emViewIsOnClick) {
@@ -234,37 +247,40 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		});
 
 		searchFrame = (SearchFrame) findViewById(R.id.main_searchframe);
-		
-		editText = (EditText) searchFrame
-				.findViewById(R.id.edit_search);
-		searchFrame.setEtSearchListener(new OnEtSearchClickListener() {
-			@Override
-			public void onClick() {
 
-			}
-		});
-		
+		editText = (EditText) searchFrame.findViewById(R.id.edit_search);
+
 		searchFrame.setEtTextChangedListener(new OnEtTextChangedListener() {
-
 			@Override
 			public void chanaged() {
-				String query = editText.getText().toString().trim();
-				searchString = query;
-				operate = 1;
-				if(query.equals("")){
-					operate = 0;
-					edChangedHander.removeMessages(TRIGGER_SERACH);
-					edChangedHander.removeMessages(3);
-					edChangedHander.sendEmptyMessageDelayed(3, 1500);
-					InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);    
-					if (imm.isActive()) {
-						imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_NOT_ALWAYS);   
-					}
-				}else{
-					edChangedHander.removeMessages(TRIGGER_SERACH);
-					edChangedHander.sendEmptyMessageDelayed(TRIGGER_SERACH, SEARCH_TRIGGER_DELAY_IN_MS);	
-				}
 				
+				if (null != editText && null != editText.getText()) {
+					searchString = editText.getText().toString().trim();
+					searchString = searchString.replaceAll("[`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……& amp;*（）——+|{}【】‘；：”“’。，、？|-]", "");
+				}
+
+				operate = 1;
+				if (searchString.equals("")) {
+					operate = 0;
+					if (null != adapter) {
+						adapter.clearData();
+						adapter.notifyDataSetChanged();
+					}
+
+					handler.removeMessages(TRIGGER_SERACH);
+					handler.removeMessages(TRIGGER_GET);
+					handler.sendEmptyMessageDelayed(TRIGGER_GET, 1500);
+				} else {
+					if (null != adapter) {
+						adapter.clearData();
+						adapter.notifyDataSetChanged();
+					}
+					handler.removeMessages(TRIGGER_SERACH);
+					handler.removeMessages(TRIGGER_GET);
+					handler.sendEmptyMessageDelayed(TRIGGER_SERACH,
+							SEARCH_TRIGGER_DELAY_IN_MS);
+				}
+
 			}
 		});
 		InitList();
@@ -295,6 +311,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		listView.setOnRefreshListener(this);
 		listView.setOnLoadListener(this);
 	}
+
 	private void Active() {
 		adapter.clearData();
 		itemList.clear();
@@ -313,7 +330,6 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		itemList.addAll(itemDataList);
 		adapter.addData(itemList);
 		listView.setResultSize(itemDataList.size());
-		AppLogger.e("disPlayGetList itemList = " + itemList.size());
 		adapter.notifyDataSetChanged();
 		return;
 	}
@@ -322,15 +338,13 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		switch (category) {
 		case AutoListView.LOAD:
 			if (itemList.size() == 0) {
-				if(isSearch){
+				if (isSearch) {
 					isSearch = false;
-					showProgressDialog();
 					getAppList(0, AutoListView.pageSize, dlCencel);
 				}
 			} else {
-				if(isSearch){
+				if (isSearch) {
 					isSearch = false;
-					showProgressDialog();
 					int timer = itemList.size() / AutoListView.pageSize;
 					getAppList((timer) * AutoListView.pageSize,
 							AutoListView.pageSize, dlCencel);
@@ -345,11 +359,9 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	private void loadSearchDataByCategory(int category, boolean dialogcancel) {
 		switch (category) {
 		case AutoListView.LOAD:
-			//progressDialog.hide();
 			if (itemList.size() == 0) {
-				if(isSearch){
+				if (isSearch) {
 					isSearch = false;
-					showProgressDialog();
 					SearchAppList(searchString, 0, AutoListView.pageSize,
 							dialogcancel);
 				}
@@ -357,10 +369,10 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 				break;
 			} else if (itemList.size() >= AutoListView.pageSize) {
 				int timer = itemList.size() / AutoListView.pageSize;
-				if(isSearch){
+				if (isSearch) {
 					isSearch = false;
-					showProgressDialog();
-					SearchAppList(searchString, (timer) * AutoListView.pageSize,
+					SearchAppList(searchString,
+							(timer) * AutoListView.pageSize,
 							AutoListView.pageSize, dialogcancel);
 				}
 			}
@@ -374,48 +386,49 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		AppListDao.getInstance().getAppListRX(startPos, docNum)
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(new Subscriber<AppListBean>() {
+					AppListBean appListBean = null;
 					@Override
 					public void onNext(AppListBean bean) {
-						if (null != bean) {
+						appListBean = bean;
+					}
+
+					@Override
+					public void onCompleted() {
+						if (null != appListBean) {
 							List<ItemData> itemDataList = new ArrayList<ItemData>();
-							int resultnumber = Integer.valueOf(bean.result.num);
+							int resultnumber = Integer
+									.valueOf(appListBean.result.num);
 							for (int i = 0; i < resultnumber; i++) {
 								ItemData item = new ItemData();
-								item.setAppInfoBean(bean.result.items.get(i));
-								AppLogger.e("== getapplist from server:"
-										+ bean.result.items.get(i).getTitle());
-								AppLogger.e("== getapplist from server:"
-										+ bean.result.items.get(i)
-												.getPackagename());
+								item.setAppInfoBean(appListBean.result.items
+										.get(i));
 								itemDataList.add(item);
 								util.setAppState(item);
 							}
 							displayList(itemDataList);
 							emptyView.setVisibility(View.GONE);
 							if (dialogcancel) {
-								progressDialog.cancel();
-							    isSearch = true;
+								isSearch = true;
 							}
 						}
 					}
-					@Override
-					public void onCompleted() {
-						
-					}
+
 					@Override
 					public void onError(Throwable e) {
-						if (!AppStoreApplication.getInstance().isNetWorkConnected) {
-							Toast.makeText(MainActivity.this,
-									R.string.networkerr, searchTime).show();
-						} else
-							Toast.makeText(MainActivity.this,
-									R.string.loaderror, Toast.LENGTH_LONG)
-									.show();
+						if (dialogcancel) {
+							if (!AppStoreApplication.getInstance().isNetWorkConnected) {
+								Toast.makeText(MainActivity.this,
+										R.string.networkerr, searchTime).show();
+							} else {
+								Toast.makeText(MainActivity.this,
+										R.string.loaderror, Toast.LENGTH_LONG)
+										.show();
+							}
+						}
 						listView.onLoadComplete();
 						listView.setResultSize(AutoListView.pageSize + 1);
 						adapter.notifyDataSetChanged();
 						if (dialogcancel) {
-							progressDialog.cancel();
 							isSearch = true;
 						}
 						emViewIsOnClick = false;
@@ -426,24 +439,27 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 
 	private void SearchAppList(String query, int startPos, int docNum,
 			final boolean dialogcancel) {
-		AppLogger.e("SearchAppList  query = "+query+"  startPos = "+startPos +"docNum = "+docNum);
 
 		AppListDao.getInstance().searchAppListRX(query, startPos, docNum)
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(new Subscriber<AppListBean>() {
+					AppListBean appListBean = null;
+
 					@Override
 					public void onNext(AppListBean bean) {
-						if (null != bean) {
+						appListBean = bean;
+					}
+
+					@Override
+					public void onCompleted() {
+						if (null != appListBean) {
 							List<ItemData> itemDataList = new ArrayList<ItemData>();
-							int resultnumber = Integer.valueOf(bean.result.num);
+							int resultnumber = Integer
+									.valueOf(appListBean.result.num);
 							for (int i = 0; i < resultnumber; i++) {
 								ItemData item = new ItemData();
-								item.setAppInfoBean(bean.result.items.get(i));
-								AppLogger.e("== getapplist from server:"
-										+ bean.result.items.get(i).getTitle());
-								AppLogger.e("== getapplist from server:"
-										+ bean.result.items.get(i)
-												.getPackagename());
+								item.setAppInfoBean(appListBean.result.items
+										.get(i));
 								itemDataList.add(item);
 								util.setAppState(item);
 							}
@@ -452,13 +468,20 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 								progressDialog.cancel();
 								isSearch = true;
 							}
+						} else {
+							if (dialogcancel) {
+								progressDialog.cancel();
+								isSearch = true;
+							}
+							if (null != adapter) {
+								adapter.clearData();
+								adapter.notifyDataSetChanged();
+							}
+							loadGetDataByCategory(AutoListView.LOAD, true);
 						}
+
 					}
-					@Override
-					public void onCompleted() {
-						AppLogger.e("SearchAppList  onCompleted");
-						
-					}
+
 					@Override
 					public void onError(Throwable e) {
 						if (!AppStoreApplication.getInstance().isNetWorkConnected) {
@@ -485,9 +508,10 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	public void OnSearch() {
 		searchFrame.setVisibility(View.VISIBLE);
 		editText.requestFocus();
-		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);    
+		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		if (imm.isActive()) {
-			imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_NOT_ALWAYS);   
+			imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,
+					InputMethodManager.HIDE_NOT_ALWAYS);
 		}
 	}
 
@@ -500,21 +524,25 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		}
 	}
 
-	public void NetWorkDisConnect(){
+	public void NetWorkDisConnect() {
 		Toast.makeText(MainActivity.this, R.string.connectfail,
 				Toast.LENGTH_SHORT).show();
 
 		AppLogger.e("MainActivity NetWorkDisConnect");
 	}
-	public void NetWorkConnect(){
+
+
+	public void NetWorkConnect() {
+
 		AppLogger.e("MainActivity NetWorkConnect");
-		if(operate == 0){
-			if(itemList.size()== 0)
-	    		loadGetDataByCategory(AutoListView.LOAD,true);
-		}else{
-			if(itemList.size()== 0)
-				loadSearchDataByCategory(AutoListView.LOAD,true); 
+		if (operate == 0) {
+			if (itemList.size() == 0)
+				loadGetDataByCategory(AutoListView.LOAD, true);
+		} else {
+			if (itemList.size() == 0)
+				loadSearchDataByCategory(AutoListView.LOAD, true);
 		}
+
 	}
 
 
@@ -524,4 +552,5 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		//progressDialog.setCancelable(true);
 	}	
 }
+
 

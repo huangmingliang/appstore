@@ -42,17 +42,56 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:visibility="gone" />
-
-    <View
+    <FrameLayout
         android:id="@+id/empty_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:background="@drawable/empty_view_background"
-        android:onClick="true"
-        android:visibility="gone" />
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:visibility="gone" >
+         <ImageButton
+            android:id="@+id/empty_view1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/empty_view_background"/>
 
-    <LinearLayout
+         <AbsoluteLayout
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content" >
+             <View
+                 android:id="@+id/empty_view2"
+                 android:layout_width="80dp"
+                 android:layout_height="80dp"
+                 android:layout_x="145dp"
+                 android:layout_y="200dp"
+                 android:background="@drawable/empty_viewveb" />
+         </AbsoluteLayout>
+
+    </FrameLayout>
+
+   <!--  <RelativeLayout
+        android:id="@+id/empty_view"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:visibility="gone"
+        android:onClick="true">
+        
+        <View
+            android:id="@+id/empty_view1"
+            android:layout_width="140dp"
+            android:layout_height="40dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/empty_viewreload"/>
+
+        <View
+            android:id="@+id/empty_view2"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_above="@+id/empty_view1"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/empty_viewveb"/>
+         
+    </RelativeLayout> -->
+
+    <RelativeLayout
         android:id="@+id/linearLayout6"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -68,6 +107,6 @@
             android:paddingRight="13dip"
             android:scrollbars="none"
             android:scrollingCache="false" />
-    </LinearLayout>
+    </RelativeLayout>
 
 </LinearLayout>
