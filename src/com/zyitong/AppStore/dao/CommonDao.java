@@ -359,6 +359,7 @@ public class CommonDao {
 
 			return signature;
 		} catch (Exception e) {
+			AppLogger.e("getAliyunSign Exception");
 			return null;
 		}
 	}

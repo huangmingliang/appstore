@@ -43,13 +43,18 @@ public class UtilFun {
 
 	public void addCurrentDownloadJob(String packagename, int ratio,
 			int status, FileDownloadJob notic) {
-		CurrentDownloadJob currentDownloadJob = new CurrentDownloadJob();
-		currentDownloadJob.setPackageName(packagename);
-		currentDownloadJob.setRatio(ratio);
-		currentDownloadJob.setFilestatus(status);
-		currentDownloadJob.setData(notic);
-		AppStoreApplication.getInstance().getCurrentDownloadJobManager()
-				.addDownloadJob(currentDownloadJob);
+		if(AppStoreApplication.getInstance().getCurrentDownloadJobManager().isCurrJobExist(packagename)){
+			AppStoreApplication.getInstance().getCurrentDownloadJobManager().updateDownloadJob(packagename,ratio, status, notic);
+		}else{
+			CurrentDownloadJob currentDownloadJob = new CurrentDownloadJob();
+			currentDownloadJob.setPackageName(packagename);
+			currentDownloadJob.setRatio(ratio);
+			currentDownloadJob.setFilestatus(status);
+			currentDownloadJob.setData(notic);
+			AppStoreApplication.getInstance().getCurrentDownloadJobManager()
+					.addDownloadJob(currentDownloadJob);
+		}
+		
 	}
 
 	public void setAppReDownLoad(String filename) {

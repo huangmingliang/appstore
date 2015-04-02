@@ -11,19 +11,20 @@ import com.zyitong.AppStore.dao.CurrentDownloadJobManager;
 import com.zyitong.AppStore.dao.DownloadLink;
 import com.zyitong.AppStore.service.DownLoadService;
 import com.zyitong.AppStore.tools.AppLogger;
+import com.zyitong.AppStore.tools.CrashHandler;
 
 public class AppStoreApplication extends Application {
 	private static AppStoreApplication instance;
-	private static String WeiBoRoot = android.os.Environment
-			.getExternalStorageDirectory().getAbsolutePath() + "/AppStore/";
+	private static String vebRoot = null;
 	private DownloadLink mDownloadLink;
 	private static CurrentDownloadJobManager currentDownloadJobManager = null;
 	public boolean isNetWorkConnected = true;
-	public List<ItemData>itemData = new ArrayList<ItemData>();
+	public List<ItemData> itemData = new ArrayList<ItemData>();
+
 	public String getFilePath() {
 		String rootPath = "";
 		rootPath = "soft/";
-		rootPath = WeiBoRoot + rootPath;
+		rootPath = vebRoot + rootPath;
 		return rootPath;
 	}
 
@@ -35,20 +36,27 @@ public class AppStoreApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		AppLogger.e("==== AppStoreApplication onCreate ====");
+		if (null == vebRoot) {
+			vebRoot = android.os.Environment.getExternalStorageDirectory()
+					.getAbsolutePath() + "/AppStore/";
+		}
+		/*CrashHandler handler = CrashHandler.getInstance();
+        handler.init(getApplicationContext());*/
 		mDownloadLink = new DownloadLink();
-		if (null == currentDownloadJobManager){
+		if (null == currentDownloadJobManager) {
 			currentDownloadJobManager = new CurrentDownloadJobManager(this);
 		}
+		
 		instance = this;
 		startService();
 	}
-	
+
 	public DownloadLink getDownloadLink() {
-			return mDownloadLink;
+		return mDownloadLink;
 	}
 
 	public CurrentDownloadJobManager getCurrentDownloadJobManager() {
-			return currentDownloadJobManager;
+		return currentDownloadJobManager;
 	}
 
 	public String getFileName(String filename) {
@@ -69,10 +77,9 @@ public class AppStoreApplication extends Application {
 	}
 
 	public void clearCache() {
-		//stopService();
+		// stopService();
 		mDownloadLink.moveAll();
 		currentDownloadJobManager.removeall();
 	}
-	
 
 }

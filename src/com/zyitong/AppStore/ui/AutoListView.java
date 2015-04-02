@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.ImageView;
@@ -65,22 +66,26 @@ public class AutoListView extends ListView implements OnScrollListener {
 	private boolean loadEnable = true;
 	public boolean isLoadFull;
 	public static int pageSize = 8;
+	public Context context ;
 
 	private OnSearchListener onSearchListener;
 	private OnLoadListener onLoadListener;
 
 	public AutoListView(Context context) {
 		super(context);
+		this.context = context;
 		initView(context);
 	}
 
 	public AutoListView(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		this.context = context;
 		initView(context);
 	}
 
 	public AutoListView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
+		this.context = context;
 		initView(context);
 	}
 
@@ -156,7 +161,7 @@ public class AutoListView extends ListView implements OnScrollListener {
 		
 	}
 
-	public void onRefresh() {
+	public void OnSearch() {
 		if (onSearchListener != null) {
 			onSearchListener.OnSearch();
 		}
@@ -231,12 +236,12 @@ public class AutoListView extends ListView implements OnScrollListener {
 				} else if (state == RELEASE) {
 					state = REFRESHING;
 					refreshHeaderViewByState();
-					onRefresh();
+					OnSearch();
 				}
 				isRecorded = false;
 				break;
 			case MotionEvent.ACTION_MOVE:
-
+				AppLogger.e("---===Action_move");
 				whenMove(ev);
 				break;
 			}

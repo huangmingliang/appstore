@@ -66,13 +66,6 @@ public class DownloadLink {
 		}	
 	}
 
-	public void delNodeItem(int i) {
-		if (i > (data.size() - 1))
-			return;
-		data.remove(i);
-		setDelNum();
-	}
-
 	public void delNode(int id) {
 		for (int i = 0; i < data.size(); i++) {
 			if (data.get(i).getId() == id) {

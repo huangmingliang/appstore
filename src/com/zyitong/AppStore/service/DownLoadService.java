@@ -28,13 +28,11 @@ public class DownLoadService extends Service {
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void onStart(Intent intent, int startId) {
-		// TODO Auto-generated method stub
 		if (fileThread.isRuning() == false) {
 			Log.d("DownLoadNewService", "fileThread is Runing");
 			fileThread.setRuning(true);

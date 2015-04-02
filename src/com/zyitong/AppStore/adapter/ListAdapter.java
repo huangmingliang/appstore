@@ -35,6 +35,7 @@ public class ListAdapter extends BaseAdapter {
 	private LayoutInflater mInflater;
 	private UtilFun util = null;
 	private List<dLoadButtonTextofRadio> dlButtontextlist;
+
 	public ListAdapter(Context context, List<ItemData> itemList,
 			String className) {
 		this.mContext = context;
@@ -57,8 +58,11 @@ public class ListAdapter extends BaseAdapter {
 	private void init() {
 		util = new UtilFun(mContext);
 		mData = new ArrayList<Map<String, Object>>();
+		
 		dlButtontextlist = new ArrayList<ListAdapter.dLoadButtonTextofRadio>();
+		
 		for (int i = 0; i < itemList.size(); i++) {
+			
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("name", itemList.get(i).getAppInfoBean().getTitle());
 			map.put("star", Integer.valueOf(itemList.get(i).getAppInfoBean()
@@ -88,6 +92,7 @@ public class ListAdapter extends BaseAdapter {
 	public void clearData() {
 		itemList.clear();
 		mData.clear();
+		dlButtontextlist.clear();
 	}
 
 	@Override
@@ -129,7 +134,8 @@ public class ListAdapter extends BaseAdapter {
 		} else {
 			holder = (ViewHolder) convertView.getTag();
 		}
-		setView(holder, position, indexData);
+		if (null != mData)
+			setView(holder, position, indexData);
 		return convertView;
 	}
 
@@ -159,16 +165,18 @@ public class ListAdapter extends BaseAdapter {
 			@Override
 			public void onClick(final View v) {
 				System.out.println("click button = " + positionn);
+				AppLogger.e("click button = "
+						+ indexData.getAppInfoBean().title);
 				final Button dlbutton = (Button) v;
 
 				String filename = AppStoreApplication.getInstance()
 						.getFilePath()
 						+ AppStoreApplication.getInstance().getFileName(
 								indexData.getAppInfoBean().getUrl());
-				String packageName = indexData.getAppInfoBean().getPackagename();
-				if(packageName == null)
-					packageName = util.getPackageName(
-						filename, mContext);
+				String packageName = indexData.getAppInfoBean()
+						.getPackagename();
+				if (packageName == null)
+					packageName = util.getPackageName(filename, mContext);
 				if (AppStoreApplication.getInstance().isNetWorkConnected) {
 					if (indexData.getButtonFileflag() == ItemData.APP_INSTALL
 							|| indexData.getButtonFileflag() == ItemData.APP_FAIL
@@ -184,91 +192,108 @@ public class ListAdapter extends BaseAdapter {
 						}
 						if (!AppStoreApplication.getInstance()
 								.getDownloadLink().hasDownloadFree()) {
-							/*Toast.makeText(mContext, R.string.maxwarning,
-									Toast.LENGTH_LONG).show();*/
-							setdownloadButtonBackground(dlbutton, R.string.app_waitinstall,
+
+							setdownloadButtonBackground(dlbutton,
+									R.string.app_waitinstall,
 									R.drawable.loading_button);
 							AppStoreApplication.getInstance().getDownloadLink()
-							.addNode(data);
-							AppLogger.e("====+"+data.getFileuri());
-							AppLogger.e("====+"+data.getPackageName());
-							AppLogger.e("====+"+data.getName());
+									.addNode(data);
+							AppLogger.e("====+" + data.getFileuri());
+							AppLogger.e("====+" + data.getPackageName());
+							AppLogger.e("====+" + data.getName());
 							CurrentDownloadJob currentDownloadJob = new CurrentDownloadJob();
 							currentDownloadJob.setData(data);
 							currentDownloadJob.setFilestatus(ItemData.APP_WAIT);
 							currentDownloadJob.setPackageName(packageName);
 							currentDownloadJob.setRatio(0);
-							AppStoreApplication.getInstance().getCurrentDownloadJobManager().addDownloadJob(currentDownloadJob);	
+							AppStoreApplication.getInstance()
+									.getCurrentDownloadJobManager()
+									.addDownloadJob(currentDownloadJob);
 						}
-						AppLogger.e("====+"+data.getFileuri());
-						AppLogger.e("====+"+data.getPackageName());
-						AppLogger.e("====+"+data.getName());
+						AppLogger.e("====+" + data.getFileuri());
+						AppLogger.e("====+" + data.getPackageName());
+						AppLogger.e("====+" + data.getName());
 						itemList.get(positionn).setButtonFileflag(
 								ItemData.APP_LOADING);
+						AppLogger.e("==== + after");
+						AppLogger.e("==== ItemData.size = " + itemList.size());
 					} else if (indexData.getButtonFileflag() == ItemData.APP_LOADING) {
-						
-						
-							dlButtontextlist.get(positionn).setRadio(0);
-							util.setAppReDownLoad(indexData.getAppInfoBean()
-									.getPackagename());
-							FileDownloadJob data = util.DataChange(indexData);
-							AppStoreApplication.getInstance().getDownloadLink()
-							.delNode(data.getId());						
-					} else if(indexData.getButtonFileflag() == ItemData.APP_WAIT){
-						
-						FileDownloadJob data = util.DataChange(indexData);
-						AppStoreApplication.getInstance().getCurrentDownloadJobManager().setStatus(packageName, ItemData.APP_INSTALL);
+
 						dlButtontextlist.get(positionn).setRadio(0);
-						if(data != null){
-							AppStoreApplication.getInstance()
-							.getDownloadLink().delNode(data);
+						util.setAppReDownLoad(indexData.getAppInfoBean()
+								.getPackagename());
+						FileDownloadJob data = util.DataChange(indexData);
+						AppStoreApplication.getInstance().getDownloadLink()
+								.delNode(data.getId());
+					} else if (indexData.getButtonFileflag() == ItemData.APP_WAIT) {
+
+						FileDownloadJob data = util.DataChange(indexData);
+						AppStoreApplication.getInstance()
+								.getCurrentDownloadJobManager()
+								.setStatus(packageName, ItemData.APP_INSTALL);
+						dlButtontextlist.get(positionn).setRadio(0);
+						if (data != null) {
+							AppStoreApplication.getInstance().getDownloadLink()
+									.delNode(data);
 						}
 						setdownloadButtonBackground(dlbutton,
 								R.string.app_install, R.drawable.load_button);
-					} 
-				} else{
-					if(indexData.getButtonFileflag() != ItemData.APP_OPEN){
+					}
+				} else {
+					if (indexData.getButtonFileflag() != ItemData.APP_OPEN) {
 						Toast.makeText(mContext, R.string.connectfail,
 								Toast.LENGTH_SHORT).show();
-					}		
+					}
 				}
 				if (indexData.getButtonFileflag() == ItemData.APP_OPEN) {
-					
+
 					if (util.checkApkExist(mContext, packageName)) {
-						
+
 						AppLogger.e("open packagename = " + packageName);
-						
+
 						String args = util.openApp(packageName, mContext);
-						AppLogger.i("packagename = " + "open after"+args);
+						AppLogger.i("packagename = " + "open after" + args);
 					}
-			
-			} 
+
+				}
 			}
-			
+
 		});
 	}
 
 	public void updateSingleRow(int position, int radio, int status) {
 
-		/*if (dlButtontextlist.get(position).getRadio() < radio
-				|| dlButtontextlist.get(position).getRadio() == radio) {
-			dlButtontextlist.get(position).setRadio(radio);
-		}*/
-		dlButtontextlist.get(position).setRadio(radio);
-
-		if (status == ItemData.APP_FAIL
-				||status == ItemData.APP_REDOWNLOAD
-				||status == ItemData.APP_OPEN
-				||status == ItemData.APP_NETWORKEX) {
-			
-			dlButtontextlist.get(position).setRadio(0);
+		if (null == itemList || null == dlButtontextlist) {
+			AppLogger.e("itemList == null");
+			return;
 		}
-		itemList.get(position).setButtonFileflag(status);
-		notifyDataSetChanged();
-	}
-	
 
-	public final class ViewHolder {
+		ItemData item = itemList.get(position);
+		if (null == item) {
+			return;
+		}
+
+		dLoadButtonTextofRadio button = dlButtontextlist.get(position);
+		if (null == button) {
+			return;
+		}
+
+		if (status == ItemData.APP_FAIL 
+				|| status == ItemData.APP_REDOWNLOAD
+				|| status == ItemData.APP_OPEN
+				|| status == ItemData.APP_NETWORKEX) {
+			radio = 0;
+		}
+
+		item.setButtonFileflag(status);
+		button.setRadio(radio);
+
+		notifyDataSetChanged();
+
+		return;
+	}
+
+	private final class ViewHolder {
 		public ImageView iconView;
 		public TextView name;
 		public View imageView1;
@@ -279,7 +304,6 @@ public class ListAdapter extends BaseAdapter {
 		public TextView textFileSizeView;
 		public Button imageDownloadView;
 		public String uri;
-
 	}
 
 	private void setStar(ViewHolder holder, int star) {
@@ -374,7 +398,7 @@ public class ListAdapter extends BaseAdapter {
 			setdownloadButtonBackground(holder.imageDownloadView,
 					R.string.app_waitinstall, R.drawable.loading_button);
 			break;
-	
+
 		default:
 			break;
 		}
