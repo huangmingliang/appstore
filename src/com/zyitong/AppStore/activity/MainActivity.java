@@ -58,7 +58,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	private SearchFrame searchFrame;
 	private EditText editText;
 	private String searchString = new String();
-	private static int operate = 0;
+	private int operate = 0;
 	private boolean emViewIsOnClick = false;
 	private boolean isSearch = true;
 	ProgressDialog progressDialog = null;
