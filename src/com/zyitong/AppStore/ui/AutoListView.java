@@ -41,7 +41,7 @@ public class AutoListView extends ListView implements OnScrollListener {
 	private View header;
 	private View footer;
 	private TextView tip;
-	private SlideShowView headerViewPager;
+	//private SlideShowView headerViewPager;
 	//private TextView lastUpdate;
 	private ImageView arrow;
 	//private ProgressBar refreshing;
@@ -148,7 +148,7 @@ public class AutoListView extends ListView implements OnScrollListener {
 		//searchFrame = (SearchFrame) header.findViewById(R.id.searchframe);
 		arrow = (ImageView) header.findViewById(R.id.arrow);
 		tip = (TextView) header.findViewById(R.id.tip);
-		headerViewPager = (SlideShowView) header.findViewById(R.id.header_viewpager);
+		//headerViewPager = (SlideShowView) header.findViewById(R.id.header_viewpager);
 		//lastUpdate = (TextView) header.findViewById(R.id.lastUpdate);
 		//refreshing = (ProgressBar) header.findViewById(R.id.refreshing);
 

@@ -233,11 +233,12 @@ public class UtilFun {
 			itemData.setButtonFileflag(ItemData.APP_INSTALL);
 		}
 		else{
-			if(itemData.getAppInfoBean().version_num>getAppGrade(context, packagename)){
+			/*if(itemData.getAppInfoBean().version_num>getAppGrade(context, packagename)){
 				itemData.setButtonFileflag(ItemData.APP_UPDATE);
 			}else{
 				itemData.setButtonFileflag(ItemData.APP_OPEN);
-			}
+			}*/
+			itemData.setButtonFileflag(ItemData.APP_OPEN);
 		}
 	}
 	public void setResumeAppState(ItemData itemData) {

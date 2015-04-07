@@ -39,10 +39,10 @@
             android:layout_toLeftOf="@id/layout"
             android:contentDescription="@string/d"
             android:src="@drawable/pull_to_refresh_arrow" />
-        <com.zyitong.AppStore.ui.SlideShowView
+       <!--  <com.zyitong.AppStore.ui.SlideShowView
             android:id="@+id/header_viewpager"
             android:layout_width="fill_parent"
-            android:layout_height="180dp"/>   
+            android:layout_height="180dp"/>    -->
     </RelativeLayout>
 
   

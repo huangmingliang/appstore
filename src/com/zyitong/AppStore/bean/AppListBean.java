@@ -1,5 +1,6 @@
 package com.zyitong.AppStore.bean;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
@@ -28,7 +29,7 @@ public class AppListBean {
 		public String viewtotal;
 
 		@SerializedName("items")
-		public List<AppVerboseBean> items;
+		public ArrayList<AppVerboseBean> items;
 	}
 	
 	public class ErrorClass{
