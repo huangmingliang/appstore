@@ -128,6 +128,21 @@ public class UtilFun {
 			return null;
 
 	}
+	
+	private int getAppGrade(Context context, String packageName){
+		PackageInfo info;
+		int versionCode = -1;
+		try {
+			info = context.getPackageManager().getPackageInfo(packageName, 0);
+		    versionCode = info.versionCode;
+			
+		} catch (NameNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return versionCode;
+		}
+		return versionCode;
+	}
 
 	public boolean checkApkExist(Context context, String packageName) {
 		if (packageName == null || "".equals(packageName))
@@ -214,10 +229,16 @@ public class UtilFun {
 	public void setAppState(ItemData itemData) {
 		String packagename = itemData.getAppInfoBean().getPackagename();
 
-		if (!checkApkExist(context, packagename))
+		if (!checkApkExist(context, packagename)){
 			itemData.setButtonFileflag(ItemData.APP_INSTALL);
-		else
-			itemData.setButtonFileflag(ItemData.APP_OPEN);
+		}
+		else{
+			if(itemData.getAppInfoBean().version_num>getAppGrade(context, packagename)){
+				itemData.setButtonFileflag(ItemData.APP_UPDATE);
+			}else{
+				itemData.setButtonFileflag(ItemData.APP_OPEN);
+			}
+		}
 	}
 	public void setResumeAppState(ItemData itemData) {
 		String packagename = itemData.getAppInfoBean().getPackagename();
@@ -228,6 +249,36 @@ public class UtilFun {
 
 	public String install(String apkAbsolutePath) {
 		String[] args = { "pm", "install", "-rf", apkAbsolutePath };
+		String result = "";
+		ProcessBuilder processBuilder = new ProcessBuilder(args);
+		Process process = null;
+		InputStream errIs = null;
+		InputStream inIs = null;
+
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			int read = -1;
+			process = processBuilder.start();
+			errIs = process.getErrorStream();
+			while ((read = errIs.read()) != -1) {
+				baos.write(read);
+			}
+
+			inIs = process.getInputStream();
+			while ((read = inIs.read()) != -1) {
+				baos.write(read);
+			}
+			byte[] data = baos.toByteArray();
+			result = new String(data);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return result;
+
+	}
+	public String upgrade(String apkAbsolutePath) {
+		String[] args = { "pm", "install", "-r", apkAbsolutePath };
 		String result = "";
 		ProcessBuilder processBuilder = new ProcessBuilder(args);
 		Process process = null;

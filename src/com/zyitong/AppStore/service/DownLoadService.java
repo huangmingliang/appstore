@@ -3,12 +3,20 @@ package com.zyitong.AppStore.service;
 import java.util.Timer;
 import java.util.TimerTask;
 import com.zyitong.AppStore.AppStoreApplication;
+import com.zyitong.AppStore.R;
+
 import com.zyitong.AppStore.downloadthread.FileDownLoadMonitorThread;
 import com.zyitong.AppStore.tools.AppLogger;
 
 import android.app.Service;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.IBinder;
+import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class DownLoadService extends Service {
@@ -24,6 +32,7 @@ public class DownLoadService extends Service {
 		Log.d("DownLoadNewService", "DownLoadNewService START");
 		fileThread = new FileDownLoadMonitorThread(this);
 		init();
+	
 	}
 
 	@Override
@@ -64,5 +73,6 @@ public class DownLoadService extends Service {
 		timer = new Timer(true);
 		timer.schedule(updateDownloadListTask, DELAY_TIME, PERIOD_TIME);
 	}
-
+	
+	
 }

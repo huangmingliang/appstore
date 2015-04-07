@@ -216,13 +216,13 @@ public class ProgressThread extends Thread {
 				con.setConnectTimeout(REQUEST_TIMEROUT);
 				con.setAllowUserInteraction(true);
 
-				con.setRequestProperty("Range", "bytes=" + startPosition + "-"
+				con.setRequestProperty("RANGE", "bytes=" + startPosition + "-"
 						+ endPosition);
 
 				fos = new RandomAccessFile(file, "rw");
 				fos.seek(startPosition);
 				bis = new BufferedInputStream(con.getInputStream());
-				while (curPosition < endPosition && !innerfinished) {
+				while (curPosition < endPosition && !innerfinished && !finished ) {
 
 					int len = bis.read(buf, 0, BUFFER_SIZE);
 					if (len == -1) {
@@ -239,6 +239,7 @@ public class ProgressThread extends Thread {
 				this.innerfinished = true;
 				bis.close();
 				fos.close();
+				
 			} catch (IOException e) {
 				e.printStackTrace();
 				util.addCurrentDownloadJob(packagename, progress,

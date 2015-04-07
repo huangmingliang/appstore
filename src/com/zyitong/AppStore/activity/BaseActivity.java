@@ -54,6 +54,7 @@ public class BaseActivity extends Activity {
 				if (!mobNetInfo.isConnected() && !wifiNetInfo.isConnected()) {
 					AppStoreApplication.getInstance().isNetWorkConnected = false;
 					NetWorkDisConnect();
+					AppLogger.e("////networkdisconnected!");
 				} else if( wifiNetInfo.isConnected()) {
 					netWorkConnectHandler.removeMessages(2);
 					netWorkConnectHandler.sendEmptyMessageDelayed(2, 500);

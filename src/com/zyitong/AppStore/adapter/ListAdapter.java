@@ -178,14 +178,17 @@ public class ListAdapter extends BaseAdapter {
 					if (indexData.getButtonFileflag() == ItemData.APP_INSTALL
 							|| indexData.getButtonFileflag() == ItemData.APP_FAIL
 							|| indexData.getButtonFileflag() == ItemData.APP_REDOWNLOAD
-							|| indexData.getButtonFileflag() == ItemData.APP_NETWORKEX) {
-						setdownloadButtonBackground(dlbutton, "0%",
-								R.drawable.loading_button);
-
+							|| indexData.getButtonFileflag() == ItemData.APP_NETWORKEX
+							|| indexData.getButtonFileflag() == ItemData.APP_UPDATE) {
+						
+						
 						FileDownloadJob data = util.DataChange(indexData);
 						if (data != null) {
+							setdownloadButtonBackground(dlbutton, "0%",
+									R.drawable.loading_button);
 							AppStoreApplication.getInstance().getDownloadLink()
 									.addNode(data);
+							
 						}
 						if (!AppStoreApplication.getInstance()
 								.getDownloadLink().hasDownloadFree()) {
@@ -206,6 +209,7 @@ public class ListAdapter extends BaseAdapter {
 						}
 						itemList.get(positionn).setButtonFileflag(
 								ItemData.APP_LOADING);
+						
 					} else if (indexData.getButtonFileflag() == ItemData.APP_LOADING) {
 
 						dlButtontextlist.get(positionn).setRadio(0);
@@ -383,7 +387,10 @@ public class ListAdapter extends BaseAdapter {
 			setdownloadButtonBackground(holder.imageDownloadView,
 					R.string.app_waitinstall, R.drawable.loading_button);
 			break;
-
+		case ItemData.APP_UPDATE:
+			setdownloadButtonBackground(holder.imageDownloadView,
+					R.string.app_update, R.drawable.load_button);
+			break;
 		default:
 			break;
 		}

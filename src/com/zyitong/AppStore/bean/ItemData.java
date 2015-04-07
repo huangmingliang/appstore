@@ -1,6 +1,7 @@
 package com.zyitong.AppStore.bean;
 
 public class ItemData {
+	public static final int APP_UPDATE =1;
 	public static final int APP_OPEN = 2;
 	public static final int APP_LOADING = 3;
 	public static final int APP_FAIL = 4;

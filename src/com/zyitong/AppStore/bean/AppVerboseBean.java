@@ -44,6 +44,9 @@ public class AppVerboseBean {
 	
 	@SerializedName("packagename")
 	public String packagename;
+	
+	@SerializedName("version_num")
+	public int version_num;
 
 	public String getId() {
 		return id;

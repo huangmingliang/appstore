@@ -59,7 +59,7 @@
              <View
                  android:id="@+id/empty_view2"
                  android:layout_width="80dp"
-                 android:layout_height="80dp"
+                 android:layout_height="60dp"
                  android:layout_x="145dp"
                  android:layout_y="200dp"
                  android:background="@drawable/empty_viewveb" />
