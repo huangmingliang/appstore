@@ -4,7 +4,7 @@ public class AppLogger {
 	protected static final String TAG = "VEBSOFT";
 
 	public static final boolean DEBUG = true;
-	public static final int DEBUG_LEVEL = 0; // 0 verbose 1 debug 2 info 3
+	public static final int DEBUG_LEVEL = 2; // 0 verbose 1 debug 2 info 3
 												// warnning 4 error
 
 	private AppLogger() {

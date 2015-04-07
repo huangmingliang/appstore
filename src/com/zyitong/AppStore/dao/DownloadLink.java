@@ -8,6 +8,8 @@ import com.zyitong.AppStore.downloadthread.FileDownLoadMonitorThread;
 
 public class DownloadLink {
 	List<FileDownloadJob> data = new ArrayList<FileDownloadJob>();
+	
+	
 
 	private int downloadNum = 0;
 

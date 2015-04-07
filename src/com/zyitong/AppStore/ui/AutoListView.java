@@ -1,6 +1,7 @@
 package com.zyitong.AppStore.ui;
 
 import android.content.Context;
+import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -40,6 +41,7 @@ public class AutoListView extends ListView implements OnScrollListener {
 	private View header;
 	private View footer;
 	private TextView tip;
+	//private SlideShowView headerViewPager;
 	//private TextView lastUpdate;
 	private ImageView arrow;
 	//private ProgressBar refreshing;
@@ -138,7 +140,6 @@ public class AutoListView extends ListView implements OnScrollListener {
 		inflater = LayoutInflater.from(context);
 		footer = inflater.inflate(R.layout.listview_footer, null);
 		loadFull = (TextView) footer.findViewById(R.id.loadFull);
-		
 		noData = (TextView) footer.findViewById(R.id.noData);
 		more = (TextView) footer.findViewById(R.id.more);
 		loading = (ProgressBar) footer.findViewById(R.id.loading);
@@ -147,6 +148,7 @@ public class AutoListView extends ListView implements OnScrollListener {
 		//searchFrame = (SearchFrame) header.findViewById(R.id.searchframe);
 		arrow = (ImageView) header.findViewById(R.id.arrow);
 		tip = (TextView) header.findViewById(R.id.tip);
+		//headerViewPager = (SlideShowView) header.findViewById(R.id.header_viewpager);
 		//lastUpdate = (TextView) header.findViewById(R.id.lastUpdate);
 		//refreshing = (ProgressBar) header.findViewById(R.id.refreshing);
 
@@ -172,7 +174,8 @@ public class AutoListView extends ListView implements OnScrollListener {
 			onLoadListener.onLoad();
 		}
 	}
-
+	
+	
 	public void onRefreshComplete(String updateTime) {
 		//lastUpdate.setText(this.getContext().getString(R.string.lastUpdateTime,UtilFun.getCurrentTime()));
 		state = NONE;

@@ -11,7 +11,6 @@ import com.zyitong.AppStore.dao.CurrentDownloadJobManager;
 import com.zyitong.AppStore.dao.DownloadLink;
 import com.zyitong.AppStore.service.DownLoadService;
 import com.zyitong.AppStore.tools.AppLogger;
-import com.zyitong.AppStore.tools.CrashHandler;
 
 public class AppStoreApplication extends Application {
 	private static AppStoreApplication instance;

@@ -253,6 +253,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		searchFrame.setEtTextChangedListener(new OnEtTextChangedListener() {
 			@Override
 			public void chanaged() {
+				AppLogger.e("SearchFrame afterTextChanged");
 				
 				if (null != editText && null != editText.getText()) {
 					searchString = editText.getText().toString().trim();

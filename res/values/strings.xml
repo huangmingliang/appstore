@@ -22,6 +22,7 @@
     <string name="app_reinstall">继续安装</string>
     <string name="app_open">打开</string>
     <string name="app_waitinstall">等待安装</string>
+    <string name="app_update">升级</string>
     
     <string name="app_install_failed">安装失败</string>
     <string name="press_again_exit">再按一次退出</string>
