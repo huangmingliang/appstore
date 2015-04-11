@@ -37,7 +37,10 @@ public class WelcomeActivity extends Activity {
 		setContentView(R.layout.welcome_activity);
 		ImageView mImageView = (ImageView) findViewById(R.id.animation_iv);
 		mImageView.setImageBitmap(readBitMap(this, R.drawable.start_screen));
+		utilFun = new UtilFun(this);
 		init();
+		
+		
 	}
 	
 	private Handler handler = new Handler(){
@@ -60,7 +63,7 @@ public class WelcomeActivity extends Activity {
 	}
 
 	private void init() {
-		utilFun = new UtilFun(this);
+		
 		utilFun.makeAppStoreDir();
 
 		getAppList(0, 8);

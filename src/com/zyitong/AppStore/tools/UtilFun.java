@@ -129,7 +129,7 @@ public class UtilFun {
 
 	}
 	
-	private int getAppGrade(Context context, String packageName){
+	public int getAppGrade(Context context, String packageName){
 		PackageInfo info;
 		int versionCode = -1;
 		try {
@@ -137,7 +137,6 @@ public class UtilFun {
 		    versionCode = info.versionCode;
 			
 		} catch (NameNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return versionCode;
 		}
@@ -231,15 +230,19 @@ public class UtilFun {
 
 		if (!checkApkExist(context, packagename)){
 			itemData.setButtonFileflag(ItemData.APP_INSTALL);
+			return ;
 		}
-		else{
-			/*if(itemData.getAppInfoBean().version_num>getAppGrade(context, packagename)){
-				itemData.setButtonFileflag(ItemData.APP_UPDATE);
-			}else{
-				itemData.setButtonFileflag(ItemData.APP_OPEN);
-			}*/
+		
+		int appGrade = getAppGrade(context, packagename);
+		
+		if(itemData.getAppInfoBean().getVersion_num()>appGrade){
+			itemData.setButtonFileflag(ItemData.APP_UPDATE);
+			return ;
+		}else{
 			itemData.setButtonFileflag(ItemData.APP_OPEN);
+			return ;
 		}
+					
 	}
 	public void setResumeAppState(ItemData itemData) {
 		String packagename = itemData.getAppInfoBean().getPackagename();
@@ -278,36 +281,7 @@ public class UtilFun {
 		return result;
 
 	}
-	public String upgrade(String apkAbsolutePath) {
-		String[] args = { "pm", "install", "-r", apkAbsolutePath };
-		String result = "";
-		ProcessBuilder processBuilder = new ProcessBuilder(args);
-		Process process = null;
-		InputStream errIs = null;
-		InputStream inIs = null;
 
-		try {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			int read = -1;
-			process = processBuilder.start();
-			errIs = process.getErrorStream();
-			while ((read = errIs.read()) != -1) {
-				baos.write(read);
-			}
-
-			inIs = process.getInputStream();
-			while ((read = inIs.read()) != -1) {
-				baos.write(read);
-			}
-			byte[] data = baos.toByteArray();
-			result = new String(data);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return result;
-
-	}
 
 	public String getFileName(String filename) {
 		int index = filename.lastIndexOf("/");

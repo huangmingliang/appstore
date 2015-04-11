@@ -14,96 +14,133 @@ public class DownloadLink {
 	private int downloadNum = 0;
 
 	public int getSize() {
-		return data.size();
+		synchronized(this){
+			return data.size();
+		}
+		
 	}
 	
 	public boolean hasDownloadFree() {
-		if(data.size()>FileDownLoadMonitorThread.MAXDOWN)
-			return false;
-		else
-			return true;
+		synchronized (this) {
+			if(data.size()>FileDownLoadMonitorThread.MAXDOWN)
+				return false;
+			else
+				return true;
+		}
+		
 	}
 
 	public int getDownloadNum() {
-		return downloadNum;
+		synchronized (this) {
+			return downloadNum;
+		}
+		
 	}
 
 	private void setAddNum() {
-		this.downloadNum += 1;
+		synchronized (this) {
+			this.downloadNum += 1;
+		}
+		
 	}
 
 	private void setDelNum() {
-		if (downloadNum > 0)
-			downloadNum--;
+		synchronized (this) {
+			if (downloadNum > 0)
+				downloadNum--;
+		}
+		
 	}
 
 	public FileDownloadJob getNoticData(int id) {
-		for(int i = 0;i<data.size();i++){
-			if(data.get(i).getId()==id)
-				return data.get(i);
+		synchronized (this) {
+			for(int i = 0;i<data.size();i++){
+				if(data.get(i).getId()==id)
+					return data.get(i);
+			}
+			return null;
 		}
-		return null;
+		
 	}
 
 	public FileDownloadJob getNode() {
-
-		for (int i = 0; i < getSize(); i++) {
-			if (data.get(i).getStatus()== 0) {
-				setAddNum();
-				return data.get(i);
+		synchronized (this) {
+			for (int i = 0; i < getSize(); i++) {
+				if (data.get(i).getStatus()== 0) {
+					setAddNum();
+					return data.get(i);
+				}
 			}
+			return null;
 		}
-		return null;
 	}
 
 	public void addNode(FileDownloadJob itemData) {
-		if(!data.contains(itemData)){
-			 data.add(itemData);
-		}	   
+		synchronized (this) {
+			if(!data.contains(itemData)){
+				 data.add(itemData);
+			}	   
+		}
+		
 	}
 
 	public void delNode(FileDownloadJob itemData) {
-		if(data.contains(itemData)){
-			data.remove(itemData);
-		}	
+		synchronized (this) {
+			if(data.contains(itemData)){
+				data.remove(itemData);
+			}	
+		}
+		
 	}
 
 	public void delNode(int id) {
-		for (int i = 0; i < data.size(); i++) {
-			if (data.get(i).getId() == id) {
-				data.remove(i);
-				setDelNum();
-				break;
+		synchronized (this) {
+			for (int i = 0; i < data.size(); i++) {
+				if (data.get(i).getId() == id) {
+					data.remove(i);
+					setDelNum();
+					break;
+				}
 			}
 		}
+		
 	}
 
 	public boolean findNode(int id) {
-		for (int i = 0; i < data.size(); i++) {
-			if (data.get(i).getId() == id) {
-				return true;
-			}
+        synchronized (this) {
+        	for (int i = 0; i < data.size(); i++) {
+    			if (data.get(i).getId() == id) {
+    				return true;
+    			}
+    		}
+    		return false;
 		}
-		return false;
+		
 	}
 
 	public boolean findNode(FileDownloadJob itemData) {
-		for (int i = 0; i < data.size(); i++) {
-			if (data.get(i).getId() == itemData
-					.getId()) {
-				return true;
-			}
+        synchronized (this) {
+        	for (int i = 0; i < data.size(); i++) {
+    			if (data.get(i).getId() == itemData
+    					.getId()) {
+    				return true;
+    			}
+    		}
+    		return false;
 		}
-		return false;
+		
 	}
 
 	public void intrrentDown() {
-		for (int i = 0; i < data.size(); i++) {
-			data.get(i).setRun(false);
-			if (data.get(i).getStatus() == 0) {
-				data.remove(i);
-			}
+        synchronized (this) {
+        	for (int i = 0; i < data.size(); i++) {
+    			data.get(i).setRun(false);
+    			if (data.get(i).getStatus() == 0) {
+    				data.remove(i);
+    			}
+    		}
 		}
+		
 	}
 
 	public void moveAll() {

@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -20,13 +19,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.R;
-
 import com.zyitong.AppStore.adapter.ListAdapter;
-
 import com.zyitong.AppStore.bean.AppListBean;
 import com.zyitong.AppStore.bean.ItemData;
 import com.zyitong.AppStore.dao.AppListDao;
@@ -109,12 +105,8 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 			int radio = updateinfo[1];
 			int status = updateinfo[2];
 		
-
 			if (status == ItemData.APP_FAIL) {
-				Toast.makeText(
-						MainActivity.this,
-						itemList.get(position).getAppInfoBean().getTitle()
-								+ install_failed, Toast.LENGTH_SHORT).show();
+				
 				AppStoreApplication.getInstance()
 						.getCurrentDownloadJobManager()
 						.removeDownloadJob(packagename);
@@ -145,6 +137,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		if (radio != -1) {
 			int status = AppStoreApplication.getInstance()
 					.getCurrentDownloadJobManager().getStatus(packagename);
+			
 			switch (status) {
 
 			case ItemData.APP_OPEN:
@@ -161,9 +154,29 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 				messageInfo[1] = radio;
 				messageInfo[2] = status;
 				messageInfo[3] = 1;
+				Toast.makeText(
+						MainActivity.this,
+						itemList.get(position).getAppInfoBean().getTitle()
+								+ install_failed, Toast.LENGTH_SHORT).show();
 				AppStoreApplication.getInstance()
 						.getCurrentDownloadJobManager()
 						.removeDownloadJob(packagename);
+				int appGrade1 = util.getAppGrade(this, packagename);
+				if(itemList.get(position).getAppInfoBean().getVersion_num() > appGrade1){
+					if(appGrade1 != -1)
+					   messageInfo[2] = ItemData.APP_UPDATE;
+				}
+				break;
+			case ItemData.APP_INSTALL:
+				messageInfo[0] = position;
+				messageInfo[1] = radio;
+				messageInfo[2] = status;
+				messageInfo[3] = 1;
+				int appGrade2 = util.getAppGrade(this, packagename);
+				if(itemList.get(position).getAppInfoBean().getVersion_num() > appGrade2){
+					if(appGrade2 != -1)
+					   messageInfo[2] = ItemData.APP_UPDATE;
+				}
 				break;
 			default:
 				messageInfo[0] = position;
@@ -256,8 +269,13 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 				AppLogger.e("SearchFrame afterTextChanged");
 				
 				if (null != editText && null != editText.getText()) {
-					searchString = editText.getText().toString().trim();
-					searchString = searchString.replaceAll("[`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……& amp;*（）——+|{}【】‘；：”“’。，、？|-]", "");
+					if(!searchString.equals(editText.getText().toString().trim())){
+						searchString = editText.getText().toString().trim();
+						searchString = searchString.replaceAll("[`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……& amp;*（）——+|{}【】‘；：”“’。，、？|-]", "");
+					}else{
+						return;
+					}
+					
 				}
 
 				operate = 1;

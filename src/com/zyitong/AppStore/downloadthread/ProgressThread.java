@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.http.conn.ConnectTimeoutException;
 
@@ -80,21 +81,24 @@ public class ProgressThread extends Thread {
 				}
 
 			} catch (ConnectTimeoutException e) {
+				stopDownload();
+				for (int i = 0; i < fds.length; i++) {
+					fds[i].setFinished(true);
+				}
 				util.addCurrentDownloadJob(packagename, progress,
 						ItemData.APP_NETWORKEX, fdData);
 				util.DowloadComplete(dldata);
-				dldata.setStatus(4);
-				dldata.setRun(false);
-				finished = true;
+				
 				AppLogger
 						.e("=============   ConnectTimeoutException     11111");
 			} catch (Exception e) {
+				stopDownload();
+				for (int i = 0; i < fds.length; i++) {
+					fds[i].setFinished(true);
+				}
 				util.addCurrentDownloadJob(packagename, progress,
 						ItemData.APP_NETWORKEX, fdData);
 				util.DowloadComplete(dldata);
-				dldata.setStatus(4);
-				dldata.setRun(false);
-				finished = true;
 				AppLogger.e("=============   Exception   22222");
 			}
 
@@ -115,12 +119,11 @@ public class ProgressThread extends Thread {
 						fds[i].setFinished(true);
 					}
 					if(!finished){
+						stopDownload();
 						util.addCurrentDownloadJob(packagename, progress,
 								ItemData.APP_NETWORKEX, fdData);
 						util.DowloadComplete(dldata);
-						finished = true;
-						dldata.setStatus(4);
-						dldata.setRun(false);
+						
 					}
 					
 				}
@@ -135,12 +138,11 @@ public class ProgressThread extends Thread {
 							fds[i].setFinished(true);
 						}
 						if(!finished){
+							stopDownload();
+							
 							util.addCurrentDownloadJob(packagename, progress,
 									ItemData.APP_INSTALL, fdData);
 							util.DowloadComplete(dldata);
-							finished = true;
-							dldata.setStatus(4);
-							dldata.setRun(false);
 						}
 						
 					} else {
@@ -151,7 +153,7 @@ public class ProgressThread extends Thread {
 							}
 						}
 						if (progress == 100) {
-
+							finished = true;
 							String result = util.install(fileuri);
 							result = result.replaceAll("\n", "");
 							if (result.endsWith("Success")) {
@@ -166,22 +168,23 @@ public class ProgressThread extends Thread {
 								util.addCurrentDownloadJob(packagename,
 										progress, ItemData.APP_FAIL, fdData);
 							}
-							finished = true;
 							util.DowloadComplete(dldata);
-							opt.deleteFile(fileuri);
 							AppLogger.e("ProgressThread install result = "
 									+ result);
+							opt.deleteFile(fileuri);
 						}
 					}
 
 				}
 			}
 		} catch (Exception e) {
+			stopDownload();
+			for (int i = 0; i < fds.length; i++) {
+				fds[i].setFinished(true);
+			}
 			util.addCurrentDownloadJob(packagename, progress,
 					ItemData.APP_NETWORKEX, fdData);
 			util.DowloadComplete(dldata);
-			dldata.setStatus(4);
-			dldata.setRun(false);
 			AppLogger.e("=============   Exception  33333");
 		}
 	}
@@ -240,15 +243,27 @@ public class ProgressThread extends Thread {
 				bis.close();
 				fos.close();
 				
-			} catch (IOException e) {
+			} catch(ConnectTimeoutException e){
 				e.printStackTrace();
+				stopDownload();
 				util.addCurrentDownloadJob(packagename, progress,
 						ItemData.APP_NETWORKEX, fdData);
 				util.DowloadComplete(dldata);
-				dldata.setStatus(4);
-				dldata.setRun(false);
-				finished = true;
+				AppLogger.e("=============   ConnectTimeoutException  55555");
+			} catch (IOException e) {
+				e.printStackTrace();
+				stopDownload();
+				util.addCurrentDownloadJob(packagename, progress,
+						ItemData.APP_NETWORKEX, fdData);
+				util.DowloadComplete(dldata);
 				AppLogger.e("=============   IOException  44444");
+			}catch (Exception e){
+				e.printStackTrace();
+				stopDownload();
+				util.addCurrentDownloadJob(packagename, progress,
+						ItemData.APP_NETWORKEX, fdData);
+				util.DowloadComplete(dldata);
+				AppLogger.e("=============   Exception  66666");
 			}
 		}
 
@@ -263,5 +278,11 @@ public class ProgressThread extends Thread {
 		public int getDownloadSize() {
 			return downloadSize;
 		}
+	}
+	
+	private void stopDownload(){
+		finished = true;
+		dldata.setStatus(4);
+		dldata.setRun(false);
 	}
 }

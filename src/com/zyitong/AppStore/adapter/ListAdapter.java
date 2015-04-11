@@ -111,7 +111,7 @@ public class ListAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public View getView(final int position, View convertView, ViewGroup parent) {
 		final ViewHolder holder;
 		final ItemData indexData = itemList.get(position);
 		if (convertView == null) {
@@ -131,8 +131,10 @@ public class ListAdapter extends BaseAdapter {
 			holder.imageView5 = (View) convertView.findViewById(R.id.starView5);
 
 			convertView.setTag(holder);
+			
 		} else {
 			holder = (ViewHolder) convertView.getTag();
+			
 		}
 		if (null != mData)
 			setView(holder, position, indexData);
@@ -143,7 +145,6 @@ public class ListAdapter extends BaseAdapter {
 			final ItemData indexData) {
 
 		final int positionn = position;
-
 		String filename = AppStoreApplication.getInstance().getFilePath()
 				+ AppStoreApplication.getInstance().getFileName(
 						indexData.getAppInfoBean().getUrl());
@@ -165,86 +166,109 @@ public class ListAdapter extends BaseAdapter {
 			@Override
 			public void onClick(final View v) {
 				final Button dlbutton = (Button) v;
-
-				String filename = AppStoreApplication.getInstance()
-						.getFilePath()
-						+ AppStoreApplication.getInstance().getFileName(
-								indexData.getAppInfoBean().getUrl());
-				String packageName = indexData.getAppInfoBean()
-						.getPackagename();
+				AppLogger.e("onClick Button = " +positionn);
+				
+				String filename = AppStoreApplication.getInstance().getFilePath()
+						+ AppStoreApplication.getInstance().getFileName(indexData.getAppInfoBean().getUrl());
+				String packageName = indexData.getAppInfoBean().getPackagename();
 				if (packageName == null)
 					packageName = util.getPackageName(filename, mContext);
-				if (AppStoreApplication.getInstance().isNetWorkConnected) {
-					if (indexData.getButtonFileflag() == ItemData.APP_INSTALL
-							|| indexData.getButtonFileflag() == ItemData.APP_FAIL
-							|| indexData.getButtonFileflag() == ItemData.APP_REDOWNLOAD
-							|| indexData.getButtonFileflag() == ItemData.APP_NETWORKEX
-							|| indexData.getButtonFileflag() == ItemData.APP_UPDATE) {
-						
-						
-						FileDownloadJob data = util.DataChange(indexData);
-						if (data != null) {
-							setdownloadButtonBackground(dlbutton, "0%",
-									R.drawable.loading_button);
-							AppStoreApplication.getInstance().getDownloadLink()
-									.addNode(data);
-							
-						}
-						if (!AppStoreApplication.getInstance()
-								.getDownloadLink().hasDownloadFree()) {
+				
+                if(!AppStoreApplication.getInstance().isNetWorkConnected) {
+                	if (indexData.getButtonFileflag() == ItemData.APP_OPEN) {
+                		
+     					if (util.checkApkExist(mContext, packageName)) {
+     						String args = util.openApp(packageName, mContext);
+     					}
+     					return ;
 
-							setdownloadButtonBackground(dlbutton,
-									R.string.app_waitinstall,
-									R.drawable.loading_button);
-							AppStoreApplication.getInstance().getDownloadLink()
-									.addNode(data);
-							CurrentDownloadJob currentDownloadJob = new CurrentDownloadJob();
-							currentDownloadJob.setData(data);
-							currentDownloadJob.setFilestatus(ItemData.APP_WAIT);
-							currentDownloadJob.setPackageName(packageName);
-							currentDownloadJob.setRatio(0);
-							AppStoreApplication.getInstance()
-									.getCurrentDownloadJobManager()
-									.addDownloadJob(currentDownloadJob);
-						}
-						itemList.get(positionn).setButtonFileflag(
+     				}
+                	Toast.makeText(mContext, R.string.connectfail,Toast.LENGTH_SHORT).show();
+                	return ;
+                }
+                AppLogger.e("onClick status ="+indexData.getButtonFileflag());
+				if (indexData.getButtonFileflag() == ItemData.APP_INSTALL
+					|| indexData.getButtonFileflag() == ItemData.APP_FAIL
+					|| indexData.getButtonFileflag() == ItemData.APP_REDOWNLOAD
+					|| indexData.getButtonFileflag() == ItemData.APP_NETWORKEX) {
+						
+					FileDownloadJob data = util.DataChange(indexData);
+					
+					if (data != null) {
+						
+						setdownloadButtonBackground(dlbutton, "0%",R.drawable.loading_button);
+						AppStoreApplication.getInstance().getDownloadLink().addNode(data);
+						
+					}
+					if (!AppStoreApplication.getInstance().getDownloadLink().hasDownloadFree()) {
+
+						setdownloadButtonBackground(dlbutton,R.string.app_waitinstall,R.drawable.loading_button);
+						AppStoreApplication.getInstance().getDownloadLink().addNode(data);
+						addCurrentDownLoad(data, ItemData.APP_WAIT, packageName);
+						
+					}
+					itemList.get(positionn).setButtonFileflag(
 								ItemData.APP_LOADING);
+					return ;
 						
-					} else if (indexData.getButtonFileflag() == ItemData.APP_LOADING) {
-
-						dlButtontextlist.get(positionn).setRadio(0);
-						util.setAppReDownLoad(indexData.getAppInfoBean()
-								.getPackagename());
-						FileDownloadJob data = util.DataChange(indexData);
-						AppStoreApplication.getInstance().getDownloadLink()
-								.delNode(data.getId());
-					} else if (indexData.getButtonFileflag() == ItemData.APP_WAIT) {
-
-						FileDownloadJob data = util.DataChange(indexData);
-						AppStoreApplication.getInstance()
-								.getCurrentDownloadJobManager()
-								.setStatus(packageName, ItemData.APP_INSTALL);
-						dlButtontextlist.get(positionn).setRadio(0);
-						if (data != null) {
-							AppStoreApplication.getInstance().getDownloadLink()
-									.delNode(data);
-						}
+				} else if (indexData.getButtonFileflag() == ItemData.APP_LOADING
+						|| indexData.getButtonFileflag() == ItemData.APP_UPDATING) {
+					if(!AppStoreApplication.getInstance().getCurrentDownloadJobManager().isCurrJobExist(packageName)){
 						setdownloadButtonBackground(dlbutton,
 								R.string.app_install, R.drawable.load_button);
-					}
-				} else {
-					if (indexData.getButtonFileflag() != ItemData.APP_OPEN) {
-						Toast.makeText(mContext, R.string.connectfail,
-								Toast.LENGTH_SHORT).show();
-					}
-				}
-				if (indexData.getButtonFileflag() == ItemData.APP_OPEN) {
-
-					if (util.checkApkExist(mContext, packageName)) {
-						String args = util.openApp(packageName, mContext);
+						return ;
 					}
 
-				}
+					dlButtontextlist.get(positionn).setRadio(0);
+					util.setAppReDownLoad(indexData.getAppInfoBean().getPackagename());
+					FileDownloadJob data = util.DataChange(indexData);
+					AppStoreApplication.getInstance().getDownloadLink()
+								.delNode(data.getId());
+					
+				} else if (indexData.getButtonFileflag() == ItemData.APP_WAIT) {
+					
+					setdownloadButtonBackground(dlbutton,R.string.app_install, R.drawable.load_button);
+					FileDownloadJob data = util.DataChange(indexData);
+					AppStoreApplication.getInstance().getCurrentDownloadJobManager().setStatus(packageName, ItemData.APP_INSTALL);
+					dlButtontextlist.get(positionn).setRadio(0);
+					if (data != null) {
+						AppStoreApplication.getInstance().getDownloadLink()
+								.delNode(data);
+					}
+					return ;
+						
+				} else if(indexData.getButtonFileflag() == ItemData.APP_UPDATE){
+					FileDownloadJob data = util.DataChange(indexData);
+					if (data != null) {
+						
+						setdownloadButtonBackground(dlbutton, "0%",R.drawable.loading_button);
+						AppStoreApplication.getInstance().getDownloadLink().addNode(data);
+							
+					}
+					if (!AppStoreApplication.getInstance().getDownloadLink().hasDownloadFree()) {
+						setdownloadButtonBackground(dlbutton,R.string.app_waitinstall,R.drawable.loading_button);	
+						addCurrentDownLoad(data,ItemData.APP_UPDATE_WAIT,packageName);
+						AppStoreApplication.getInstance().getDownloadLink().addNode(data);
+							
+					}
+					itemList.get(positionn).setButtonFileflag(ItemData.APP_UPDATING);
+					return ;
+						
+				} else if(indexData.getButtonFileflag() == ItemData.APP_UPDATE_WAIT){
+						
+					setdownloadButtonBackground(dlbutton,R.string.app_update, R.drawable.load_button);
+	                AppStoreApplication.getInstance().getCurrentDownloadJobManager().setStatus(packageName, ItemData.APP_UPDATE);
+	                return ;
+	                    
+				} else if (indexData.getButtonFileflag() == ItemData.APP_OPEN) {
+					
+ 					if (util.checkApkExist(mContext, packageName)) {
+ 						String args = util.openApp(packageName, mContext);
+ 					}
+ 					return ;
+ 				}
+				
+				
 			}
 
 		});
@@ -266,14 +290,28 @@ public class ListAdapter extends BaseAdapter {
 		if (null == button) {
 			return;
 		}
-
-		if (status == ItemData.APP_FAIL 
-				|| status == ItemData.APP_REDOWNLOAD
-				|| status == ItemData.APP_OPEN
-				|| status == ItemData.APP_NETWORKEX) {
+		switch (status) {
+		case ItemData.APP_FAIL:
 			radio = 0;
+			AppStoreApplication.getInstance().getCurrentDownloadJobManager().removeDownloadJob(itemList.get(position).getAppInfoBean().getPackagename());
+			break;
+		case ItemData.APP_REDOWNLOAD:
+			radio = 0;
+			break;
+		case ItemData.APP_OPEN:
+			radio = 0;
+			break;
+		case ItemData.APP_NETWORKEX:
+			radio = 0;
+			break;
+		case ItemData.APP_UPDATE:
+			AppStoreApplication.getInstance().getCurrentDownloadJobManager().removeDownloadJob(itemList.get(position).getAppInfoBean().getPackagename());
+			radio = 0;
+			break;
+		default:
+			break;
 		}
-
+		
 		item.setButtonFileflag(status);
 		button.setRadio(radio);
 
@@ -421,5 +459,16 @@ public class ListAdapter extends BaseAdapter {
 		dlbutton.setBackgroundResource(resource);
 
 	}
-
+	
+	private void addCurrentDownLoad(FileDownloadJob data , int status, String packageName){
+		CurrentDownloadJob currentDownloadJob = new CurrentDownloadJob();
+		currentDownloadJob.setData(data);
+		currentDownloadJob.setFilestatus(status);
+		currentDownloadJob.setPackageName(packageName);
+		currentDownloadJob.setRatio(0);
+		AppStoreApplication.getInstance()
+				.getCurrentDownloadJobManager()
+				.addDownloadJob(currentDownloadJob);
+	}
+	
 }

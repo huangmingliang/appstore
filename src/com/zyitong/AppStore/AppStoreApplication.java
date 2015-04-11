@@ -38,6 +38,7 @@ public class AppStoreApplication extends Application {
 		if (null == vebRoot) {
 			vebRoot = android.os.Environment.getExternalStorageDirectory()
 					.getAbsolutePath() + "/AppStore/";
+			/*vebRoot = "sdcard/AppStore/";*/
 		}
 		/*CrashHandler handler = CrashHandler.getInstance();
         handler.init(getApplicationContext());*/

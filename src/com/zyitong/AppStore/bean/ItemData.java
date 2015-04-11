@@ -9,6 +9,8 @@ public class ItemData {
 	public static final int APP_REDOWNLOAD = 6;
 	public static final int APP_INSTALL = 7;
 	public static final int APP_WAIT=8;
+	public static final int APP_UPDATE_WAIT = 9;
+	public static final int APP_UPDATING = 10;
 
 	private int buttonFileflag;
 	private AppVerboseBean appInfoBean;

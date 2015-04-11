@@ -37,7 +37,6 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="20dp"
             android:layout_toLeftOf="@id/layout"
-            android:contentDescription="@string/d"
             android:src="@drawable/pull_to_refresh_arrow" />
        <!--  <com.zyitong.AppStore.ui.SlideShowView
             android:id="@+id/header_viewpager"

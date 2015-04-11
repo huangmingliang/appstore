@@ -43,6 +43,9 @@ public class AppVerboseBean {
 	@SerializedName("packagename")
 	public String packagename;
 	
+	@SerializedName("version_num")
+	public String version_num;
+	
 
 
 	public String getId() {
@@ -139,6 +142,10 @@ public class AppVerboseBean {
 
 	public void setPackagename(String packagename) {
 		this.packagename = packagename;
+	}
+	
+	public int getVersion_num(){
+		return Integer.valueOf(version_num);
 	}
 	
 }
