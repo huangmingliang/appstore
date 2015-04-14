@@ -2,22 +2,14 @@ package com.zyitong.AppStore.service;
 
 import java.util.Timer;
 import java.util.TimerTask;
-import com.zyitong.AppStore.AppStoreApplication;
-import com.zyitong.AppStore.R;
-
-import com.zyitong.AppStore.downloadthread.FileDownLoadMonitorThread;
-import com.zyitong.AppStore.tools.AppLogger;
 
 import android.app.Service;
-import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.IBinder;
-import android.os.PowerManager;
-import android.preference.PreferenceManager;
-import android.util.Log;
+
+import com.zyitong.AppStore.AppStoreApplication;
+import com.zyitong.AppStore.downloadthread.FileDownLoadMonitorThread;
+import com.zyitong.AppStore.tools.AppLogger;
 
 public class DownLoadService extends Service {
 
@@ -29,10 +21,10 @@ public class DownLoadService extends Service {
 
 	@Override
 	public void onCreate() {
-		Log.d("DownLoadNewService", "DownLoadNewService START");
+		AppLogger.d("DownLoadNewService START");
 		fileThread = new FileDownLoadMonitorThread(this);
 		init();
-	
+
 	}
 
 	@Override
@@ -43,7 +35,7 @@ public class DownLoadService extends Service {
 	@Override
 	public void onStart(Intent intent, int startId) {
 		if (fileThread.isRuning() == false) {
-			Log.d("DownLoadNewService", "fileThread is Runing");
+			AppLogger.d("fileThread is Runing");
 			fileThread.setRuning(true);
 			fileThread.start();
 		}
@@ -65,7 +57,7 @@ public class DownLoadService extends Service {
 				if (AppStoreApplication.getInstance().isNetWorkConnected) {
 					AppStoreApplication.getInstance()
 							.getCurrentDownloadJobManager()
-							.addJobToDownloadLink();				
+							.addJobToDownloadLink();
 				}
 
 			}
@@ -73,6 +65,5 @@ public class DownLoadService extends Service {
 		timer = new Timer(true);
 		timer.schedule(updateDownloadListTask, DELAY_TIME, PERIOD_TIME);
 	}
-	
-	
+
 }

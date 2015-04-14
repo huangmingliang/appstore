@@ -1,7 +1,6 @@
 package com.zyitong.AppStore.downloadthread;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.bean.FileDownloadJob;
@@ -30,28 +29,27 @@ public class FileDownLoadMonitorThread extends Thread {
 			DownloadLink download = AppStoreApplication.getInstance()
 					.getDownloadLink();
 			int i = 1;
-			try {
-				int downloadingnum = download.getDownloadNum();
-				int size = download.getSize();
-				AppLogger.d("FileDownLoadMonitorThread"+ "    size=" + size
-						+ "\t  downloadingnum=" + downloadingnum);
-				/*if(downloadingnum != 0)
-				    AppLogger.e("=============== "+download.getNoticData(0).getFilename());*/
-				
-				if (size > 0 && downloadingnum < MAXDOWN) {
-					Log.d("FileDownLoadMonitorThread", "start=" + i);
-					FileDownloadJob data = download.getNode();
-					if (data != null) {
-						new ProgressThread(data, MAXTHREADNUM).start();
-						i++;
-					}
-				}
+			int downloadingnum = download.getDownloadNum();
+			int size = download.getSize();
+			AppLogger.d("FileDownLoadMonitorThread"+ "    size=" + size
+					+ "\t  downloadingnum=" + downloadingnum);
 			
-				Thread.sleep(1 * 1000);
+			if (size > 0 && downloadingnum < MAXDOWN) {
+				AppLogger.d( "start=" + i);
+				FileDownloadJob data = download.getNode();
+				if (data != null) {
+					new ProgressThread(data, MAXTHREADNUM).start();
+					i++;
+				}
+			}
+			try {
+				Thread.sleep(1*1000);
 			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
 		}
 	}
+	
 }

@@ -6,11 +6,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.http.conn.ConnectTimeoutException;
-
-import android.util.Log;
 
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.bean.FileDownloadJob;
@@ -52,7 +49,7 @@ public class ProgressThread extends Thread {
 		FileDownloadThread[] fds = new FileDownloadThread[threadNum];
 		AppStoreApplication.getInstance().getDownloadLink().getSize();
 		try {
-			Log.d("ProgressThread", "ProgressThread is Runing");
+			AppLogger.d( "ProgressThread is Runing");
 
 			File file = new File(fileuri);
 			if (file.exists()) {

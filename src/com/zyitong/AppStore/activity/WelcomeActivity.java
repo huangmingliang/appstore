@@ -3,7 +3,6 @@ package com.zyitong.AppStore.activity;
 import java.io.InputStream;
 import java.util.List;
 
-import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import android.app.Activity;
@@ -39,21 +38,21 @@ public class WelcomeActivity extends Activity {
 		mImageView.setImageBitmap(readBitMap(this, R.drawable.start_screen));
 		utilFun = new UtilFun(this);
 		init();
-		
-		
+
 	}
-	
-	private Handler handler = new Handler(){
+
+	private Handler handler = new Handler() {
 
 		@Override
 		public void handleMessage(Message msg) {
-			if(msg.what == 10){
-				Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
+			if (msg.what == 10) {
+				Intent intent = new Intent(WelcomeActivity.this,
+						MainActivity.class);
 				WelcomeActivity.this.startActivity(intent);
 				finish();
 			}
 		}
-		
+
 	};
 
 	@Override
@@ -63,37 +62,42 @@ public class WelcomeActivity extends Activity {
 	}
 
 	private void init() {
-		
+
 		utilFun.makeAppStoreDir();
 
 		getAppList(0, 8);
 	}
-	
+
 	private void getAppList(int startPos, int docNum) {
 
 		AppListDao.getInstance().getAppListRX(startPos, docNum)
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(new Subscriber<AppListBean>() {
 					AppListBean getListBean = null;
+
 					@Override
 					public void onNext(AppListBean bean) {
 						getListBean = bean;
-						
+
 					}
 
 					@Override
 					public void onCompleted() {
 						if (null != getListBean) {
-							List<ItemData> itemDataList = AppStoreApplication.getInstance().itemData;
-							int resultnumber = Integer.valueOf(getListBean.result.num);
+							List<ItemData> itemDataList = AppStoreApplication
+									.getInstance().itemData;
+							int resultnumber = Integer
+									.valueOf(getListBean.result.num);
 							for (int i = 0; i < resultnumber; i++) {
 								ItemData item = new ItemData();
-								item.setAppInfoBean(getListBean.result.items.get(i));
+								item.setAppInfoBean(getListBean.result.items
+										.get(i));
 								itemDataList.add(item);
 								utilFun.setAppState(item);
 							}
-							
-							Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
+
+							Intent intent = new Intent(WelcomeActivity.this,
+									MainActivity.class);
 							WelcomeActivity.this.startActivity(intent);
 							finish();
 						}
@@ -106,22 +110,22 @@ public class WelcomeActivity extends Activity {
 					}
 				});
 	}
-	
-	public  static  Bitmap readBitMap(Context  context, int resId){ 
 
-        BitmapFactory.Options opt = new  BitmapFactory.Options();
+	public static Bitmap readBitMap(Context context, int resId) {
 
-        opt.inPreferredConfig =  Bitmap.Config.RGB_565;
+		BitmapFactory.Options opt = new BitmapFactory.Options();
 
-        opt.inPurgeable = true;
+		opt.inPreferredConfig = Bitmap.Config.RGB_565;
 
-        opt.inInputShareable = true;
+		opt.inPurgeable = true;
 
-        //  获取资源图片
+		opt.inInputShareable = true;
 
-       InputStream is =  context.getResources().openRawResource(resId);
+		// 获取资源图片
 
-        return  BitmapFactory.decodeStream(is, null, opt);
+		InputStream is = context.getResources().openRawResource(resId);
 
-        }
+		return BitmapFactory.decodeStream(is, null, opt);
+
+	}
 }

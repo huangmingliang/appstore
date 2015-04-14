@@ -69,9 +69,9 @@ public class CurrentDownloadJobManager {
 	}
 
 	public void addJobToDownloadLink() {
-		Iterator iter = currentDownJobs.entrySet().iterator();
+		Iterator<Map.Entry<String, CurrentDownloadJob>> iter = currentDownJobs.entrySet().iterator();
 		while (iter.hasNext()) {
-			Map.Entry entry = (Map.Entry) iter.next();
+			Map.Entry<String, CurrentDownloadJob> entry = iter.next();
 			CurrentDownloadJob temp = (CurrentDownloadJob) entry.getValue();
 			if (temp.getFilestatus() == ItemData.APP_NETWORKEX) {
 				FileDownloadJob notic = temp.getData();

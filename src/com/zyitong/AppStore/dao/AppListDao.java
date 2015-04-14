@@ -13,9 +13,7 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
-import com.google.gson.internal.LinkedTreeMap;
 import com.zyitong.AppStore.bean.AppListBean;
-import com.zyitong.AppStore.bean.AppVerboseBean;
 import com.zyitong.AppStore.tools.AppLogger;
 import com.zyitong.AppStore.tools.CommonConstant;
 
@@ -35,29 +33,6 @@ public class AppListDao extends CommonDao {
 		AppListBean getAppList(@QueryMap Map<String, String> options);
 	}
 
-	public void display(AppListBean bean) {
-		int i = 0;
-		int count = 0;
-
-		if (null != bean) {
-
-			if (null != bean.errors && bean.errors.size() > 0
-					&& null != bean.errors.get(0)) {
-			}
-
-			if (null != bean.result) {
-
-				if (null != bean.result.num && null != bean.result.items) {
-					count = bean.result.items.size();
-					AppVerboseBean verboseBean;
-					for (i = 0; i < count; i++) {
-						verboseBean = bean.result.items.get(i);
-					}
-				}
-			}
-		}
-	}
-
 	public AppListBean searchAppList(String query, int start, int docNum) {
 		if (query == null || query.length() == 0) {
 			return null;
@@ -72,7 +47,6 @@ public class AppListDao extends CommonDao {
 
 		AppListDaoInterface daoInterface = restAdapter
 				.create(AppListDaoInterface.class);
-
 
 		TreeMap<String, String> parameters = new TreeMap<String, String>(
 				new Comparator<String>() {
@@ -100,10 +74,7 @@ public class AppListDao extends CommonDao {
 		AppListBean bean = null;
 		try {
 			bean = daoInterface.getAppList(parameters);
-			if (null != bean) {
-				display(bean);
 
-			}
 		} catch (Exception e) {
 			AppLogger.e("== eeeee " + e.toString());
 		}
@@ -123,7 +94,6 @@ public class AppListDao extends CommonDao {
 
 		AppListDaoInterface daoInterface = restAdapter
 				.create(AppListDaoInterface.class);
-		LinkedTreeMap l;
 
 		TreeMap<String, String> parameters = new TreeMap<String, String>(
 				new Comparator<String>() {
@@ -144,13 +114,8 @@ public class AppListDao extends CommonDao {
 		parameters.put("SignatureMethod", CommonConstant.SIGNATURE_METHOD);
 		parameters.put("SignatureVersion", CommonConstant.SIGNATURE_VERSION);
 		parameters.put("SignatureNonce", UUID.randomUUID().toString());
-
 		parameters.put("Signature", getAliyunSign(parameters));
-
 		AppListBean bean = daoInterface.getAppList(parameters);
-		if (null != bean) {
-			display(bean);
-		}
 
 		return bean;
 	}
