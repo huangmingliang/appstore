@@ -21,10 +21,7 @@ import com.zyitong.AppStore.bean.FileDownloadJob;
 import com.zyitong.AppStore.bean.ItemData;
 
 public class UtilFun {
-	private Context context;
-
 	public UtilFun(Context context) {
-		this.context = context;
 	}
 
 	public UtilFun() {
@@ -43,9 +40,11 @@ public class UtilFun {
 
 	public void addCurrentDownloadJob(String packagename, int ratio,
 			int status, FileDownloadJob notic) {
-		if(AppStoreApplication.getInstance().getCurrentDownloadJobManager().isCurrJobExist(packagename)){
-			AppStoreApplication.getInstance().getCurrentDownloadJobManager().updateDownloadJob(packagename,ratio, status, notic);
-		}else{
+		if (AppStoreApplication.getInstance().getCurrentDownloadJobManager()
+				.isCurrJobExist(packagename)) {
+			AppStoreApplication.getInstance().getCurrentDownloadJobManager()
+					.updateDownloadJob(packagename, ratio, status, notic);
+		} else {
 			CurrentDownloadJob currentDownloadJob = new CurrentDownloadJob();
 			currentDownloadJob.setPackageName(packagename);
 			currentDownloadJob.setRatio(ratio);
@@ -54,7 +53,7 @@ public class UtilFun {
 			AppStoreApplication.getInstance().getCurrentDownloadJobManager()
 					.addDownloadJob(currentDownloadJob);
 		}
-		
+
 	}
 
 	public void setAppReDownLoad(String filename) {
@@ -105,18 +104,6 @@ public class UtilFun {
 				.delNode(dldata.getId());
 	}
 
-	public boolean isAppInstalled(String uri, Context mContext)
-			throws PackageManager.NameNotFoundException {
-		PackageManager pm = mContext.getPackageManager();
-		boolean installed = false;
-		PackageInfo packageInfo = pm.getPackageArchiveInfo(uri,
-				PackageManager.GET_ACTIVITIES);
-		String packagename = packageInfo.packageName;
-		if (checkApkExist(mContext, packagename))
-			installed = true;
-		return installed;
-	}
-
 	public String getPackageName(String uri, Context mContext) {
 		PackageManager pm = mContext.getPackageManager();
 		PackageInfo packageInfo = pm.getPackageArchiveInfo(uri,
@@ -127,32 +114,6 @@ public class UtilFun {
 		} else
 			return null;
 
-	}
-	
-	public int getAppGrade(Context context, String packageName){
-		PackageInfo info;
-		int versionCode = -1;
-		try {
-			info = context.getPackageManager().getPackageInfo(packageName, 0);
-		    versionCode = info.versionCode;
-			
-		} catch (NameNotFoundException e) {
-			e.printStackTrace();
-			return versionCode;
-		}
-		return versionCode;
-	}
-
-	public boolean checkApkExist(Context context, String packageName) {
-		if (packageName == null || "".equals(packageName))
-			return false;
-		try {
-			context.getPackageManager().getApplicationInfo(packageName,
-					PackageManager.GET_UNINSTALLED_PACKAGES);
-			return true;
-		} catch (NameNotFoundException e) {
-			return false;
-		}
 	}
 
 	private String getMainActivityName(String packageName, Context mContext) {
@@ -225,32 +186,6 @@ public class UtilFun {
 		return result;
 	}
 
-	public void setAppState(ItemData itemData) {
-		String packagename = itemData.getAppInfoBean().getPackagename();
-
-		if (!checkApkExist(context, packagename)){
-			itemData.setButtonFileflag(ItemData.APP_INSTALL);
-			return ;
-		}
-		
-		int appGrade = getAppGrade(context, packagename);
-		
-		if(itemData.getAppInfoBean().getVersion_num()>appGrade){
-			itemData.setButtonFileflag(ItemData.APP_UPDATE);
-			return ;
-		}else{
-			itemData.setButtonFileflag(ItemData.APP_OPEN);
-			return ;
-		}
-					
-	}
-	public void setResumeAppState(ItemData itemData) {
-		String packagename = itemData.getAppInfoBean().getPackagename();
-
-		if (!checkApkExist(context, packagename))
-			itemData.setButtonFileflag(ItemData.APP_INSTALL);
-	}
-
 	public String install(String apkAbsolutePath) {
 		String[] args = { "pm", "install", "-rf", apkAbsolutePath };
 		String result = "";
@@ -281,7 +216,6 @@ public class UtilFun {
 		return result;
 
 	}
-
 
 	public String getFileName(String filename) {
 		int index = filename.lastIndexOf("/");

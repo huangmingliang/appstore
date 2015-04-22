@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -20,6 +20,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.Toast;
+
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.R;
 import com.zyitong.AppStore.adapter.ListAdapter;
@@ -46,7 +47,6 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	private final int TRIGGER_UPDATE = 4000;
 	private final long SEARCH_TRIGGER_DELAY_IN_MS = 200;
 	private Timer timer;
-	private UtilFun util = null;
 	private Message msg = null;
 	private String install_failed;
 	private FrameLayout emptyView;
@@ -57,11 +57,11 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	private int operate = 0;
 	private boolean emViewIsOnClick = false;
 	private boolean isSearch = true;
+	private boolean firstStart = false;
 	ProgressDialog progressDialog = null;
 	private Handler handler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-			AppLogger.e("==== edChangedHander: what " + msg.what);
 			if (msg.what == TRIGGER_UPDATE) {
 				handleButtonUpdate();
 
@@ -161,7 +161,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 				AppStoreApplication.getInstance()
 						.getCurrentDownloadJobManager()
 						.removeDownloadJob(packagename);
-				int appGrade1 = util.getAppGrade(this, packagename);
+				int appGrade1 = AppStoreApplication.getInstance().getAppGrade(packagename);
 				if(itemList.get(position).getAppInfoBean().getVersion_num() > appGrade1){
 					if(appGrade1 != -1)
 					   messageInfo[2] = ItemData.APP_UPDATE;
@@ -172,7 +172,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 				messageInfo[1] = radio;
 				messageInfo[2] = status;
 				messageInfo[3] = 1;
-				int appGrade2 = util.getAppGrade(this, packagename);
+				int appGrade2 = AppStoreApplication.getInstance().getAppGrade(packagename);
 				if(itemList.get(position).getAppInfoBean().getVersion_num() > appGrade2){
 					if(appGrade2 != -1)
 					   messageInfo[2] = ItemData.APP_UPDATE;
@@ -189,17 +189,14 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		return messageInfo;
 	}
 
-	public static void startActivity(Context c, Bundle bundle) {
-		Intent intent = new Intent(c, MainActivity.class);
-		intent.putExtras(bundle);
-		c.startActivity(intent);
-	}
+	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main);
+		firstStart = true;
 		init();
 	}
 
@@ -215,16 +212,18 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 
 	@Override
 	protected void onResume() {
-		for (int i = 0; i < itemList.size(); i++) {
-			util.setResumeAppState(itemList.get(i));
+		if(!firstStart){
+			AppStoreApplication.getInstance().setResumeAppState(itemList);
+			adapter.addData(itemList);
+			adapter.notifyDataSetChanged();
 		}
-		adapter.addData(itemList);
-		adapter.notifyDataSetChanged();
+		
 		super.onResume();
 	}
 
 	@Override
 	protected void onPause() {
+		firstStart = false;
 		super.onPause();
 	}
 
@@ -242,7 +241,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	}
 
 	private void init() {
-		util = new UtilFun(this);
+		new UtilFun(this);
 		timer = new Timer(true);
 		timer.schedule(updatalistviewtask, 0, searchTime);
 		install_failed = getResources().getString(R.string.app_install_failed);
@@ -422,8 +421,9 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 								item.setAppInfoBean(appListBean.result.items
 										.get(i));
 								itemDataList.add(item);
-								util.setAppState(item);
+								
 							}
+							AppStoreApplication.getInstance().setAppState(itemDataList);
 							displayList(itemDataList);
 							emptyView.setVisibility(View.GONE);
 							if (dialogcancel) {
@@ -451,7 +451,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 							isSearch = true;
 						}
 						emViewIsOnClick = false;
-						AppLogger.e("ERROR===========" + e);
+						AppLogger.e("ERROR===========" + e.getMessage());
 					}
 				});
 	}
@@ -480,8 +480,9 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 								item.setAppInfoBean(appListBean.result.items
 										.get(i));
 								itemDataList.add(item);
-								util.setAppState(item);
+								
 							}
+							AppStoreApplication.getInstance().setAppState(itemDataList);
 							displayList(itemDataList);
 							if (dialogcancel) {
 								progressDialog.cancel();

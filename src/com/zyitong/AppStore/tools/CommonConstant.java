@@ -11,5 +11,8 @@ public class CommonConstant {
 	public static final String ACCESS_KEY_ID = "lflMmtFvvNt5YobP";
 	public static final String ACCESS_KEY_SECRET = "aYpz8CtTVSMWFnqaH1Q7uhki1NNQcL";
 	
+	public static final int MAXDOWN = 2;
+	public static final int MAXTHREADNUM = 4;
+	
 
 }

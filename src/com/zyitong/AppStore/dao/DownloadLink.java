@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.zyitong.AppStore.bean.FileDownloadJob;
-import com.zyitong.AppStore.downloadthread.FileDownLoadMonitorThread;
+import com.zyitong.AppStore.tools.CommonConstant;
 
 public class DownloadLink {
 	List<FileDownloadJob> data = new ArrayList<FileDownloadJob>();
@@ -20,7 +20,7 @@ public class DownloadLink {
 
 	public boolean hasDownloadFree() {
 		synchronized (this) {
-			if (data.size() > FileDownLoadMonitorThread.MAXDOWN)
+			if (data.size() > CommonConstant.MAXDOWN)
 				return false;
 			else
 				return true;
@@ -31,21 +31,6 @@ public class DownloadLink {
 	public int getDownloadNum() {
 		synchronized (this) {
 			return downloadNum;
-		}
-
-	}
-
-	private void setAddNum() {
-		synchronized (this) {
-			this.downloadNum += 1;
-		}
-
-	}
-
-	private void setDelNum() {
-		synchronized (this) {
-			if (downloadNum > 0)
-				downloadNum--;
 		}
 
 	}
@@ -65,7 +50,7 @@ public class DownloadLink {
 		synchronized (this) {
 			for (int i = 0; i < getSize(); i++) {
 				if (data.get(i).getStatus() == 0) {
-					setAddNum();
+					downloadNum += 1;
 					return data.get(i);
 				}
 			}
@@ -75,17 +60,27 @@ public class DownloadLink {
 
 	public void addNode(FileDownloadJob itemData) {
 		synchronized (this) {
-			if (!data.contains(itemData)) {
+			boolean has = false;
+			for (int i = 0; i < data.size(); i++) {
+				if (data.get(i).getId() == itemData.getId()) {
+					has = true;
+					break;
+				}
+			}
+			if(!has){
 				data.add(itemData);
 			}
 		}
 
 	}
 
-	public void delNode(FileDownloadJob itemData) {
+	public void delNodeById(int id) {
 		synchronized (this) {
-			if (data.contains(itemData)) {
-				data.remove(itemData);
+			for (int i = 0; i < data.size(); i++) {
+				if (data.get(i).getId() == id) {
+					data.remove(i);
+					break;
+				}
 			}
 		}
 
@@ -96,7 +91,9 @@ public class DownloadLink {
 			for (int i = 0; i < data.size(); i++) {
 				if (data.get(i).getId() == id) {
 					data.remove(i);
-					setDelNum();
+					if(downloadNum>0){
+						downloadNum--;
+					}
 					break;
 				}
 			}

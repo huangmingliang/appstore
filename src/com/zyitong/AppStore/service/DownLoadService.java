@@ -2,28 +2,33 @@ package com.zyitong.AppStore.service;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
 import com.zyitong.AppStore.AppStoreApplication;
-import com.zyitong.AppStore.downloadthread.FileDownLoadMonitorThread;
+import com.zyitong.AppStore.bean.FileDownloadJob;
+import com.zyitong.AppStore.dao.DownloadLink;
+import com.zyitong.AppStore.downloadthread.ProgressThread;
 import com.zyitong.AppStore.tools.AppLogger;
+import com.zyitong.AppStore.tools.CommonConstant;
 
 public class DownLoadService extends Service {
 
-	private FileDownLoadMonitorThread fileThread = null;
 	private Timer timer;
 	private TimerTask updateDownloadListTask;
-	private int DELAY_TIME = 2 * 1000;
-	private int PERIOD_TIME = 3 * 1000;
+	private boolean hasThead = false;
+	private ExecutorService executorService = null;
 
 	@Override
 	public void onCreate() {
-		AppLogger.d("DownLoadNewService START");
-		fileThread = new FileDownLoadMonitorThread(this);
-		init();
+		AppLogger.i("== DownLoadService->onCreate");
+		if (null == executorService) {
+			executorService = Executors.newCachedThreadPool();
+		}
 
 	}
 
@@ -33,37 +38,78 @@ public class DownLoadService extends Service {
 	}
 
 	@Override
-	public void onStart(Intent intent, int startId) {
-		if (fileThread.isRuning() == false) {
-			AppLogger.d("fileThread is Runing");
-			fileThread.setRuning(true);
-			fileThread.start();
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		AppLogger.i("== DownLoadService->onStartCommand");
+		if (null == intent) {
+			return super.onStartCommand(intent, flags, startId);
 		}
+
+		if (hasThead) {
+			return super.onStartCommand(intent, flags, startId);
+		}
+
+		if (!AppStoreApplication.getInstance().isNetWorkConnected) {
+			return super.onStartCommand(intent, flags, startId);
+		}
+
+		AppLogger.e("start fileThread now.");
+
+		hasThead = true;
+
+		Thread filedownloadThread = new Thread() {
+			@Override
+			public void run() {
+				while (hasThead) {
+					DownloadLink download = AppStoreApplication.getInstance()
+							.getDownloadLink();
+					int i = 1;
+					int downloadingnum = download.getDownloadNum();
+
+					AppLogger.w("FileDownLoadMonitorThread" + "    size="
+							+ download.getSize() + "\t  downloadingnum="
+							+ downloadingnum);
+
+					if (download.getSize() > 0
+							&& downloadingnum < CommonConstant.MAXDOWN) {
+						AppLogger.d("start=" + i);
+						FileDownloadJob data = download.getNode();
+						if (data != null) {
+							new ProgressThread(data,
+									CommonConstant.MAXTHREADNUM).start();
+							i++;
+						}
+					}
+					/*if(!AppStoreApplication.getInstance().isNetWorkConnected){
+						AppStoreApplication.getInstance()
+						.getCurrentDownloadJobManager()
+						.addJobToDownloadLink();
+					}*/
+					
+					if (download.getSize() > 0) {
+						try {
+							sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						continue;
+					}
+
+					hasThead = false;
+				}
+			}
+
+		};
+		filedownloadThread.start();
+		AppLogger.e("fileThread.start() after");
+
+		return super.onStartCommand(intent, flags, startId);
 	}
 
 	@Override
 	public void onDestroy() {
-		fileThread.setRuning(false);
 		timer.cancel();
 		updateDownloadListTask.cancel();
 		AppLogger.e("===DownLoadService onDestroy===");
-	}
-
-	private void init() {
-		updateDownloadListTask = new TimerTask() {
-
-			@Override
-			public void run() {
-				if (AppStoreApplication.getInstance().isNetWorkConnected) {
-					AppStoreApplication.getInstance()
-							.getCurrentDownloadJobManager()
-							.addJobToDownloadLink();
-				}
-
-			}
-		};
-		timer = new Timer(true);
-		timer.schedule(updateDownloadListTask, DELAY_TIME, PERIOD_TIME);
 	}
 
 }

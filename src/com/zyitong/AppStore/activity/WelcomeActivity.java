@@ -32,6 +32,7 @@ public class WelcomeActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		AppLogger.e("WelcomeActivity onCreate");
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		setContentView(R.layout.welcome_activity);
 		ImageView mImageView = (ImageView) findViewById(R.id.animation_iv);
@@ -78,7 +79,6 @@ public class WelcomeActivity extends Activity {
 					@Override
 					public void onNext(AppListBean bean) {
 						getListBean = bean;
-
 					}
 
 					@Override
@@ -93,8 +93,11 @@ public class WelcomeActivity extends Activity {
 								item.setAppInfoBean(getListBean.result.items
 										.get(i));
 								itemDataList.add(item);
-								utilFun.setAppState(item);
+
 							}
+
+							AppStoreApplication.getInstance().setAppState(
+									itemDataList);
 
 							Intent intent = new Intent(WelcomeActivity.this,
 									MainActivity.class);
