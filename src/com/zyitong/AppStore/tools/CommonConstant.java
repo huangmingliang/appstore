@@ -1,5 +1,9 @@
 package com.zyitong.AppStore.tools;
 
+import java.io.File;
+
+import org.apache.log4j.Level;
+
 public class CommonConstant {
 	public static final String REST_URL = "http://opensearch-cn-hangzhou.aliyuncs.com";
 	
@@ -13,6 +17,10 @@ public class CommonConstant {
 	
 	public static final int MAXDOWN = 2;
 	public static final int MAXTHREADNUM = 4;
+
+	public static final String DEBUG_PATH = "AppStoreLog";
+
+	public static final Level DEBUG_LEVEL = Level.INFO;
 	
 
 }

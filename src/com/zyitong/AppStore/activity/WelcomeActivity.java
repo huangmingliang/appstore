@@ -32,9 +32,9 @@ public class WelcomeActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		AppLogger.e("WelcomeActivity onCreate");
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		setContentView(R.layout.welcome_activity);
+		AppLogger.e("WelcomeActivity onCreate");
 		ImageView mImageView = (ImageView) findViewById(R.id.animation_iv);
 		mImageView.setImageBitmap(readBitMap(this, R.drawable.start_screen));
 		utilFun = new UtilFun(this);
@@ -50,7 +50,7 @@ public class WelcomeActivity extends Activity {
 				Intent intent = new Intent(WelcomeActivity.this,
 						MainActivity.class);
 				WelcomeActivity.this.startActivity(intent);
-				finish();
+				WelcomeActivity.this.finish();
 			}
 		}
 
@@ -63,10 +63,14 @@ public class WelcomeActivity extends Activity {
 	}
 
 	private void init() {
-
+		AppLogger.e("== before makeAppStoreDir ");
 		utilFun.makeAppStoreDir();
+		AppLogger.e("== after makeAppStoreDir ");
 
+		
+		AppLogger.e("== before getAppList ");
 		getAppList(0, 8);
+		AppLogger.e("== after getAppList ");
 	}
 
 	private void getAppList(int startPos, int docNum) {
@@ -95,14 +99,17 @@ public class WelcomeActivity extends Activity {
 								itemDataList.add(item);
 
 							}
-
+							AppLogger.e("== before setAppState ");
 							AppStoreApplication.getInstance().setAppState(
 									itemDataList);
+							AppLogger.e("== after setAppState ");
 
+							AppLogger.e("== before startActivity ");
 							Intent intent = new Intent(WelcomeActivity.this,
 									MainActivity.class);
 							WelcomeActivity.this.startActivity(intent);
-							finish();
+							WelcomeActivity.this.finish();
+							AppLogger.e("== after startActivity ");
 						}
 					}
 

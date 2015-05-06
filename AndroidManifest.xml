@@ -8,9 +8,9 @@
         android:minSdkVersion="11"
         android:targetSdkVersion="17" />
     <!-- 预装权限 -->
-    <uses-permission android:name="android.permission.INSTALL_PACKAGES"/>
     <!-- android:sharedUserId="android.uid.system" -->
     <!-- <uses-permission android:name="android.permission.INSTALL_PACKAGES"/> -->
+    <uses-permission android:name="android.permission.INSTALL_PACKAGES"/>
     <!-- 连接互联网权限 -->
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- 监控网络的权限 -->
@@ -36,7 +36,6 @@
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
