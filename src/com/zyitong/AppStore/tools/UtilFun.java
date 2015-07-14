@@ -21,12 +21,12 @@ import com.zyitong.AppStore.bean.FileDownloadJob;
 import com.zyitong.AppStore.bean.ItemData;
 
 public class UtilFun {
-	public UtilFun(Context context) {
-	}
 
-	public UtilFun() {
-	};
-
+	/***
+	 * 格式化当前时间 
+	 * @param format 格式
+	 * @return
+	 */
 	public static String getCurrentTime(String format) {
 		Date date = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
@@ -38,34 +38,45 @@ public class UtilFun {
 		return getCurrentTime("yyyy-MM-dd  HH:mm:ss");
 	}
 
-	public void addCurrentDownloadJob(String packagename, int ratio,
-			int status, FileDownloadJob notic) {
-		if (AppStoreApplication.getInstance().getCurrentDownloadJobManager()
-				.isCurrJobExist(packagename)) {
-			AppStoreApplication.getInstance().getCurrentDownloadJobManager()
-					.updateDownloadJob(packagename, ratio, status, notic);
+	/***
+	 * 添加下载
+	 * @param packagename 应用包名
+	 * @param ratio 当前下载与改应用总大小的比例
+	 * @param status 下载状态 ：1准备下载，2下载中，3下载完成,4失败
+	 * @param notic
+	 */
+	public void addCurrentDownloadJob(String packagename, int ratio, int status, FileDownloadJob notic) {
+		//判定当前下载管理器中是否存在该应用，true：更新下载进度；false：添加至下载管理器中
+		if (AppStoreApplication.getInstance().getCurrentDownloadJobManager().isCurrJobExist(packagename)) {
+			AppStoreApplication.getInstance().getCurrentDownloadJobManager().updateDownloadJob(packagename, ratio, status, notic);
 		} else {
 			CurrentDownloadJob currentDownloadJob = new CurrentDownloadJob();
 			currentDownloadJob.setPackageName(packagename);
 			currentDownloadJob.setRatio(ratio);
 			currentDownloadJob.setFilestatus(status);
 			currentDownloadJob.setData(notic);
-			AppStoreApplication.getInstance().getCurrentDownloadJobManager()
-					.addDownloadJob(currentDownloadJob);
+			AppStoreApplication.getInstance().getCurrentDownloadJobManager().addDownloadJob(currentDownloadJob);
 		}
 
 	}
 
-	public void setAppReDownLoad(String filename) {
-		AppStoreApplication.getInstance().getCurrentDownloadJobManager()
-				.setAppReDownload(filename);
+	/***
+	 * 重新下载
+	 * @param packagename
+	 */
+	public void setAppReDownLoad(String packagename) {
+		AppStoreApplication.getInstance().getCurrentDownloadJobManager().setAppReDownload(packagename);
 	}
 
 	public boolean isAppReDownload(String packagename) {
-		return AppStoreApplication.getInstance().getCurrentDownloadJobManager()
-				.isAppReDownload(packagename);
+		return AppStoreApplication.getInstance().getCurrentDownloadJobManager().isAppReDownload(packagename);
 	}
 
+	/***
+	 * 根据下载链接获取 该app相关信息
+	 * @param data
+	 * @return
+	 */
 	public FileDownloadJob DataChange(ItemData data) {
 		FileDownloadJob dldata = new FileDownloadJob();
 		int NOTIFICATION_ID = Integer.valueOf(data.getAppInfoBean().getId());
@@ -75,14 +86,12 @@ public class UtilFun {
 			return AppStoreApplication
 					.getInstance()
 					.getDownloadLink()
-					.getNoticData(
-							Integer.valueOf(data.getAppInfoBean().getId()));
+					.getNoticData(Integer.valueOf(data.getAppInfoBean().getId()));
 		}
 
 		String name = data.getAppInfoBean().getTitle();
 
-		String filename = AppStoreApplication.getInstance().getFileName(
-				data.getAppInfoBean().getUrl());
+		String filename = AppStoreApplication.getInstance().getFileName(data.getAppInfoBean().getUrl());
 		String localPath = AppStoreApplication.getInstance().getFilePath();
 		String fileuri = localPath + filename;
 		String url = data.getAppInfoBean().getUrl();
@@ -98,16 +107,26 @@ public class UtilFun {
 		return dldata;
 	}
 
+	/***
+	 * 下载完成,移除改线程
+	 * 
+	 * @param dldata
+	 */
 	public void DowloadComplete(FileDownloadJob dldata) {
 
 		AppStoreApplication.getInstance().getDownloadLink()
 				.delNode(dldata.getId());
 	}
 
+	/***
+	 * 获取包名
+	 * @param uri
+	 * @param mContext
+	 * @return
+	 */
 	public String getPackageName(String uri, Context mContext) {
 		PackageManager pm = mContext.getPackageManager();
-		PackageInfo packageInfo = pm.getPackageArchiveInfo(uri,
-				PackageManager.GET_ACTIVITIES);
+		PackageInfo packageInfo = pm.getPackageArchiveInfo(uri, PackageManager.GET_ACTIVITIES);
 		if (packageInfo != null) {
 			String packagename = packageInfo.packageName;
 			return packagename;
@@ -116,6 +135,12 @@ public class UtilFun {
 
 	}
 
+	/***
+	 * 获取应用打开权限 
+	 * @param packageName
+	 * @param mContext
+	 * @return
+	 */
 	private String getMainActivityName(String packageName, Context mContext) {
 		PackageInfo pi;
 		String className = null;
@@ -135,12 +160,10 @@ public class UtilFun {
 		}
 		return className;
 	}
-
+	
 	public String openApp(String packageName, Context mContext) {
-
 		String mainActivityName = getMainActivityName(packageName, mContext);
-		String[] args = { "am", "start", "-n",
-				packageName + "/" + mainActivityName };
+		String[] args = { "am", "start", "-n", packageName + "/" + mainActivityName };
 		ProcessBuilder processBuilder = new ProcessBuilder(args);
 		Process process = null;
 		InputStream errIs = null;
@@ -169,14 +192,18 @@ public class UtilFun {
 		return str;
 
 	}
-
+	
+	/***
+	 * 获取未安装应用名称
+	 * @param context
+	 * @param filePath
+	 * @return
+	 */
 	public boolean getUninatllApkInfo(Context context, String filePath) {
-
 		boolean result = false;
 		try {
 			PackageManager pm = context.getPackageManager();
-			PackageInfo info = pm.getPackageArchiveInfo(filePath,
-					PackageManager.GET_ACTIVITIES);
+			PackageInfo info = pm.getPackageArchiveInfo(filePath, PackageManager.GET_ACTIVITIES);
 			if (info != null) {
 				result = true;
 			}
@@ -186,6 +213,13 @@ public class UtilFun {
 		return result;
 	}
 
+	/***
+	 * 下载完成之后自动安装app
+	 * 
+	 * @param apkAbsolutePath
+	 *            apk存储路径
+	 * @return
+	 */
 	public String install(String apkAbsolutePath) {
 		String[] args = { "pm", "install", "-rf", apkAbsolutePath };
 		String result = "";
@@ -217,11 +251,16 @@ public class UtilFun {
 
 	}
 
-	public String getFileName(String filename) {
-		int index = filename.lastIndexOf("/");
-		String substr = filename;
+	/***
+	 * 获取文件名
+	 * @param url 下载链接
+	 * @return
+	 */
+	public String getFileName(String url) {
+		int index = url.lastIndexOf("/");
+		String substr = url;
 		if (index > 0) {
-			substr = filename.substring(index + 1);
+			substr = url.substring(index + 1);
 		}
 		return substr;
 	}

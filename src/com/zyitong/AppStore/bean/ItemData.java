@@ -13,13 +13,13 @@ public class ItemData {
 	public static final int APP_UPDATING = 10;
 
 	private int buttonFileflag;
-	private AppVerboseBean appInfoBean;
+	private AppVerbaseBean appInfoBean;
 
-	public AppVerboseBean getAppInfoBean() {
+	public AppVerbaseBean getAppInfoBean() {
 		return appInfoBean;
 	}
 
-	public void setAppInfoBean(AppVerboseBean appVerboseBean) {
+	public void setAppInfoBean(AppVerbaseBean appVerboseBean) {
 		this.appInfoBean = appVerboseBean;
 	}
 

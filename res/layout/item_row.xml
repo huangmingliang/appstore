@@ -2,16 +2,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#ffffff" >
+    android:background="#ffffff"
+    android:orientation="horizontal" >
 
-    <!-- <com.zyitong.AppStore.ui.RemoteImageView
+    <!--
+    <com.zyitong.AppStore.ui.RemoteImageView
         android:id="@+id/iconView"
         android:layout_width="63dip"
         android:layout_height="63dip"
         android:layout_gravity="center_vertical"
         android:layout_marginBottom="10dip"
         android:layout_marginTop="10dip" >
-    </com.zyitong.AppStore.ui.RemoteImageView> -->
+    </com.zyitong.AppStore.ui.RemoteImageView>
+    -->
+
     <ImageView
         android:id="@+id/iconView"
         android:layout_width="63dip"
@@ -20,7 +24,7 @@
         android:layout_marginBottom="10dip"
         android:layout_marginTop="10dip" >
     </ImageView>
-
+    
     <LinearLayout
         android:id="@+id/RowLayout1"
         android:layout_width="match_parent"
@@ -55,11 +59,28 @@
         </TextView>
 
         <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" 
+            android:visibility="gone">
+
+            <RatingBar
+                android:id="@+id/ratingBar"
+                style="@style/roomRatingBar"
+                android:layout_marginTop="4dip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5" />
+            <!-- android:progressDrawable="@drawable/ratingbar_drawable" -->
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/linearLayout1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingBottom="0dip" >
+            android:paddingBottom="0dip"
+            >
 
             <View
                 android:id="@+id/starView1"
@@ -98,16 +119,33 @@
         </LinearLayout>
     </LinearLayout>
 
-    <Button
-        android:id="@+id/imageDownloadView"
+    <RelativeLayout
         android:layout_width="80dip"
         android:layout_height="30dip"
         android:layout_marginTop="26dip"
-        android:background="@drawable/load_button"
-        android:focusable="true"
-        android:text="@string/app_install"
-        android:textColor="@color/white"
-        android:textSize="14sp" >
-    </Button>
+        android:gravity="bottom" >
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@drawable/aa_button_gray_normal"
+            android:max="100"
+            android:progress="0"
+            android:progressDrawable="@drawable/progress_selector" />
+
+        <Button
+            android:id="@+id/imageDownloadView"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/load_button"
+            android:focusable="true"
+            android:text="@string/app_install"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+    </RelativeLayout>
 
 </LinearLayout>

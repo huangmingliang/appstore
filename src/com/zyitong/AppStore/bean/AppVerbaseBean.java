@@ -1,53 +1,32 @@
 package com.zyitong.AppStore.bean;
 
-import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
+
 
 /**
  * @author Administrator
  *
  */
-public class AppVerboseBean {
-	@SerializedName("id")
-	public String id;
+public class AppVerbaseBean implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	
-	@SerializedName("title")
-	public String title;
-
-	@SerializedName("type")
-	public String type;
-
-	@SerializedName("body")
+	public String id;//app id
+	public String title;//app name
+	public String type;//类型
 	public String body;
-
-	@SerializedName("url")
-	public String url;
-
-	@SerializedName("author")
-	public String author;
-
-	@SerializedName("thumbnail")
+	public String url;//下载链接
+	public String author;//
 	public String thumbnail;
-
-	@SerializedName("grade")
-	public String grade;
-	
-	@SerializedName("platform")
-	public String platform;
-	
-	@SerializedName("version")
-	public String version;
-	
-	@SerializedName("update_type")
-	public String update_type;
-	
-	@SerializedName("packagename")
-	public String packagename;
-	
-	@SerializedName("version_num")
+	public String grade;//等级（分数）
+	public String platform;//平台
+	public String version;//版本
+	public String update_type;//更新内容
+	public String packagename;//包名
 	public String version_num;
 	
-
-
 	public String getId() {
 		return id;
 	}

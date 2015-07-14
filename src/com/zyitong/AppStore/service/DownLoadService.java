@@ -60,8 +60,7 @@ public class DownLoadService extends Service {
 			@Override
 			public void run() {
 				while (hasThead) {
-					DownloadLink download = AppStoreApplication.getInstance()
-							.getDownloadLink();
+					DownloadLink download = AppStoreApplication.getInstance().getDownloadLink();
 					int i = 1;
 					int downloadingnum = download.getDownloadNum();
 
@@ -69,13 +68,11 @@ public class DownLoadService extends Service {
 							+ download.getSize() + "\t  downloadingnum="
 							+ downloadingnum);
 
-					if (download.getSize() > 0
-							&& downloadingnum < CommonConstant.MAXDOWN) {
+					if (download.getSize() > 0 && downloadingnum < CommonConstant.MAXDOWN) {
 						AppLogger.d("start=" + i);
 						FileDownloadJob data = download.getNode();
 						if (data != null) {
-							new ProgressThread(data,
-									CommonConstant.MAXTHREADNUM).start();
+							new ProgressThread(data, CommonConstant.MAXTHREADNUM).start();
 							i++;
 						}
 					}

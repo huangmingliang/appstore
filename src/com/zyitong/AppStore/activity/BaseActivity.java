@@ -16,6 +16,11 @@ import android.os.Message;
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.tools.AppLogger;
 
+/***
+ * 判断当前设备是否连接网络 true:连接网络
+ * @author 周双
+ *
+ */
 public class BaseActivity extends Activity {
 
 	private BroadcastReceiver connectionReceiver = null;

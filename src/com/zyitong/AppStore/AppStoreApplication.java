@@ -8,7 +8,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 
 import com.zyitong.AppStore.bean.ItemData;
-import com.zyitong.AppStore.dao.CurrentDownloadJobManager;
+import com.zyitong.AppStore.dao.DownloadJobManager;
 import com.zyitong.AppStore.dao.DownloadLink;
 import com.zyitong.AppStore.dao.InstalledAppDao;
 import com.zyitong.AppStore.tools.AppLogger;
@@ -17,7 +17,7 @@ public class AppStoreApplication extends Application {
 	private static AppStoreApplication instance;
 	private static String vebRoot = null;
 	private DownloadLink mDownloadLink;
-	private static CurrentDownloadJobManager currentDownloadJobManager = null;
+	private static DownloadJobManager currentDownloadJobManager = null;
 	public boolean isNetWorkConnected = true;
 	public List<ItemData> itemData = new ArrayList<ItemData>();
 
@@ -50,7 +50,7 @@ public class AppStoreApplication extends Application {
 		installedAppDao.getInstalledAppMap();
 
 		if (null == currentDownloadJobManager) {
-			currentDownloadJobManager = new CurrentDownloadJobManager(this);
+			currentDownloadJobManager = new DownloadJobManager(this);
 		}
 
 		instance = this;
@@ -62,7 +62,7 @@ public class AppStoreApplication extends Application {
 		}
 	}
 
-	public CurrentDownloadJobManager getCurrentDownloadJobManager() {
+	public DownloadJobManager getCurrentDownloadJobManager() {
 		return currentDownloadJobManager;
 	}
 
@@ -127,7 +127,7 @@ public class AppStoreApplication extends Application {
 	public void clearCache() {
 		// stopService();
 		mDownloadLink.moveAll();
-		currentDownloadJobManager.removeall();
+		currentDownloadJobManager.removeAll();
 	}
 
 }

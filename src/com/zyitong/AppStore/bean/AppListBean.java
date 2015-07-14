@@ -29,7 +29,7 @@ public class AppListBean {
 		public String viewtotal;
 
 		@SerializedName("items")
-		public ArrayList<AppVerboseBean> items;
+		public ArrayList<AppVerbaseBean> items;
 	}
 	
 	public class ErrorClass{

@@ -30,9 +30,9 @@ import com.zyitong.AppStore.dao.AppListDao;
 import com.zyitong.AppStore.tools.AppLogger;
 import com.zyitong.AppStore.tools.UtilFun;
 import com.zyitong.AppStore.ui.AutoListView;
+import com.zyitong.AppStore.ui.SearchFrame;
 import com.zyitong.AppStore.ui.AutoListView.OnLoadListener;
 import com.zyitong.AppStore.ui.AutoListView.OnSearchListener;
-import com.zyitong.AppStore.ui.SearchFrame;
 import com.zyitong.AppStore.ui.SearchFrame.OnEtTextChangedListener;
 
 public class MainActivity extends BaseActivity implements OnSearchListener,
@@ -48,7 +48,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	private final long SEARCH_TRIGGER_DELAY_IN_MS = 200;
 	private Timer timer;
 	private Message msg = null;
-	private String install_failed;
+	private String install_failed;//安装失败
 	private FrameLayout emptyView;
 	private ImageButton imageButton;
 	private SearchFrame searchFrame;
@@ -140,7 +140,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 			
 			switch (status) {
 
-			case ItemData.APP_OPEN:
+			case ItemData.APP_OPEN://打开app
 				messageInfo[0] = position;
 				messageInfo[1] = radio;
 				messageInfo[2] = status;
@@ -149,7 +149,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 						.getCurrentDownloadJobManager()
 						.removeDownloadJob(packagename);
 				break;
-			case ItemData.APP_FAIL:
+			case ItemData.APP_FAIL://安装app失败
 				messageInfo[0] = position;
 				messageInfo[1] = radio;
 				messageInfo[2] = status;
@@ -167,7 +167,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 					   messageInfo[2] = ItemData.APP_UPDATE;
 				}
 				break;
-			case ItemData.APP_INSTALL:
+			case ItemData.APP_INSTALL://安装app
 				messageInfo[0] = position;
 				messageInfo[1] = radio;
 				messageInfo[2] = status;
@@ -241,7 +241,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 	}
 
 	private void init() {
-		new UtilFun(this);
+		new UtilFun();
 		timer = new Timer(true);
 		timer.schedule(updatalistviewtask, 0, searchTime);
 		install_failed = getResources().getString(R.string.app_install_failed);
@@ -301,6 +301,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 
 			}
 		});
+		
 		InitList();
 		CacheProcc();
 		setListViewListener();

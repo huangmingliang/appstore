@@ -55,4 +55,10 @@
     </style>
     
 
+    <style name="roomRatingBar" parent="@android:attr/ratingBarStyleSmall"> 
+		<item name="android:progressDrawable">@drawable/room_rating_bar</item> 
+		<item name="android:minHeight">9dip</item> 
+		<item name="android:maxHeight">9dip</item> 
+		<item name="android:isIndicator">true</item>
+	</style>
 </resources>

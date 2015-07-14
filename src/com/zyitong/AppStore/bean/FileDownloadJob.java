@@ -2,6 +2,13 @@ package com.zyitong.AppStore.bean;
 
 import com.zyitong.AppStore.tools.FileOpt;
 
+/***
+ * 下载文件 模型
+ * @author 周双
+ *
+ * @function 主要实现功能
+ *
+ */
 public class FileDownloadJob {
 	private String packagename;
 	private String fileuri;

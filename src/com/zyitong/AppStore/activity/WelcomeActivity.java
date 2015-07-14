@@ -37,7 +37,7 @@ public class WelcomeActivity extends Activity {
 		AppLogger.e("WelcomeActivity onCreate");
 		ImageView mImageView = (ImageView) findViewById(R.id.animation_iv);
 		mImageView.setImageBitmap(readBitMap(this, R.drawable.start_screen));
-		utilFun = new UtilFun(this);
+		utilFun = new UtilFun();
 		init();
 
 	}

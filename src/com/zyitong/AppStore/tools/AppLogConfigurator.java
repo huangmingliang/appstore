@@ -23,7 +23,6 @@ public class AppLogConfigurator {
 	private boolean resetConfiguration = true;
 	private boolean internalDebugging = false;
 	
-	
 	public AppLogConfigurator() {
 	}
 

@@ -15,6 +15,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,7 +32,8 @@ import com.zyitong.AppStore.tools.UtilFun;
 
 @SuppressLint("ResourceAsColor")
 public class ListAdapter extends BaseAdapter {
-
+	private ViewHolder holder;
+	
 	private Context mContext;
 	private List<ItemData> itemList;
 	private List<Map<String, Object>> mData;
@@ -59,7 +62,7 @@ public class ListAdapter extends BaseAdapter {
 	}
 
 	private void init() {
-		util = new UtilFun(mContext);
+		util = new UtilFun();
 		mData = new ArrayList<Map<String, Object>>();
 
 		dlButtontextlist = new ArrayList<ListAdapter.dLoadButtonTextofRadio>();
@@ -115,7 +118,6 @@ public class ListAdapter extends BaseAdapter {
 
 	@Override
 	public View getView(final int position, View convertView, ViewGroup parent) {
-		final ViewHolder holder;
 		final ItemData indexData = itemList.get(position);
 		if (convertView == null) {
 			holder = new ViewHolder();
@@ -127,38 +129,43 @@ public class ListAdapter extends BaseAdapter {
 					.findViewById(R.id.textFileSizeView);
 			holder.imageDownloadView = (Button) convertView
 					.findViewById(R.id.imageDownloadView);
+			holder.ratingBar = (RatingBar) convertView.findViewById(R.id.ratingBar);
 			holder.imageView1 = (View) convertView.findViewById(R.id.starView1);
 			holder.imageView2 = (View) convertView.findViewById(R.id.starView2);
 			holder.imageView3 = (View) convertView.findViewById(R.id.starView3);
 			holder.imageView4 = (View) convertView.findViewById(R.id.starView4);
 			holder.imageView5 = (View) convertView.findViewById(R.id.starView5);
+			holder.progressBar = (ProgressBar) convertView.findViewById(R.id.progressBar);
 
 			convertView.setTag(holder);
 
 		} else {
 			holder = (ViewHolder) convertView.getTag();
-
 		}
-		if (null != mData)
-			setView(holder, position, indexData);
+		
+		holder.ratingBar.setOnRatingBarChangeListener(null);
+		
+		if (null != mData && mData.size()>0)
+			setView(position, indexData);
 		return convertView;
 	}
 
-	private void setView(ViewHolder holder, int position,
-			final ItemData indexData) {
+	private void setView(int position, final ItemData indexData) {
 
 		final int positionn = position;
 		int star = Integer.valueOf(indexData.getAppInfoBean().getGrade()) / 20;
+//		holder.ratingBar.setRating(star);
+		
 		setStar(holder, star);
-		holder.textFileSizeView.setText(mData.get(position).get("type")
-				.toString());
+		
+		holder.textFileSizeView.setText(mData.get(position).get("type").toString());
 		holder.name.setText(mData.get(position).get("name").toString());
 		Picasso.with(mContext)
 				.load(mData.get(position).get("iconView").toString())
 				.placeholder(R.drawable.loading_imageview)
 				.error(R.drawable.loading_imageview).into(holder.iconView);
 
-		setDownloadButtonByflag(holder, positionn, indexData);
+		setDownloadButtonByflag(positionn, indexData);
 
 		holder.imageDownloadView.setOnClickListener(new OnClickListener() {
 			@Override
@@ -187,19 +194,18 @@ public class ListAdapter extends BaseAdapter {
 							Toast.LENGTH_SHORT).show();
 					return;
 				}
+				
 				if (indexData.getButtonFileflag() == ItemData.APP_INSTALL
 						|| indexData.getButtonFileflag() == ItemData.APP_FAIL
 						|| indexData.getButtonFileflag() == ItemData.APP_REDOWNLOAD
 						|| indexData.getButtonFileflag() == ItemData.APP_NETWORKEX) {
+					
 
 					FileDownloadJob data = util.DataChange(indexData);
-
+					
 					if (data != null) {
-
-						setdownloadButtonBackground(dlbutton, "0%",
-								R.drawable.loading_button);
-						AppStoreApplication.getInstance().getDownloadLink()
-								.addNode(data);
+						setdownloadButtonBackground(dlbutton, holder.progressBar, 0, android.R.color.transparent);
+						AppStoreApplication.getInstance().getDownloadLink().addNode(data);
 
 					}
 
@@ -209,8 +215,7 @@ public class ListAdapter extends BaseAdapter {
 						setdownloadButtonBackground(dlbutton,
 								R.string.app_waitinstall,
 								R.drawable.loading_button);
-						AppStoreApplication.getInstance().getDownloadLink()
-								.addNode(data);
+						AppStoreApplication.getInstance().getDownloadLink().addNode(data);
 						addCurrentDownLoad(data, ItemData.APP_WAIT, packageName);
 						return;
 
@@ -234,8 +239,7 @@ public class ListAdapter extends BaseAdapter {
 							.getPackagename());
 
 				} else if (indexData.getButtonFileflag() == ItemData.APP_WAIT) {
-					itemList.get(positionn).setButtonFileflag(
-							ItemData.APP_INSTALL);
+					itemList.get(positionn).setButtonFileflag(ItemData.APP_INSTALL);
 					setdownloadButtonBackground(dlbutton, R.string.app_install,
 							R.drawable.load_button);
 
@@ -257,7 +261,7 @@ public class ListAdapter extends BaseAdapter {
 					FileDownloadJob data = util.DataChange(indexData);
 					if (data != null) {
 
-						setdownloadButtonBackground(dlbutton, "0%",
+						setdownloadButtonBackground(dlbutton, holder.progressBar, 0,
 								R.drawable.loading_button);
 						AppStoreApplication.getInstance().getDownloadLink()
 								.addNode(data);
@@ -289,9 +293,8 @@ public class ListAdapter extends BaseAdapter {
 					return;
 
 				} else if (indexData.getButtonFileflag() == ItemData.APP_OPEN) {
-
-					if (AppStoreApplication.getInstance().installedAppDao
-							.isAppExist(packageName)) {
+					if (AppStoreApplication.getInstance().installedAppDao.isAppExist(packageName)) {
+					
 						String args = util.openApp(packageName, mContext);
 						AppLogger.d(args);
 					}
@@ -362,6 +365,7 @@ public class ListAdapter extends BaseAdapter {
 	private final class ViewHolder {
 		public ImageView iconView;
 		public TextView name;
+		public RatingBar ratingBar;
 		public View imageView1;
 		public View imageView2;
 		public View imageView3;
@@ -369,6 +373,7 @@ public class ListAdapter extends BaseAdapter {
 		public View imageView5;
 		public TextView textFileSizeView;
 		public Button imageDownloadView;
+		public ProgressBar progressBar;
 	}
 
 	private void setStar(ViewHolder holder, int star) {
@@ -419,8 +424,7 @@ public class ListAdapter extends BaseAdapter {
 		}
 	}
 
-	private void setDownloadButtonByflag(ViewHolder holder, int position,
-			final ItemData indexData) {
+	private void setDownloadButtonByflag(int position, final ItemData indexData) {
 		switch (indexData.getButtonFileflag()) {
 
 		case ItemData.APP_OPEN:
@@ -433,13 +437,12 @@ public class ListAdapter extends BaseAdapter {
 							indexData.getAppInfoBean().getPackagename());
 			break;
 		case ItemData.APP_LOADING:
-			setdownloadButtonBackground(holder.imageDownloadView,
-					dlButtontextlist.get(position).getRadio() + "%",
-					R.drawable.loading_button);
+			setdownloadButtonBackground(holder.imageDownloadView, holder.progressBar,
+					dlButtontextlist.get(position).getRadio(),
+					android.R.color.transparent);
 			break;
 		case ItemData.APP_FAIL:
-			setdownloadButtonBackground(holder.imageDownloadView,
-					R.string.app_install, R.drawable.load_button);
+			setdownloadButtonBackground(holder.imageDownloadView, R.string.app_install, R.drawable.load_button);
 			dlButtontextlist.get(position).setRadio(0);
 			AppStoreApplication
 					.getInstance()
@@ -488,14 +491,14 @@ public class ListAdapter extends BaseAdapter {
 			int resource) {
 		dlbutton.setText(string);
 		dlbutton.setBackgroundResource(resource);
-
+		holder.progressBar.setProgress(0);
 	}
 
-	private void setdownloadButtonBackground(Button dlbutton, String text,
+	private void setdownloadButtonBackground(Button dlbutton, ProgressBar progressBar, int progress,
 			int resource) {
-		dlbutton.setText(text);
+		dlbutton.setText(progress + "%");
 		dlbutton.setBackgroundResource(resource);
-
+		progressBar.setProgress(progress);
 	}
 
 	private void addCurrentDownLoad(FileDownloadJob data, int status,
@@ -513,5 +516,4 @@ public class ListAdapter extends BaseAdapter {
 		Intent intent = new Intent(mContext, DownLoadService.class);
 		mContext.startService(intent);
 	}
-
 }
