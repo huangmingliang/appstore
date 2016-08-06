@@ -143,7 +143,7 @@
             android:layout_centerVertical="true"
             android:background="@drawable/load_button"
             android:focusable="true"
-            android:text="@string/app_install"
+            android:text="@string/app_download"
             android:textColor="@color/white"
             android:textSize="14sp" />
     </RelativeLayout>

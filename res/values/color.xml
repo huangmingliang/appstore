@@ -7,6 +7,7 @@
 <color name="itemintro">#9B9B9B</color>
 <color name="load_button_normal">#2ca4e3</color>
 <color name="load_button_pressed">#21d1fd</color>
+<color name="install_button_normal">#FFCD71</color>
 <color name="bgcolor">#eeeeee</color>
 <color name="noselcolor">#014056</color>
 <color name="loading_button">#DCDCDC</color>

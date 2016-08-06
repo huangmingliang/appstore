@@ -167,7 +167,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 					   messageInfo[2] = ItemData.APP_UPDATE;
 				}
 				break;
-			case ItemData.APP_INSTALL://安装app
+			case ItemData.APP_DOWDLOAD://安装app
 				messageInfo[0] = position;
 				messageInfo[1] = radio;
 				messageInfo[2] = status;
@@ -244,7 +244,7 @@ public class MainActivity extends BaseActivity implements OnSearchListener,
 		new UtilFun();
 		timer = new Timer(true);
 		timer.schedule(updatalistviewtask, 0, searchTime);
-		install_failed = getResources().getString(R.string.app_install_failed);
+		install_failed = getResources().getString(R.string.app_download_failed);
 		listView = (AutoListView) findViewById(R.id.listView);
 		emptyView = (FrameLayout) findViewById(R.id.empty_view);
 		imageButton = (ImageButton) emptyView.findViewById(R.id.empty_view1);

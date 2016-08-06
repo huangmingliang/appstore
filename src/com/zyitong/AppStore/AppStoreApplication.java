@@ -12,12 +12,14 @@ import com.zyitong.AppStore.dao.DownloadJobManager;
 import com.zyitong.AppStore.dao.DownloadLink;
 import com.zyitong.AppStore.dao.InstalledAppDao;
 import com.zyitong.AppStore.tools.AppLogger;
+import com.zyitong.AppStore.tools.FileOpt;
 
 public class AppStoreApplication extends Application {
 	private static AppStoreApplication instance;
 	private static String vebRoot = null;
 	private DownloadLink mDownloadLink;
 	private static DownloadJobManager currentDownloadJobManager = null;
+	private FileOpt fileOpt=new FileOpt();
 	public boolean isNetWorkConnected = true;
 	public List<ItemData> itemData = new ArrayList<ItemData>();
 
@@ -81,8 +83,15 @@ public class AppStoreApplication extends Application {
 			String packagename = itemDataList.get(i).getAppInfoBean()
 					.getPackagename();
 			if (!installedAppDao.isAppExist(packagename)) {
-
-				itemDataList.get(i).setButtonFileflag(ItemData.APP_INSTALL);
+				String filePath = AppStoreApplication.getInstance()
+						.getFilePath()
+						+ AppStoreApplication.getInstance().getFileName(
+								itemDataList.get(i).getAppInfoBean().getUrl());
+				if (fileOpt.exists(filePath)) {
+					itemDataList.get(i).setButtonFileflag(ItemData.APP_INSTALL);
+				}else {
+					itemDataList.get(i).setButtonFileflag(ItemData.APP_DOWDLOAD);
+				}
 				continue;
 			}
 			int appGrade = getAppGrade(packagename);

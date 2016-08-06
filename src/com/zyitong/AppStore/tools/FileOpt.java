@@ -21,12 +21,12 @@ public class FileOpt {
     
     /***
      * 判断文件是否存在
-     * @param fileName
+     * @param filePath
      * @return
      */
-    public  boolean exists( String fileName){
+    public  boolean exists( String filePath){
         try{
-      	 File file = new File(fileName);
+      	 File file = new File(filePath);
       	 return file.exists();
  
          }catch(Exception e){

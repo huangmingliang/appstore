@@ -1,5 +1,6 @@
 package com.zyitong.AppStore.dao;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,5 +50,6 @@ public class InstalledAppDao {
 	public void clearMap() {
 		installedAppMap.clear();
 	}
+	
 
 }

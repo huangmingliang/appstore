@@ -7,10 +7,11 @@ public class ItemData {
 	public static final int APP_FAIL = 4;
 	public static final int APP_NETWORKEX = 5;
 	public static final int APP_REDOWNLOAD = 6;
-	public static final int APP_INSTALL = 7;
+	public static final int APP_DOWDLOAD = 7;
 	public static final int APP_WAIT=8;
 	public static final int APP_UPDATE_WAIT = 9;
 	public static final int APP_UPDATING = 10;
+	public static final int APP_INSTALL=11;
 
 	private int buttonFileflag;
 	private AppVerbaseBean appInfoBean;

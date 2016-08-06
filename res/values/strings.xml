@@ -11,12 +11,13 @@
     <string name="input_appname">请输入应用名称...</string>
     <string name="searchprompt">对不起，没有找到该应用</string>
     <string name="edit_emptywarning">输入内容不能为空</string>
-    <string name="app_install">安装</string>
-    <string name="app_reinstall">继续安装</string>
+    <string name="app_download">下载</string>
+    <string name="app_remaindownload">继续下载</string>
     <string name="app_open">打开</string>
-    <string name="app_waitinstall">等待安装</string>
+    <string name="app_waitingdownload">等待下载</string>
     <string name="app_update">升级</string>
-    <string name="app_install_failed">安装失败</string>
+    <string name="app_download_failed">下载失败</string>
+    <string name="app_install">安装</string>
     <!-- 自定义组件 -->
     <string name="pull_to_refresh">下拉可以搜索</string>
     <string name="release_to_refresh">松开可以搜索</string>

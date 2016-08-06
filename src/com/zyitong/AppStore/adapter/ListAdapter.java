@@ -28,6 +28,7 @@ import com.zyitong.AppStore.bean.FileDownloadJob;
 import com.zyitong.AppStore.bean.ItemData;
 import com.zyitong.AppStore.service.DownLoadService;
 import com.zyitong.AppStore.tools.AppLogger;
+import com.zyitong.AppStore.tools.FileOpt;
 import com.zyitong.AppStore.tools.UtilFun;
 
 @SuppressLint("ResourceAsColor")
@@ -39,6 +40,7 @@ public class ListAdapter extends BaseAdapter {
 	private List<Map<String, Object>> mData;
 	private LayoutInflater mInflater;
 	private UtilFun util = null;
+	private FileOpt fileOpt=new FileOpt();
 	private List<dLoadButtonTextofRadio> dlButtontextlist;
 	public static String DL_ACTION = "com.zyitong.broadcastreceiver.action.download";
 
@@ -172,21 +174,21 @@ public class ListAdapter extends BaseAdapter {
 			public void onClick(final View v) {
 				final Button dlbutton = (Button) v;
 
-				String filename = AppStoreApplication.getInstance()
+				String filePath = AppStoreApplication.getInstance()
 						.getFilePath()
 						+ AppStoreApplication.getInstance().getFileName(
 								indexData.getAppInfoBean().getUrl());
 				String packageName = indexData.getAppInfoBean()
 						.getPackagename();
 				if (packageName == null) {
-					packageName = util.getPackageName(filename, mContext);
+					packageName = util.getPackageName(filePath, mContext);
 				}
 
 				if (!AppStoreApplication.getInstance().isNetWorkConnected) {
 					if (indexData.getButtonFileflag() == ItemData.APP_OPEN) {
 
-						String args = util.openApp(packageName, mContext);
-						AppLogger.d(args);
+						util.openAppWithoutPermisson(mContext, packageName);
+						fileOpt.deleteFile(filePath);
 						return;
 
 					}
@@ -195,7 +197,7 @@ public class ListAdapter extends BaseAdapter {
 					return;
 				}
 				
-				if (indexData.getButtonFileflag() == ItemData.APP_INSTALL
+				if (indexData.getButtonFileflag() == ItemData.APP_DOWDLOAD
 						|| indexData.getButtonFileflag() == ItemData.APP_FAIL
 						|| indexData.getButtonFileflag() == ItemData.APP_REDOWNLOAD
 						|| indexData.getButtonFileflag() == ItemData.APP_NETWORKEX) {
@@ -213,7 +215,7 @@ public class ListAdapter extends BaseAdapter {
 							.hasDownloadFree()) {
 
 						setdownloadButtonBackground(dlbutton,
-								R.string.app_waitinstall,
+								R.string.app_waitingdownload,
 								R.drawable.loading_button);
 						AppStoreApplication.getInstance().getDownloadLink().addNode(data);
 						addCurrentDownLoad(data, ItemData.APP_WAIT, packageName);
@@ -230,22 +232,23 @@ public class ListAdapter extends BaseAdapter {
 							.getCurrentDownloadJobManager()
 							.isCurrJobExist(packageName)) {
 						setdownloadButtonBackground(dlbutton,
-								R.string.app_install, R.drawable.load_button);
+								R.string.app_download, R.drawable.load_button);
 						return;
 					}
 
 					dlButtontextlist.get(positionn).setRadio(0);
 					util.setAppReDownLoad(indexData.getAppInfoBean()
 							.getPackagename());
+					fileOpt.deleteFile(filePath);
 
 				} else if (indexData.getButtonFileflag() == ItemData.APP_WAIT) {
-					itemList.get(positionn).setButtonFileflag(ItemData.APP_INSTALL);
-					setdownloadButtonBackground(dlbutton, R.string.app_install,
+					itemList.get(positionn).setButtonFileflag(ItemData.APP_DOWDLOAD);
+					setdownloadButtonBackground(dlbutton, R.string.app_download,
 							R.drawable.load_button);
 
 					AppStoreApplication.getInstance()
 							.getCurrentDownloadJobManager()
-							.setStatus(packageName, ItemData.APP_INSTALL);
+							.setStatus(packageName, ItemData.APP_DOWDLOAD);
 					dlButtontextlist.get(positionn).setRadio(0);
 
 					AppStoreApplication
@@ -270,7 +273,7 @@ public class ListAdapter extends BaseAdapter {
 					if (!AppStoreApplication.getInstance().getDownloadLink()
 							.hasDownloadFree()) {
 						setdownloadButtonBackground(dlbutton,
-								R.string.app_waitinstall,
+								R.string.app_waitingdownload,
 								R.drawable.loading_button);
 						addCurrentDownLoad(data, ItemData.APP_UPDATE_WAIT,
 								packageName);
@@ -294,11 +297,12 @@ public class ListAdapter extends BaseAdapter {
 
 				} else if (indexData.getButtonFileflag() == ItemData.APP_OPEN) {
 					if (AppStoreApplication.getInstance().installedAppDao.isAppExist(packageName)) {
-					
-						String args = util.openApp(packageName, mContext);
-						AppLogger.d(args);
+					util.openAppWithoutPermisson(mContext, packageName);
+					fileOpt.deleteFile(filePath);
 					}
 					return;
+				}else if (indexData.getButtonFileflag()==ItemData.APP_INSTALL) {
+					util.nonDefaultInstall(mContext, filePath);
 				}
 
 			}
@@ -442,7 +446,7 @@ public class ListAdapter extends BaseAdapter {
 					android.R.color.transparent);
 			break;
 		case ItemData.APP_FAIL:
-			setdownloadButtonBackground(holder.imageDownloadView, R.string.app_install, R.drawable.load_button);
+			setdownloadButtonBackground(holder.imageDownloadView, R.string.app_download, R.drawable.load_button);
 			dlButtontextlist.get(position).setRadio(0);
 			AppStoreApplication
 					.getInstance()
@@ -452,24 +456,27 @@ public class ListAdapter extends BaseAdapter {
 			break;
 		case ItemData.APP_NETWORKEX:
 			setdownloadButtonBackground(holder.imageDownloadView,
-					R.string.app_reinstall, R.drawable.loading_button);
+					R.string.app_remaindownload, R.drawable.loading_button);
 			break;
 		case ItemData.APP_REDOWNLOAD:
 			setdownloadButtonBackground(holder.imageDownloadView,
-					R.string.app_install, R.drawable.load_button);
+					R.string.app_download, R.drawable.load_button);
 			break;
-		case ItemData.APP_INSTALL:
+		case ItemData.APP_DOWDLOAD:
 			setdownloadButtonBackground(holder.imageDownloadView,
-					R.string.app_install, R.drawable.load_button);
+					R.string.app_download, R.drawable.load_button);
 			break;
 		case ItemData.APP_WAIT:
 			setdownloadButtonBackground(holder.imageDownloadView,
-					R.string.app_waitinstall, R.drawable.loading_button);
+					R.string.app_waitingdownload, R.drawable.loading_button);
 			break;
 		case ItemData.APP_UPDATE:
 			setdownloadButtonBackground(holder.imageDownloadView,
 					R.string.app_update, R.drawable.load_button);
 			break;
+		case ItemData.APP_INSTALL:
+			setdownloadButtonBackground(holder.imageDownloadView, 
+					R.string.app_install,R.drawable.install_button);
 		default:
 			break;
 		}

@@ -6,8 +6,6 @@ import java.io.RandomAccessFile;
 import java.net.URL;
 import java.net.URLConnection;
 
-import android.util.Log;
-
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.bean.FileDownloadJob;
 import com.zyitong.AppStore.bean.ItemData;
@@ -149,7 +147,7 @@ public class ProgressThread extends Thread {
 						if(!finished){
 							stopDownload();
 							
-							util.addCurrentDownloadJob(packagename, progress, ItemData.APP_INSTALL, fdData);
+							util.addCurrentDownloadJob(packagename, progress, ItemData.APP_DOWDLOAD, fdData);
 							util.DowloadComplete(dldata);
 						}
 						
@@ -161,19 +159,9 @@ public class ProgressThread extends Thread {
 						}
 						if (progress == 100) {//下载完成
 							finished = true;
-							String result = util.install(fileuri);
-							result = result.replaceAll("\n", "");
-							
-							if (result.endsWith("Success")) {
-								AppLogger.e("progress == 100 , result = " + result);
-								util.addCurrentDownloadJob(packagename, progress, ItemData.APP_OPEN, fdData);
-							} else {
-								AppLogger.e("progress == 100 , result = " + result);
-								util.addCurrentDownloadJob(packagename, progress, ItemData.APP_FAIL, fdData);
-							}
+							util.addCurrentDownloadJob(packagename, progress, ItemData.APP_INSTALL, fdData);
 							util.DowloadComplete(dldata);
-							AppLogger.e("ProgressThread install result = " + result);
-							opt.deleteFile(fileuri);//删除文件
+							//opt.deleteFile(fileuri);//删除文件
 						}
 					}
 

@@ -8,12 +8,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
+import android.net.Uri;
 
 import com.zyitong.AppStore.AppStoreApplication;
 import com.zyitong.AppStore.bean.CurrentDownloadJob;
@@ -193,6 +195,15 @@ public class UtilFun {
 
 	}
 	
+	public void openAppWithoutPermisson(Context context,String packName){
+		String appLauncherActivity=getMainActivityName(packName, context);
+		ComponentName cn=new ComponentName(packName,appLauncherActivity);
+		Intent intent=new Intent();
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.setComponent(cn);
+		context.startActivity(intent);
+	}
+	
 	/***
 	 * 获取未安装应用名称
 	 * @param context
@@ -249,6 +260,18 @@ public class UtilFun {
 
 		return result;
 
+	}
+	
+	public void nonDefaultInstall(Context context,String apkAbsolutePath){
+		File file=new File(apkAbsolutePath);
+		if (!file.exists()) {
+			AppLogger.e("apk is not exists");
+			return;
+		}
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.setDataAndType(Uri.fromFile(file),"application/vnd.android.package-archive");
+		context.startActivity(intent);
 	}
 
 	/***
